@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1047</width>
+    <height>496</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>DR_Tool</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font: 10pt &quot;微软雅黑&quot;;</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" rowspan="4">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>串口名：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="serialPortName">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="openSerialPort">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>打开串口</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>串口115200</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="closeSerialPort">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>关闭串口</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshSerialPort">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>刷新串口</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>地址：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="addrLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>下位机初始化</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="addFilePushButton">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>125</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>加载文件</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>1024</width>
+        <height>450</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_10">
+       <attribute name="title">
+        <string>通道调校</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <item>
+               <widget class="QLabel" name="label_20">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>90</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>01|硬软件版本：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="dataLineEdit_1">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_20">
+              <item>
+               <widget class="QLabel" name="label_21">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>90</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>02|OTA版本：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="dataLineEdit_2">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>90</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>03|波特率：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_baudrate">
+                <item>
+                 <property name="text">
+                  <string>默认</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>9600</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>19200</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>38400</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>115200</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_21">
+              <item>
+               <widget class="QLabel" name="label_22">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>90</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>04|地址：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="dataLineEdit_4">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_25">
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>90</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>05|状态字：</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="dataLineEdit_5">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_60" stretch="1,1,1,1,1,1,1,1">
+            <item>
+             <widget class="QPushButton" name="setPushButton_1">
+              <property name="minimumSize">
+               <size>
+                <width>125</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>读取</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setPushButton_2">
+              <property name="minimumSize">
+               <size>
+                <width>125</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>OTA设置</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setPushButton_3">
+              <property name="minimumSize">
+               <size>
+                <width>125</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>波特率设置</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setPushButton_4">
+              <property name="minimumSize">
+               <size>
+                <width>125</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>125</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>地址设置</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmdComBox">
+              <item>
+               <property name="text">
+                <string>password</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>fixtemp-a</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>fixtemp-b</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>fixtemp-c</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>fixBat</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>alarmType</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="valLineEdit"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="fix">
+              <property name="text">
+               <string>校准</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>指定寄存器检测</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="checkRegCM">
+          <item>
+           <property name="text">
+            <string>0 硬件版本|软件版本</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1 OTA版本</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2 波特率</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>3 设备地址</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4 状态字</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>5 管电压设置值</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>6 灯丝电压设置</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>7 曝光时间</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8 管电压</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>9 管电流</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10 范围指示状态</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>11 曝光状态</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>12 范围指示启动</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>13 曝光启动</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>14 电池电量</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>15 电池电压</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>16 油盒温度</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>17 关机请求</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>18 校准位置</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>19 校准值</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>20 充能状态</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="checkRegLE"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox">
+          <item>
+           <property name="text">
+            <string>0 硬件版本|软件版本</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1 OTA版本</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2 波特率</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>3 设备地址</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4 状态字</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>5 管电压设置值</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>6 灯丝电压设置</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>7 曝光时间</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8 管电压</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>9 管电流</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10 范围指示状态</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>11 曝光状态</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>12 范围指示启动</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>13 曝光启动</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>14 电池电量</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>15 电池电压</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>16 油盒温度</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>17 关机请求</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>18 校准位置</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>19 校准值</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>20 充能状态</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_3">
+          <property name="text">
+           <string>手动指令</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTextBrowser" name="debugTextBrowser">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="logoLabel">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>by:lzb</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <action name="actionClearWindow">
+   <property name="text">
+    <string>清除窗口</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

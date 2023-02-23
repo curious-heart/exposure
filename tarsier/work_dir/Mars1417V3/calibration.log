@@ -1,0 +1,62 @@
+I2021-05-07 21:11:33.463 1a8c ######################################################
+I2021-05-07 21:11:33.463 1a8c To set size (0,0)2304X2844 of 2304X2844.
+I2021-05-07 21:11:33.493 1a8c Set size.
+I2021-05-07 21:11:33.493 1a8c Switch subset...F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\Correct\Default\
+I2021-05-07 21:11:33.493 1a8c Initialized...
+I2021-05-07 21:11:33.543 1a8c Abort.
+W2021-05-07 21:11:33.543 1a8c Failed to load default pre-offset template.
+I2021-05-07 21:11:33.543 1a8c Prepare correction...0x00000016
+I2021-05-07 21:12:48.452 1a8c To push image.(ImageType: 0xab22, CorrectOption: 0x16)
+I2021-05-07 21:12:48.452 1a8c Push image.
+I2021-05-07 21:14:02.009 1a8c To push image.(ImageType: 0xab22, CorrectOption: 0x16)
+I2021-05-07 21:14:02.019 1a8c Push image.
+I2021-05-07 21:19:27.548 d3c Abort.
+I2021-05-07 21:19:27.548 d3c Quit calibration.
+I2021-05-07 21:19:27.548 d3c Abort.
+I2021-05-07 21:58:45.939 26c0 ######################################################
+I2021-05-07 21:58:45.940 26c0 To set size (0,0)2304X2844 of 2304X2844.
+I2021-05-07 21:58:45.954 26c0 Set size.
+I2021-05-07 21:58:45.954 26c0 Switch subset...F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\Correct\Default\
+I2021-05-07 21:58:45.954 26c0 Initialized...
+I2021-05-07 21:58:45.977 26c0 Abort.
+W2021-05-07 21:58:45.977 26c0 Failed to load default pre-offset template.
+I2021-05-07 21:58:45.977 26c0 Prepare correction...0x00000016
+I2021-05-07 21:58:55.163 19e8 Abort.
+I2021-05-07 21:58:55.176 19e8 Quit calibration.
+I2021-05-07 21:58:55.176 19e8 Abort.
+I2021-05-07 22:20:47.218 2868 ######################################################
+I2021-05-07 22:20:47.218 2868 To set size (0,0)2304X2844 of 2304X2844.
+I2021-05-07 22:20:47.231 2868 Set size.
+I2021-05-07 22:20:47.232 2868 Switch subset...F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\Correct\Default\
+I2021-05-07 22:20:47.232 2868 Initialized...
+I2021-05-07 22:20:47.269 2868 Abort.
+W2021-05-07 22:20:47.270 2868 Failed to load default pre-offset template.
+I2021-05-07 22:20:47.270 2868 Prepare correction...0x00000016
+I2021-05-07 22:22:25.479 1d8 Abort.
+I2021-05-07 22:22:25.487 1d8 Quit calibration.
+I2021-05-07 22:22:25.487 1d8 Abort.
+I2021-05-07 22:25:20.843 13a4 ######################################################
+I2021-05-07 22:25:20.843 13a4 To set size (0,0)2304X2844 of 2304X2844.
+I2021-05-07 22:25:20.857 13a4 Set size.
+I2021-05-07 22:25:20.858 13a4 Switch subset...F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\Correct\Default\
+I2021-05-07 22:25:20.858 13a4 Initialized...
+I2021-05-07 22:25:20.914 13a4 Abort.
+W2021-05-07 22:25:20.914 13a4 Failed to load default pre-offset template.
+I2021-05-07 22:25:20.915 13a4 Prepare correction...0x00000016
+I2021-05-07 22:26:53.236 13a4 To push image.(ImageType: 0xab22, CorrectOption: 0x16)
+I2021-05-07 22:26:53.241 13a4 Push image.
+I2021-05-07 22:27:19.648 13a4 To push image.(ImageType: 0xab22, CorrectOption: 0x16)
+I2021-05-07 22:27:19.655 13a4 Push image.
+I2021-05-07 22:27:54.782 13a4 To push image.(ImageType: 0xab22, CorrectOption: 0x16)
+I2021-05-07 22:27:54.788 13a4 Push image.
+I2021-05-07 22:28:45.708 2dd8 Abort.
+I2021-05-07 22:28:45.715 2dd8 Quit calibration.
+I2021-05-07 22:28:45.715 2dd8 Abort.
+I2021-05-07 22:36:32.133 2ce0 ######################################################
+I2021-05-07 22:36:32.134 2ce0 To set size (0,0)2304X2844 of 2304X2844.
+I2021-05-07 22:36:32.148 2ce0 Set size.
+I2021-05-07 22:36:32.149 2ce0 Switch subset...F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\Correct\Default\
+I2021-05-07 22:36:32.149 2ce0 Initialized...
+I2021-05-07 22:36:32.188 2ce0 Abort.
+W2021-05-07 22:36:32.189 2ce0 Failed to load default pre-offset template.
+I2021-05-07 22:36:32.189 2ce0 Prepare correction...0x00000016

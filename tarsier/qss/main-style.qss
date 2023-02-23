@@ -1,0 +1,272 @@
+#MainWindow{
+    background-image: url(:/images/background.png);
+}
+#MainWindow *{
+    background-image: url();
+}
+#scrollArea{
+    height:470px;
+    width:780px;
+}
+#preview{
+    height:470px;
+    width:780px;
+    background-image: url(:/images/camera-background.png);
+}
+#systemSetting{
+    height: 82px;
+    width:82px;
+    border-image: url(:/images/systemSetting-able.png);
+}
+#fpdSetting{
+    height: 82px;
+    width:82px;
+    border-image: url(:/images/fpdSetting-able.png);
+}
+#connect{
+    height: 82px;
+    width:82px;
+    border-image: url(:/images/connect.png);
+}
+#saveImage{
+    height: 82px;
+    width:82px;
+    border-image: url(:/images/saveImage-disable.png);
+}
+#IPaddr{
+    color:rgb(255,255,255);
+    font: 18px "simhei";
+}
+
+#exitSystem{
+    height: 82px;
+    width:82px;
+    border-image: url(:/images/exit-able.png);
+}
+#verticalLayout_2{
+    height:579px;
+    width:214px;
+}
+
+#label_2,#label_4,#label_3,#label,#label_5,#label_6{
+    color:#FFFFFF;
+}
+
+#batteryLevel{
+    height:32px;
+    width:129px;
+    color:#FFFFFF;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/electric-green.png);
+}
+#fpdbatteryLevel{
+    height:32px;
+    width:129px;
+    color:#FFFFFF;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/electric-green.png);
+}
+#chargeState{
+    height:32px;
+    width:129px;
+    border-image: url(:/images/green.png);
+}
+
+#voltmeter{
+    height:32px;
+    width:70px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/meter.png);
+}
+#ammeter{
+    height:32px;
+    width:70px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/meter.png);
+}
+
+#volSet{
+    height:32px;
+    width:70px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/input.png);
+}
+#amSet{
+    height:32px;
+    width:70px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/input.png);
+}
+#exposureSetting,#ImageNum{
+    height:32px;
+    width:150px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/input.png);
+}
+
+
+#addTime{
+    height:32px;
+    width:32px;
+    border-image: url(:/images/timeAdd-disable.png);
+}
+#subTime{
+    height:32px;
+    width:32px;
+    border-image: url(:/images/timeSub-disable.png);
+}
+#range{
+    height:92px;
+    width:195px;
+    border-image: url(:/images/range-disable.png);
+}
+#exposure{
+    height:162px;
+    width:196px;
+    border-image: url(:/images/exposure-disable.png);
+}
+
+#ExitSystem{
+    height:302px;
+    width:590px;
+    background-color: rgb(255, 255, 255);
+}
+#exitMsg{
+    font: 22pt "黑体";
+}
+#exitOk{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/exit-ok.png);
+}
+#exitCancel{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/exit-cancel.png);
+}
+#exitShutdown{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/exit-shutdown.png);
+}
+
+
+#SystemSetting{
+    height:370px;
+    width:860px;
+    background-color: rgb(255, 255, 255);
+}
+#sysMsg{
+    font: 22pt "黑体";
+}
+#sysLabel,#sysLabel_3,#sysLabel_4,#sysLabel_5{
+    font: 14pt "黑体";
+}
+#serialPort,#fpdName,#sleepTime,#shutdownTime{
+    font: 12pt;
+    border:1px solid #D7D7D7;
+    border-radius:8px;
+    min-width:200px;
+    min-height:40px;
+}
+#serialPort::drop-down,#fpdName::drop-down,#sleepTime::drop-down,#shutdownTime::drop-down{
+    border:transparent;
+}
+#serialPort::down-arrow,#fpdName::down-arrow,#sleepTime::down-arrow,#shutdownTime::down-arrow{
+    border-image: url(:/images/more.png);
+}
+
+#sysOk{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/ok.png);
+}
+#sysCancel{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/cancel.png);
+}
+
+#FpdSetting{
+    height:480px;
+    width:810px;
+    background-color: rgb(255, 255, 255);
+}
+#fpdMsg{
+    font: 22pt "黑体";
+}
+#fpdLabel,#fpdLabel_3,#fpdLabel_4,#fpdLabel_5,#fpdLabel_6,#fpdLabel_8{
+    font: 12pt "黑体";
+}
+
+#groupBox,#PREPgroupBox{
+    font: 12pt "黑体";
+}
+#trigger{
+    font: 10pt;
+    border:1px solid #D7D7D7;
+    border-radius:6px;
+    min-width:150px;
+    min-height:30px;
+}
+#trigger::drop-down{
+    border:transparent;
+}
+#trigger::down-arrow{
+    border-image: url(:/images/more.png);
+}
+QRadioButton {
+     font: 10pt;
+}
+QRadioButton::indicator::unchecked {
+    image:url(:/images/checkbox-unchecked.png);
+}
+QRadioButton::indicator::checked {
+    image:url(:/images/checkbox-checked.png);
+}
+#clearAcqParamDelayTime{
+    font: 10pt;
+    border:1px solid #D7D7D7;
+    border-radius:6px;
+    min-width:130px;
+    min-height:30px;
+}
+
+#ok{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/ok.png);
+}
+#cancel{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/cancel.png);
+}
+
+#LowBatteryWarning{
+    height:302px;
+    width:590px;
+    background-color: rgb(255, 255, 255);
+}
+#label_promptMsg1,#label_promptMsg2{
+    font: 22pt "黑体";
+}
+#lineEdit_shutDownTime{
+    font: 22pt "黑体";
+    border:1px solid #FFFFFF;
+}
+#pushButton_nowShutDown{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/warning-nowshutdown.png);
+}
+#pushButton_tenMinutesLater{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/warning-tenminutes.png);
+}
+#pushButton_notPrompt{
+    height:54px;
+    width:155px;
+    border-image: url(:/images/warning-notprompt.png);
+}

@@ -1,0 +1,54 @@
+QT_INSTALL_PREFIX (可通过qmake -query查询)
+QT_INSTALL_PREFIX/bin
+│  Qt5Qml.dll
+│  Qt5QmlModels.dll
+│  Qt5QmlWorkerScript.dll
+│  Qt5Quick.dll
+│  Qt5VirtualKeyboard.dll
+QT_INSTALL_PREFIX/plugins
+├─platforminputcontexts
+│      qtvirtualkeyboardplugin.dll
+├─virtualkeyboard
+│      qtvirtualkeyboard_hangul.dll
+│      qtvirtualkeyboard_openwnn.dll
+│      qtvirtualkeyboard_pinyin.dll
+│      qtvirtualkeyboard_tcime.dll
+│      qtvirtualkeyboard_thai.dll
+QT_INSTALL_PREFIX
+├─qml
+│  ├─Qt
+│  │  └─labs
+│  │      └─folderlistmodel
+│  │              plugins.qmltypes
+│  │              qmldir
+│  │              qmlfolderlistmodelplugin.dll
+│  ├─QtQml
+│  │      plugins.qmltypes
+│  │      qmldir
+│  │      qmlplugin.dll
+│  ├─QtQuick
+│  │  ├─Layouts
+│  │  │      plugins.qmltypes
+│  │  │      qmldir
+│  │  │      qquicklayoutsplugin.dll
+│  │  │      
+│  │  ├─VirtualKeyboard
+│  │  │  │  plugins.qmltypes
+│  │  │  │  qmldir
+│  │  │  │  qtquickvirtualkeyboardplugin.dll
+│  │  │  ├─Settings
+│  │  │  │      plugins.qmltypes
+│  │  │  │      qmldir
+│  │  │  │      qtquickvirtualkeyboardsettingsplugin.dll
+│  │  │  └─Styles
+│  │  │          plugins.qmltypes
+│  │  │          qmldir
+│  │  │          qtquickvirtualkeyboardstylesplugin.dll
+│  │  └─Window.2
+│  │          plugins.qmltypes
+│  │          qmldir
+│  │          windowplugin.dll
+│  └─QtQuick.2
+│          plugins.qmltypes
+│          qmldir
+│          qtquick2plugin.dll
