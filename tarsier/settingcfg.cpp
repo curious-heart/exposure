@@ -55,6 +55,8 @@ void SettingCfg::readSettingConfig(){
     fpdSettingCfg.offsetCorrectOption=settings.value("offsetCorrectOption").isNull()?fpdSettingCfg.offsetCorrectOption:settings.value("offsetCorrectOption").toInt();
     fpdSettingCfg.gainCorrectOption=settings.value("gainCorrectOption").isNull()?fpdSettingCfg.gainCorrectOption:settings.value("gainCorrectOption").toInt();
     fpdSettingCfg.defectCorrectOption=settings.value("defectCorrectOption").isNull()?fpdSettingCfg.defectCorrectOption:settings.value("defectCorrectOption").toInt();
+    fpdSettingCfg.softTriggerWaitTimeBeforeAcqImg
+            = settings.value("softwareTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.softTriggerWaitTimeBeforeAcqImg:settings.value("softwareTriggerWaitBeforeAcqImg").toInt();
     settings.endGroup();
 }
 

@@ -60,7 +60,4 @@
         <file>images/zoom_checked.png</file>
         <file>images/meter.png</file>
     </qresource>
-    <qresource prefix="/input">
-        <file>input/pinyin/pinyin</file>
-    </qresource>
 </RCC>

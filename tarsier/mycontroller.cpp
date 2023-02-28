@@ -110,8 +110,6 @@ void MyController::readData(int address, quint16 size, int serverAddress){
  * @param data 提交的数据
  * @return 写入是否成功
  */
-extern bool software_trigger_now;
-void acq_image();
 bool MyController::writeData(int address, quint16 size, int serverAddress, QVector<quint16> data){
     if (!modbusDevice){
         return false;
@@ -122,25 +120,30 @@ bool MyController::writeData(int address, quint16 size, int serverAddress, QVect
             writeUnit.setValue(i, data.at(i));
         }
     }
-    if (auto *reply = modbusDevice->sendWriteRequest(writeUnit, serverAddress)){
+    if (auto *reply = modbusDevice->sendWriteRequest(writeUnit, serverAddress))
+    {
         if (!reply->isFinished()){
-            connect(reply, &QModbusReply::finished, this, [this, reply]() {
-                if (software_trigger_now && (reply->error() == QModbusDevice::NoError))
-                {
-                    software_trigger_now = false;
-                    acq_image();
-                }
-                if (reply->error() == QModbusDevice::ProtocolError) {
-                    emit modbusErrorOccurred(tr("Write response error: %1 (Mobus exception: 0x%2)")
-                                             .arg(reply->errorString()).arg(reply->rawResult().exceptionCode(), -1, 16));
-                } else if (reply->error() != QModbusDevice::NoError) {
-                    emit modbusErrorOccurred(tr("Write response error: %1 (Mobus error code: 0x%2)").
-                                             arg(reply->errorString()).arg(reply->error(), -1, 16));
-                }
-                reply->deleteLater();
-            });
+            connect(reply, &QModbusReply::finished,
+                    this,
+                    [this, reply, address]()
+                    {
+                        bool ret = true;
+                        if (reply->error() == QModbusDevice::ProtocolError) {
+                            ret = false;
+                            emit modbusErrorOccurred(tr("Write response error: %1 (Mobus exception: 0x%2)")
+                                                     .arg(reply->errorString()).arg(reply->rawResult().exceptionCode(), -1, 16));
+                        } else if (reply->error() != QModbusDevice::NoError) {
+                            ret = false;
+                            emit modbusErrorOccurred(tr("Write response error: %1 (Mobus error code: 0x%2)").
+                                                     arg(reply->errorString()).arg(reply->error(), -1, 16));
+                        }
+                        reply->deleteLater();
+
+                        emit writeDataFinished(address, ret);
+                    });
         }else {
             reply->deleteLater(); //广播回复立即返回
+            emit writeDataFinished(address, true);
         }
         return true;
     }else {

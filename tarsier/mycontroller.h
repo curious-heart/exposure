@@ -39,6 +39,11 @@ signals:
      * @param map 获得的数据
      */
     void readDataFinished(QMap<int,quint16> map);
+    /**
+     * @brief writeDataFinished 向下位机写入数据已经完成
+     * @param cmd_addr 写入地址；ret 写入结果。
+     */
+    void writeDataFinished(int cmd_addr, bool ret);
 
 private slots:
     void onModbusErrorOccurred(QModbusDevice::Error newError);

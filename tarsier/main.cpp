@@ -4,16 +4,19 @@
 //#include "globalapplication.h"
 
 #include "thirdpart/qtsingleapplication.h"
+#include "logger.h"
 
 int main(int argc, char *argv[])
 {
+    int ret;
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     //qputenv("QT_DEBUG_PLUGINS", "1");
 
     //GlobalApplication a(argc, argv);
     QtSingleApplication a(argc, argv);
 
-
+    QThread th;
+    start_log_thread(th);
 
     if(QT_VERSION>=QT_VERSION_CHECK(5,6,0))
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -28,5 +31,7 @@ int main(int argc, char *argv[])
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     //w.connect( &a, &GlobalApplication::keyOrMouseEventOccurred, &w, &MainWindow::onKeyOrMouseEventOccurred);
     w.connect( &a, &QtSingleApplication::keyOrMouseEventOccurred, &w, &MainWindow::onKeyOrMouseEventOccurred);
-    return a.exec();
+    ret = a.exec();
+    end_log_thread(th);
+    return ret;
 }

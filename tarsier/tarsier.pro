@@ -23,6 +23,7 @@ SOURCES += \
     globalapplication.cpp \
     imagelabel.cpp \
     imageoperation.cpp \
+    logger.cpp \
     lowbatterywarning.cpp \
     main.cpp \
     mainwindow.cpp \

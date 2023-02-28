@@ -33,6 +33,8 @@ struct FpdSettingCfg{
     int offsetCorrectOption=Enm_CorrectOption::Enm_CorrectOp_SW_PreOffset;
     int gainCorrectOption=Enm_CorrectOption::Enm_CorrectOp_SW_Gain;
     int defectCorrectOption=Enm_CorrectOption::Enm_CorrectOp_SW_Defect;
+
+    int softTriggerWaitTimeBeforeAcqImg = 8950; //ms. software触发模式下，曝光之后、数据采集之前需要等待的时间。
 };
 struct FpdBaseCfg{
     QMap<QString, QStringList> fpdTriggerModeMap;//探测器与触发模式列表的对应关系

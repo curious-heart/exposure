@@ -221,9 +221,7 @@ FPDRESULT MyFPD::SetAttr(int nAttrID, const char * strValue){
     var.vt = IVT_STR;
     //strncpy拷贝，被拷贝数据不足时补\0，保障字符串长度
     strncpy(var.val.strVal, strValue, IRAY_MAX_STR_LEN-1);
-    DIY_LOG(LOG_INFO, "Begin SetAttr: %d, %s", nAttrID, strValue);
     FPDRESULT ret=g_fpSetAttr(detectorID,nAttrID,&var);
-    DIY_LOG(LOG_INFO, "End SetAttr: %d, %s", nAttrID, strValue);
     return ret;
 }
 
@@ -430,9 +428,7 @@ FPDRESULT MyFPD::Invoke(int cmdId, const char* strValue){
  * @return 0:成功，非0：错误码
  */
 int MyFPD::WaitEvent(int timeout){
-    DIY_LOG(LOG_INFO, "Begin waiting...");
     int wait = WaitForSingleObject(waitAckEvent, timeout);//获取信号状态，无信号：回调函数未实行完毕  有信号：回调函数实行完毕
-    DIY_LOG(LOG_INFO, "End waiting: wait is %d", wait);
     if (WAIT_TIMEOUT == wait){//超时
         return Err_TaskTimeOut;
     }else{
@@ -584,7 +580,9 @@ void MyFPD::MyCallback(int nDetectorID, int nEventID, int nEventLevel, const cha
             }
             break;
         default:
-            DIY_LOG(LOG_INFO, "Unknown event ID, nEventID:%d, curCmdID:%d.", nEventID, cmdid_for_dbg);
+            DIY_LOG(LOG_INFO,
+                    "Unknown event ID, nEventID:%d, curCmdID:%d. evtlevel:%d, pszMsg:%s, nParam1:%d, nParam2:%d.",
+                    nEventID, cmdid_for_dbg, nEventLevel, pszMsg, nParam1, nParam2);
             break;
     }
 }

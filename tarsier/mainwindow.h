@@ -89,6 +89,7 @@ private slots:
     void onReadFpdBatteryLevelTimerOutTime();
     void onTenMinutesTimerStarted();
     void onTenMinutesTimerOutTime();
+    void onStartAcqWaitTimerTimeOut();
 
     void on_volSet_editingFinished();
 
@@ -102,6 +103,7 @@ protected:
 
 public slots:
     void onKeyOrMouseEventOccurred();
+    void onWriteControllerDataFinished(int cmd_addr, bool ret);
 
 signals:
 
@@ -141,6 +143,7 @@ private:
     QTimer * readVoltmeterAndAmmeterTimer;
     QTimer * readBatteryLevelTimer;
     QTimer * readChargeStateTimer;
+    QTimer * startAcqWaitTimer;
     QImage * chargeStateImg;
     QImage * showImg;
     //QImage * showImgTemp;
@@ -178,5 +181,6 @@ private:
 
     //InputMethod * m_inp_md;
     QLineEdit * m_curr_editor = nullptr;
+
 };
 #endif // MAINWINDOW_H
