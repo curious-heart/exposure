@@ -47,10 +47,10 @@ enum Enm_Controller_Address
     ServerAddress = 3,                  //设备地址
     State = 4,                          //状态
     VoltSet = 5,  					 	//5管电压设置值
-    FilamentSet = 6,					//6 灯丝电压设置（决定灯丝电流决定管电流）
+    FilamentSet = 6,					//6 管设置值电流 （决定灯丝电流决定管电流）
     ExposureTime = 7,                   //曝光时间
-    Voltmeter = 8,                      //管电压
-    Ammeter = 9,                        //管电流
+    Voltmeter = 8,                      //管电压读出值
+    Ammeter = 9,                        //管电流读出值
     RangeIndicationStatus = 10,         //范围指示状态
     ExposureStatus = 11,                //曝光状态
     RangeIndicationStart = 12,          //范围指示启动
@@ -64,6 +64,13 @@ enum Enm_Controller_Address
     Workstatus = 20,						//20充能状态
     exposureCount = 21,                     //曝光次数
 };
+
+#define MIN_TUBE_VOL 55 //kv
+#define MAX_TUBE_VOL 80
+#define DEF_TUBE_VOL 70
+#define MIN_TUBE_AMT 500 //mA
+#define MAX_TUBE_AMT 6600
+#define DEF_TUBE_AMT 2000
 
 static MyFPD *fpd=NULL;
 static ImageOperation *imageOperation=NULL;
@@ -251,7 +258,7 @@ void MainWindow::InitActions(){
 
 
     //loadBrightContrastAdjuster();//使用窗宽窗位调节，取消原有的亮度对比度调节组件的加载
-
+    /*
     QString info = QHostInfo::localHostName();
     QHostInfo ip = QHostInfo::fromName(info);
     foreach(QHostAddress addr, ip.addresses())
@@ -259,6 +266,8 @@ void MainWindow::InitActions(){
         if(addr.protocol() == QAbstractSocket::IPv4Protocol)
             ui->IPaddr->setText("IP:" + addr.toString());
     }
+    */
+    refresh_ip_addr();
 
     //加载qss
     QFile file(":/qss/main-style.qss");
@@ -502,6 +511,7 @@ void MainWindow::SaveFile(const void* pData, unsigned size)
  * @return
  */
 int MainWindow::ConnectionFPD(){
+    refresh_ip_addr();
     QString deb_ip_str = ui->IPaddr->text().mid(3);
     QString fpdDllPath="FpdSys";
     QString fpdWorkDir=QDir::currentPath() + "/" + SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
@@ -548,7 +558,7 @@ int MainWindow::ConnectionFPD(){
     ret=fpd->GetAttr(Attr_UROM_TriggerMode,ar);
     if (ret!=Err_OK){
         fpd->GetErrorInfo(ret);
-        disconnect_works();
+        disconnect_works(true);
         DIY_LOG(LOG_INFO, "Get Attr_UROM_TriggerMode error: %d", ret);
         return ret;
     }
@@ -560,7 +570,7 @@ int MainWindow::ConnectionFPD(){
         ret=fpd->SetAttr(Attr_UROM_TriggerMode_W,trigger);
         if (ret!=Err_OK){
             fpd->GetErrorInfo(ret);
-            disconnect_works();
+            disconnect_works(true);
             DIY_LOG(LOG_INFO, "Set Attr_UROM_TriggerMode to %d error: %d.", trigger, ret);
             return ret;
         }
@@ -570,7 +580,7 @@ int MainWindow::ConnectionFPD(){
         ret=fpd->SyncInvoke(Cmd_WriteUserROM,25000);
         if (ret!=Err_OK){
             fpd->GetErrorInfo(ret);
-            disconnect_works();
+            disconnect_works(true);
             DIY_LOG(LOG_INFO, "SyncInvoke Cmd_WriteUserROM error: %d.", ret);
             return ret;
         }
@@ -723,14 +733,17 @@ int MainWindow::InnerTrigger(){
         statusBar()->showMessage(QString("FPD状态为:%1").arg(state), 5000);
         errorCode  = 2;
     }
-    ret=fpd->Invoke(Cmd_StartAcq);
+    /*
+     * 根据iDetector log，inner模式与software模式时序类似，只是不需要手动下发Cmd_StartAcq。
+     * ret=fpd->Invoke(Cmd_StartAcq);
     if(ret!=Err_TaskPending){
         fpd->GetErrorInfo(ret);
         statusBar()->showMessage(QString("FPD错误代码为:%1").arg(ret), 5000);
         errorCode  = 3;
     }
+    */
     //  ControllerExposure();
-    statusBar()->showMessage(QString("FPD错误代码为:%1").arg(errorCode), 5000);
+    //statusBar()->showMessage(QString("FPD错误代码为:%1").arg(errorCode), 5000);
     //探测器自动检测物理曝光，曝光后回调函数返回图像数据
     return ret;
 }
@@ -820,18 +833,34 @@ int MainWindow::PREPTrigger(){
 
 void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
 {
-    int curr_exposure_time = exposureTimeList[exposureTimeIndex] * 1000;
-    int pre_exposure_time
-            = SettingCfg::getInstance().getFpdSettingCfg().softTriggerWaitTimeBeforeAcqImg;
-    int wait_time = pre_exposure_time + curr_exposure_time;
     int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
+
+    DIY_LOG(LOG_INFO,
+            "Write Controller finished. Current cmd: %d, current trigger mode: %d, ret:%d",
+            cmd_addr, trigger, ret);
+
     if(ret && (Enm_Controller_Address::ExposureStart == cmd_addr))
     {
+        int curr_exposure_time = exposureTimeList[exposureTimeIndex] * 1000;
+        int wait_time, pre_exposure_time;
         if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
         {
+            pre_exposure_time
+                    = SettingCfg::getInstance().getFpdSettingCfg().softwareTriggerWaitTimeBeforeAcqImg;
+            wait_time = pre_exposure_time + curr_exposure_time;
             DIY_LOG(LOG_INFO,
-                    "software trigger, Write ExposureStart cmd finished, start timer:%d",
-                    wait_time);
+                    "software trigger, Write ExposureStart cmd finished, start timer:%d+%d=%d",
+                    pre_exposure_time, curr_exposure_time, wait_time);
+            startAcqWaitTimer->start(wait_time);
+        }
+        else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
+        {
+            pre_exposure_time
+                    = SettingCfg::getInstance().getFpdSettingCfg().innerTriggerWaitTimeBeforeAcqImg;
+            wait_time = pre_exposure_time + curr_exposure_time;
+            DIY_LOG(LOG_INFO,
+                    "inner trigger, Write ExposureStart cmd finished, start timer:%d+%d=%d",
+                    pre_exposure_time, curr_exposure_time, wait_time);
             startAcqWaitTimer->start(wait_time);
         }
     }
@@ -918,10 +947,31 @@ void MainWindow::keyPressEvent(QKeyEvent * k){
     }
 }
 
-FPDRESULT MainWindow::disconnect_works(bool conn_then)
+FPDRESULT MainWindow::disconnect_works(bool part_disconn)
 {
     DIY_LOG(LOG_INFO, "on_connect_clicked: now is connected, begin to disconnect...");
+    onFpdConnectStateChanged(Enm_Connect_State::Disconnecting);
     FPDRESULT ret=DisconnectionFPD();
+    if(0 == ret)
+    {
+        onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
+        if(readFpdBatteryLevelTimer->isActive())
+        {
+            readFpdBatteryLevelTimer->stop();
+        }
+    }
+    else
+    {
+        if(part_disconn)
+        {
+            onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
+        }
+        else
+        {
+            onFpdConnectStateChanged(Enm_Connect_State::Connected);
+        }
+    }
+    /*
     if(false == conn_then)
     {
         if(ret==0){
@@ -931,6 +981,7 @@ FPDRESULT MainWindow::disconnect_works(bool conn_then)
             }
         }
     }
+    */
     return ret;
 }
 
@@ -943,6 +994,7 @@ void MainWindow::on_connect_clicked(){
             DIY_LOG(LOG_INFO, "on_connect_clicked: now is disconnected, begin to connect...");
             statusBar()->clearMessage();
             statusBar()->showMessage("正在连接探测器...", 5000);
+            onFpdConnectStateChanged(Enm_Connect_State::Connecting);
             FPDRESULT ret=ConnectionFPD();
             if(ret==0){
                 onFpdConnectStateChanged(Enm_Connect_State::Connected);
@@ -951,6 +1003,10 @@ void MainWindow::on_connect_clicked(){
                     readFpdBatteryLevelTimer->setInterval(60*1000);
                     readFpdBatteryLevelTimer->start();
                 }
+            }
+            else
+            {
+                onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
             }
         }else{
             disconnect_works();
@@ -964,10 +1020,13 @@ void MainWindow::on_connect_clicked(){
  * @param state 状态码
  */
 void MainWindow::onFpdConnectStateChanged(int state){
+    DIY_LOG(LOG_INFO, "onFpdConnectStateChanged: %d", state);
     fpdConnectState=state;
     if(state==Enm_Connect_State::Connected){//已连接
         statusBar()->showMessage("探测器已连接", 5000);
+        DIY_LOG(LOG_INFO, "++++++Connected++++++++++");
         ui->connect->setStyleSheet("border-image: url(:/images/disconnect.png)");
+        ui->connect->setEnabled(true);//恢复按钮
         if(controllerConnectState==Enm_Connect_State::Connected){
             ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
             ui->exposure->setEnabled(true);
@@ -978,11 +1037,16 @@ void MainWindow::onFpdConnectStateChanged(int state){
         ui->fpdSetting->setEnabled(false);
     }else if(state==Enm_Connect_State::Connecting){
         statusBar()->showMessage("正在连接探测器...", 5000);
+        DIY_LOG(LOG_INFO, "******Connecting**********");
+        ui->connect->setStyleSheet("border-image: url(:/images/connect-disable.png)");
+        //ui->connect->repaint();
         //ui->connect->setText("连接中");
         ui->connect->setEnabled(false);//设置按钮不可用
     }else if(state==Enm_Connect_State::Disconnected){//已断开
         statusBar()->showMessage("探测器已断开", 5000);
+        DIY_LOG(LOG_INFO, "------Disconnected----------");
         ui->connect->setStyleSheet("border-image: url(:/images/connect.png)");
+        ui->connect->setEnabled(true);//恢复按钮
         ui->exposure->setStyleSheet("border-image: url(:/images/exposure-disable.png)");
         ui->exposure->setEnabled(false);
         ui->systemSetting->setStyleSheet("border-image: url(:/images/systemSetting-able.png)");
@@ -991,6 +1055,8 @@ void MainWindow::onFpdConnectStateChanged(int state){
         ui->fpdSetting->setEnabled(true);
     }else if(state==Enm_Connect_State::Disconnecting){//断开中
         statusBar()->showMessage("探测器断开中", 5000);
+        DIY_LOG(LOG_INFO, "......Disconnecting..........");
+        ui->connect->setStyleSheet("border-image: url(:/images/disconnect-disable.png)");
         ui->connect->setEnabled(false);//设置按钮不可用
     }else{
 
@@ -1331,42 +1397,61 @@ void MainWindow::on_exposure_clicked(){
     //    quint32 sum = (high << 16)+(low & 0xFFFF);
     //    float ff=*((float*)&sum);
     //    qDebug()<<"ff="<<ff;
-    int ret;
+    int ret = Err_Unknown;
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-disable.png)");
     ui->exposure->setEnabled(false);
     QString fpdWorkDir=SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
     if(fpdWorkDir==""){
+        DIY_LOG(LOG_INFO, "Exposure with fpdWorkDir is null.");
         ControllerExposure();
         statusBar()->showMessage("已曝光", 5000);
     }else{
         int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
+        QString log_str;
         if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
         {
+            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Software.");
             ret = SoftwareTrigger();
-            if(Err_OK == ret)
-            {
-                ControllerExposure();
-                DIY_LOG(LOG_INFO, "Soft trigger exposure");
-            }
-            else
-            {
-                statusBar()->showMessage("Software触发失败", 5000);
-                DIY_LOG(LOG_ERROR, "SoftwareTrigger error:%d", ret);
-                return;
-            }
-        }else
+            log_str = "Software";
+        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
         {
-            if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner){
-                InnerTrigger();
-            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Outer){
-                OuterTrigger();
-            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Prep){
-                PREPTrigger();
-            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_FreeSync){
-                FreesyncTrigger();
-            }
+            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Inner.");
+            ret = InnerTrigger();
+            log_str = "Inner";
+        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Outer)
+        {
+            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Outer.");
+            ret = OuterTrigger();
+            log_str = "Outer";
+        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Prep)
+        {
+            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Prep.");
+            ret = PREPTrigger();
+            log_str = "Prep";
+        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_FreeSync)
+        {
+            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: FreeSync.");
+            ret = FreesyncTrigger();
+            log_str = "FreeSync";
+        }
+        else
+        {
+            DIY_LOG(LOG_ERROR, "Try exposure, but trigger mode is unknown:%d", trigger);
+            log_str = QString("%1").arg(trigger);
+        }
+
+        if(Err_OK == ret)
+        {
+            DIY_LOG(LOG_INFO, "Now call ControllerExposure.");
             ControllerExposure();
             statusBar()->showMessage("开始采集图像", 5000);
+        }
+        else
+        {
+            //statusBar()->showMessage("Software触发失败", 5000);
+            statusBar()->showMessage(log_str + "触发曝光失败", 5000);
+            DIY_LOG(LOG_ERROR, "Call %ls Trigger(trigger mode:%d) error:%d",
+                    log_str.utf16(), trigger, ret);
         }
     }
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
@@ -1627,6 +1712,7 @@ void MainWindow::onConnectFpdAndController()
 {
     if(fpd){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
+            onFpdConnectStateChanged(Enm_Connect_State::Connecting);
             FPDRESULT ret=ConnectionFPD();
             if(ret==0){
                 onFpdConnectStateChanged(Enm_Connect_State::Connected);
@@ -1636,22 +1722,33 @@ void MainWindow::onConnectFpdAndController()
                     readFpdBatteryLevelTimer->start();
                 }
             }
+            else
+            {
+                onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
+            }
         }else{
             //先断开探测器，然后重新连接
             FPDRESULT ret;
-            ret = disconnect_works(true);
+            ret = disconnect_works();
             if(ret==0){
                 onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
                 if(readFpdBatteryLevelTimer->isActive()){
                     readFpdBatteryLevelTimer->stop();
                 }
+                onFpdConnectStateChanged(Enm_Connect_State::Connecting);
                 ret=ConnectionFPD();
-                if(ret==1){
+                //if(ret==1)
+                if(Err_OK == ret)
+                {
                     onFpdConnectStateChanged(Enm_Connect_State::Connected);
                     if(!readFpdBatteryLevelTimer->isActive()){
                         readFpdBatteryLevelTimer->setInterval(60*1000);
                         readFpdBatteryLevelTimer->start();
                     }
+                }
+                else
+                {
+                    onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
                 }
             }
         }
@@ -2049,8 +2146,13 @@ void MainWindow::onStartAcqWaitTimerTimeOut()
     if(fpd)
     {
         DIY_LOG(LOG_INFO, "now acquire(in onStartAcqWaitTimerTimeOut)....");
+        int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
         fpd->SyncInvoke(Cmd_Clear,3000);
-        fpd->Invoke(Cmd_StartAcq);
+        if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
+        {
+            /*According to iDetector log, Cmd_StartAcq is only required in software mode.*/
+            fpd->Invoke(Cmd_StartAcq);
+        }
     }
 }
 
@@ -2059,10 +2161,12 @@ void MainWindow::on_volSet_editingFinished()
     //int setVol = ui->voltmeter->text().toInt();
     int setVol = ui->volSet->text().toInt();
     DIY_LOG(LOG_INFO, "Input voltage: %dKV", setVol);
-    if((setVol< 80 )&& (setVol>55))
+    //if((setVol< 80 )&& (setVol>55))
+    if((setVol<= MAX_TUBE_VOL )&& (setVol >= MIN_TUBE_VOL))
         writeExposurekV(setVol);
     else
-        writeExposurekV(70);
+        //writeExposurekV(70);
+        writeExposurekV(DEF_TUBE_VOL);
 }
 
 
@@ -2071,8 +2175,21 @@ void MainWindow::on_amSet_editingFinished()
     //int setAm = ui->ammeter->text().toInt();
     int setAm = ui->amSet->text().toInt();
     DIY_LOG(LOG_INFO, "Input current: %dmA", setAm);
-    if((setAm<= 6600 )&& (setAm>500))
+    //if((setAm<= 6600 )&& (setAm>500))
+    if((setAm <= MAX_TUBE_AMT)&& (setAm >= MIN_TUBE_AMT))
         writeExposuremA(setAm);
     else
-        writeExposuremA(2000);
+        //writeExposuremA(2000);
+        writeExposuremA(DEF_TUBE_AMT);
+}
+
+void MainWindow::refresh_ip_addr()
+{
+    QString info = QHostInfo::localHostName();
+    QHostInfo ip = QHostInfo::fromName(info);
+    foreach(QHostAddress addr, ip.addresses())
+    {
+        if(addr.protocol() == QAbstractSocket::IPv4Protocol)
+            ui->IPaddr->setText("IP:" + addr.toString());
+    }
 }

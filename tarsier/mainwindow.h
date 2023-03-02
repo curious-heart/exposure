@@ -97,7 +97,7 @@ private slots:
 
 
 protected:
-    FPDRESULT disconnect_works(bool conn_then = false);
+    FPDRESULT disconnect_works(bool part_disconn = false);
 
 
 
@@ -126,6 +126,7 @@ private:
     void writeExposurekV(int kV);
     void writeExposuremA(int ua);
     bool dDriveExist();
+    void refresh_ip_addr();
 
 
 private:
@@ -183,4 +184,5 @@ private:
     QLineEdit * m_curr_editor = nullptr;
 
 };
+
 #endif // MAINWINDOW_H

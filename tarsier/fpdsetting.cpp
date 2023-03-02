@@ -151,16 +151,17 @@ void FpdSetting::on_cancel_clicked(){
 void FpdSetting::updateTriggerMode()
 {
     ui->trigger->clear();
-    QString o="Outer",i="Inner",s="Software",p="PREP",f="FreeSync";
+    QString o="Outer",i="Inner",s="Software",p="PREP",srv = "Service", f="FreeSync";
     ui->trigger->addItem(o,Enm_TriggerMode::Enm_TriggerMode_Outer);
     ui->trigger->addItem(i,Enm_TriggerMode::Enm_TriggerMode_Inner);
     ui->trigger->addItem(s,Enm_TriggerMode::Enm_TriggerMode_Soft);
     ui->trigger->addItem(p,Enm_TriggerMode::Enm_TriggerMode_Prep);
+    ui->trigger->addItem(srv,Enm_TriggerMode::Enm_TriggerMode_Service);
     ui->trigger->addItem(f,Enm_TriggerMode::Enm_TriggerMode_FreeSync);
     FpdSettingCfg fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     QMap<QString, QStringList> fpdTriggerModeMap=SettingCfg::getInstance().getFpdBaseCfg().fpdTriggerModeMap;
     QString fpdName=SettingCfg::getInstance().getSystemSettingCfg().fpdName;
-    bool oflag=false,iflag=false,sflag=false,pflag=false,fflag=false;
+    bool oflag=false,iflag=false,sflag=false,pflag=false, srvflag = false, fflag=false;
     foreach(const QString &str,fpdTriggerModeMap.keys()){
         if(fpdName==str){
             QStringList list=fpdTriggerModeMap.value(str);
@@ -174,6 +175,8 @@ void FpdSetting::updateTriggerMode()
                     sflag=true;
                 }else if(triggerMode==p){
                     pflag=true;
+                }else if(triggerMode==srv){
+                    srvflag=true;
                 }else if(triggerMode==f){
                     fflag=true;
                 }
@@ -192,6 +195,9 @@ void FpdSetting::updateTriggerMode()
     }
     if(!pflag){
         ui->trigger->setItemData(ui->trigger->findText(p),v, Qt::UserRole - 1);
+    }
+    if(!srvflag){
+        ui->trigger->setItemData(ui->trigger->findText(srv),v, Qt::UserRole - 1);
     }
     if(!fflag){
         ui->trigger->setItemData(ui->trigger->findText(f),v, Qt::UserRole - 1);

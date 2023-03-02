@@ -55,8 +55,10 @@ void SettingCfg::readSettingConfig(){
     fpdSettingCfg.offsetCorrectOption=settings.value("offsetCorrectOption").isNull()?fpdSettingCfg.offsetCorrectOption:settings.value("offsetCorrectOption").toInt();
     fpdSettingCfg.gainCorrectOption=settings.value("gainCorrectOption").isNull()?fpdSettingCfg.gainCorrectOption:settings.value("gainCorrectOption").toInt();
     fpdSettingCfg.defectCorrectOption=settings.value("defectCorrectOption").isNull()?fpdSettingCfg.defectCorrectOption:settings.value("defectCorrectOption").toInt();
-    fpdSettingCfg.softTriggerWaitTimeBeforeAcqImg
-            = settings.value("softwareTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.softTriggerWaitTimeBeforeAcqImg:settings.value("softwareTriggerWaitBeforeAcqImg").toInt();
+    fpdSettingCfg.softwareTriggerWaitTimeBeforeAcqImg
+            = settings.value("softwareTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.softwareTriggerWaitTimeBeforeAcqImg:settings.value("softwareTriggerWaitBeforeAcqImg").toInt();
+    fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg
+            = settings.value("innerTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg:settings.value("innerTriggerWaitBeforeAcqImg").toInt();
     settings.endGroup();
 }
 
