@@ -59,5 +59,7 @@
         <file>images/zoom.png</file>
         <file>images/zoom_checked.png</file>
         <file>images/meter.png</file>
+        <file>images/connect-disable.png</file>
+        <file>images/disconnect-disable.png</file>
     </qresource>
 </RCC>

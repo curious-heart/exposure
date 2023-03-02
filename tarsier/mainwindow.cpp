@@ -1039,7 +1039,7 @@ void MainWindow::onFpdConnectStateChanged(int state){
         statusBar()->showMessage("正在连接探测器...", 5000);
         DIY_LOG(LOG_INFO, "******Connecting**********");
         ui->connect->setStyleSheet("border-image: url(:/images/connect-disable.png)");
-        //ui->connect->repaint();
+        ui->connect->repaint();
         //ui->connect->setText("连接中");
         ui->connect->setEnabled(false);//设置按钮不可用
     }else if(state==Enm_Connect_State::Disconnected){//已断开
@@ -1057,6 +1057,7 @@ void MainWindow::onFpdConnectStateChanged(int state){
         statusBar()->showMessage("探测器断开中", 5000);
         DIY_LOG(LOG_INFO, "......Disconnecting..........");
         ui->connect->setStyleSheet("border-image: url(:/images/disconnect-disable.png)");
+        ui->connect->repaint();
         ui->connect->setEnabled(false);//设置按钮不可用
     }else{
 
