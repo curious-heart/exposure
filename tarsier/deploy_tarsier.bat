@@ -1,8 +1,9 @@
 REM This script is ued to deploy DR controller software from tarsier.exe.
 REM 1. folders to be copied into released directory:
 REM     ./data: DR and detectory configurations. 
-REM     ./images: tarsier APP image resources.
 REM 	./work_dir: detector configurations.
+REM 	(note: ./images are not required, since the resource images and qss files has been compiled into tarsier.exe
+REM 	 with the "RESOURCES += source.qrc" statement in .pro file.)
 REM 2. files to be copied for detector service:
 REM 	2.1 detector dll:(*.dll in iDetector folder)
 REM		CaliDynamic.dll CaliE4W.dll CaliE4W_V1.dll
