@@ -123,13 +123,13 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
         <item>
          <layout class="QFormLayout" name="formLayout_8">
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>  电池电量</string>
+             <string>设备电量</string>
             </property>
            </widget>
           </item>
@@ -173,6 +173,20 @@
              <string/>
             </property>
            </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="exposureSelLabel">
+            <property name="text">
+             <string>曝光模式选择</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="exposureSelCombox"/>
           </item>
          </layout>
         </item>
@@ -408,7 +422,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

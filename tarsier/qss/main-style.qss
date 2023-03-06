@@ -48,7 +48,7 @@
     width:214px;
 }
 
-#label_2,#label_4,#label_3,#label,#label_5,#label_6{
+#label_2,#label_4,#label_3,#label,#label_5,#label_6,#exposureSelLabel{
     color:#FFFFFF;
 }
 
