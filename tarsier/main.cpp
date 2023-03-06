@@ -12,14 +12,15 @@ int main(int argc, char *argv[])
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     //qputenv("QT_DEBUG_PLUGINS", "1");
 
+    if(QT_VERSION>=QT_VERSION_CHECK(5,6,0))
+            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     //GlobalApplication a(argc, argv);
     QtSingleApplication a(argc, argv);
 
     QThread th;
     start_log_thread(th);
 
-    if(QT_VERSION>=QT_VERSION_CHECK(5,6,0))
-            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     if(a.isRunning())
     {
