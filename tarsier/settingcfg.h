@@ -6,9 +6,31 @@
 #include <QSerialPort>
 #include <include/IRayEnumDef.h>
 
-#define DEFAULT_TUBE_VOL 70 //kv
-#define DEFAULT_TUBE_AMT 3000 //uA
-#define DEFAULT_EXPOSURE_TIME_IDX 10
+extern const char* INI_KEY_RTUSERIAL_TUBE_VOL;
+extern const char* INI_KEY_RTUSERIAL_TUBE_AMT;
+#define MIN_TUBE_VOL 55 //kv
+#define MAX_TUBE_VOL 80
+#define DEF_TUBE_VOL 70
+#define MIN_TUBE_AMT 500 //mA
+#define MAX_TUBE_AMT 6600
+#define DEF_TUBE_AMT 3000
+
+#define MAX_EXPOSURE_DURA_STEP 17
+#define DEF_EXPOSURE_DURA_IDX 3
+
+typedef enum
+{
+    exposure_opt_type_auto = 0,
+    exposure_opt_type_manual = 1,
+}exposure_opt_type_t;
+typedef struct
+{
+    exposure_opt_type_t type;
+    QString title;
+    int idx;
+    int vol, amt, dura;
+}exposure_opt_item_t;
+typedef QMap<int, exposure_opt_item_t*> exposure_opts_t;
 
 struct SystemSettingCfg{
     QString serialPortName = "COM1";  //串口名称
@@ -19,9 +41,9 @@ struct SystemSettingCfg{
     int timeout=1000;
     int numberOfRetries=3;
     int serverAddress=1;//1-255
-    int exposureTimeIndex=DEFAULT_EXPOSURE_TIME_IDX /*25*/;
-    int tubeVol = DEFAULT_TUBE_VOL;
-    int tubeAmt = DEFAULT_TUBE_AMT;
+    int exposureTimeIndex=DEF_EXPOSURE_DURA_IDX /*25*/;
+    int tubeVol = DEF_TUBE_VOL;
+    int tubeAmt = DEF_TUBE_AMT;
     int isAutoOff=0;
     QString fpdName="";
     QString fpdWorkDir="";
@@ -53,6 +75,7 @@ class SettingCfg : public QObject
 public:
     static SettingCfg & getInstance();
     explicit SettingCfg(QObject *parent = nullptr);
+    ~SettingCfg();
     void readSettingConfig();
     void writeSettingConfig(SystemSettingCfg * ssc,FpdSettingCfg * fsc);
     SystemSettingCfg &getSystemSettingCfg();
@@ -65,6 +88,11 @@ private:
     FpdSettingCfg fpdSettingCfg;
     SystemBaseCfg systemBaseCfg;
     FpdBaseCfg fpdBaseCfg;
+
+    exposure_opts_t exposureOptsCfg;
+    void construct_default_exposure_opts();
+    void clear_exposure_opts_cfg();
+    bool check_exposure_opt_value(exposure_opt_item_t* opt_item);
 };
 
 #endif // SETTINGCFG_H

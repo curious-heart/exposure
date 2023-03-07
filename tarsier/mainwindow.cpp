@@ -65,12 +65,6 @@ enum Enm_Controller_Address
     exposureCount = 21,                     //曝光次数
 };
 
-#define MIN_TUBE_VOL 55 //kv
-#define MAX_TUBE_VOL 80
-#define DEF_TUBE_VOL 70
-#define MIN_TUBE_AMT 500 //mA
-#define MAX_TUBE_AMT 6600
-#define DEF_TUBE_AMT 2000
 
 static MyFPD *fpd=NULL;
 static ImageOperation *imageOperation=NULL;
@@ -81,16 +75,14 @@ static bool subsetSpecified=false;
 //                                   0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80,
 //                                   0.85, 0.90, 0.95, 1.00, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30};
 
-#define MAXSTEP 17
-static float exposureTimeList[MAXSTEP]={0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80,
+static float exposureTimeList[MAX_EXPOSURE_DURA_STEP]={0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80,
                                         0.85, 0.90, 0.95, 1.00, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30};
-static int exposureTimeIndex=3;
+static int exposureTimeIndex=DEF_EXPOSURE_DURA_IDX/*3*/;
 static int exposureStatus=0;//未启动曝光
 //static int rangeStatus=0;//范围指示未启动
 static bool dDriveState;//D盘是否存在
 static QImage *img=NULL;
 static QString imageNum="";
-static int read_exposure_st_timer_int = 50; //50ms
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -336,9 +328,9 @@ void MainWindow::InitActions(){
     connect(ui->preview,&ImageLabel::wwwlChanged,this,&MainWindow::onWwwlChanged);
 
     exposureTimeIndex=SettingCfg::getInstance().getSystemSettingCfg().exposureTimeIndex;
-    if(exposureTimeIndex < 0 || exposureTimeIndex >= MAXSTEP)
+    if(exposureTimeIndex < 0 || exposureTimeIndex >= MAX_EXPOSURE_DURA_STEP)
     {
-        exposureTimeIndex = 0;
+        exposureTimeIndex = DEF_EXPOSURE_DURA_IDX;
     }
 
     ui->exposureSetting->setText(QString("%1").arg(exposureTimeList[exposureTimeIndex]));
@@ -1465,7 +1457,7 @@ void MainWindow::on_exposure_clicked(){
  * @brief MainWindow::on_addTime_clicked 曝光时间+按钮槽函数
  */
 void MainWindow::on_addTime_clicked(){
-    if(exposureTimeIndex >= (MAXSTEP - 1)){
+    if(exposureTimeIndex >= (MAX_EXPOSURE_DURA_STEP- 1)){
         return;
     }
     exposureTimeIndex++;
@@ -1518,6 +1510,11 @@ void MainWindow::writeExposurekV(int kV)
     if(writeSuccess){
         ui->volSet->setText(QString("%1").arg(kV));
         ui->volSet->setStyleSheet("color: rgb(0, 153, 0)");
+
+        /*更新配置文件*/
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        ssc.tubeVol = kV;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
 }
 
@@ -1531,6 +1528,11 @@ void MainWindow::writeExposuremA(int ua)
     if(writeSuccess){
         ui->amSet->setText(QString("%1").arg(ua));
         ui->amSet->setStyleSheet("color: rgb(0, 153, 0)");
+
+        /*更新配置文件*/
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        ssc.tubeAmt = ua;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
 }
 

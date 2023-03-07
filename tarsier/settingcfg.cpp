@@ -5,7 +5,62 @@
 #include <QtXml/QDomDocument>
 #include <iostream>
 
+const char* INI_GRP_USER_SETTINGS = "UserSettings";
+const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
+const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
 
+const char* TAG_STR_EXPOSURE_OPTS = "exposure_opts";
+const char* TAG_STR_OPT = "opt";
+const char* TAG_STR_TYPE = "type";
+const char* TAG_STR_TITLE = "title";
+const char* TAG_STR_TUBE_VOL = INI_KEY_RTUSERIAL_TUBE_VOL;
+const char* TAG_STR_TUBE_AMT = INI_KEY_RTUSERIAL_TUBE_AMT;
+const char* TAG_STR_DURATION = "dura";
+const char* TAG_STR_IDX = "idx";
+
+void SettingCfg::clear_exposure_opts_cfg()
+{
+    exposure_opts_t::iterator it = exposureOptsCfg.begin();
+    while(it != exposureOptsCfg.end())
+    {
+        delete it.value();
+        ++it;
+    }
+    exposureOptsCfg.clear();
+}
+bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
+{
+    if(!opt_item)
+    {
+        return false;
+    }
+    if((opt_item->type != exposure_opt_type_auto)
+            && (opt_item->type != exposure_opt_type_manual))
+    {
+        DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int of %d or %d.",
+                TAG_STR_TYPE, opt_item->type, exposure_opt_type_auto, exposure_opt_type_manual);
+        return false;
+    }
+    if((opt_item->vol > MAX_TUBE_VOL) || (opt_item->vol < MIN_TUBE_VOL))
+    {
+       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
+               TAG_STR_TUBE_VOL, opt_item->vol, MIN_TUBE_VOL, MAX_TUBE_VOL);
+       return false;
+    }
+    if((opt_item->amt > MAX_TUBE_AMT) || (opt_item->amt < MIN_TUBE_AMT))
+    {
+       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
+               TAG_STR_TUBE_AMT, opt_item->amt, MIN_TUBE_AMT, MAX_TUBE_AMT);
+       return false;
+    }
+    if((opt_item->dura >= MAX_EXPOSURE_DURA_STEP) || (opt_item->dura < 0))
+    {
+       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
+               TAG_STR_DURATION, opt_item->dura, 0, MAX_EXPOSURE_DURA_STEP-1);
+       return false;
+    }
+    return true;
+}
 /**
  * @brief SettingCfg::getInstance 获取单例的SettingCfg
  * @return 单例的SettingCfg实例
@@ -25,6 +80,10 @@ SettingCfg::SettingCfg(QObject *parent): QObject(parent){
     readBaseConfig();
 }
 
+SettingCfg::~SettingCfg()
+{
+    clear_exposure_opts_cfg();
+}
 
 /**
  * @brief SettingCfg::readSettingConfig 读取data/settingCfg.ini文件中的数据
@@ -46,8 +105,8 @@ void SettingCfg::readSettingConfig(){
     systemSettingCfg.numberOfRetries = settings.value("numberOfRetries").isNull()?systemSettingCfg.numberOfRetries:settings.value("numberOfRetries").toInt();
     systemSettingCfg.serverAddress = settings.value("serverAddress").isNull()?systemSettingCfg.serverAddress:settings.value("serverAddress").toInt();
     systemSettingCfg.exposureTimeIndex= settings.value("exposureTimeIndex").isNull()?systemSettingCfg.exposureTimeIndex:settings.value("exposureTimeIndex").toInt();
-    systemSettingCfg.tubeVol = settings.value("tubeVol", DEFAULT_TUBE_VOL).toInt();
-    systemSettingCfg.tubeAmt = settings.value("tubeAmt", DEFAULT_TUBE_AMT).toInt();
+    systemSettingCfg.tubeVol = settings.value(INI_KEY_RTUSERIAL_TUBE_VOL, DEF_TUBE_VOL).toInt();
+    systemSettingCfg.tubeAmt = settings.value(INI_KEY_RTUSERIAL_TUBE_AMT , DEF_TUBE_AMT).toInt();
     systemSettingCfg.isAutoOff = settings.value("isAutoOff").isNull()?systemSettingCfg.isAutoOff:settings.value("isAutoOff").toInt();
     settings.endGroup();
 
@@ -122,6 +181,8 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
         settings.setValue("numberOfRetries", ssc->numberOfRetries);
         settings.setValue("serverAddress", ssc->serverAddress);
         settings.setValue("exposureTimeIndex", ssc->exposureTimeIndex);
+        settings.setValue(INI_KEY_RTUSERIAL_TUBE_VOL, ssc->tubeVol);
+        settings.setValue(INI_KEY_RTUSERIAL_TUBE_AMT, ssc->tubeAmt);
         settings.endGroup();
     }
     settings.beginGroup("Fpd");
@@ -160,6 +221,46 @@ FpdSettingCfg &SettingCfg::getFpdSettingCfg(){
     return fpdSettingCfg;
 }
 
+static const char* DEF_EXPOSURE_OPTS_0_TITLE = "高";
+static const int DEF_EXPOSURE_OPTS_0_VOL = MAX_TUBE_VOL;
+static const int DEF_EXPOSURE_OPTS_0_AMT = MAX_TUBE_AMT;
+static const int DEF_EXPOSURE_OPTS_0_DURA = MAX_EXPOSURE_DURA_STEP - 1;
+
+static const char* DEF_EXPOSURE_OPTS_1_TITLE = "中";
+static const int DEF_EXPOSURE_OPTS_1_VOL = MAX_TUBE_VOL;
+static const int DEF_EXPOSURE_OPTS_1_AMT = DEF_TUBE_AMT;
+static const int DEF_EXPOSURE_OPTS_1_DURA = MAX_EXPOSURE_DURA_STEP - 1;
+
+static const char* DEF_EXPOSURE_OPTS_2_TITLE = "低";
+static const int DEF_EXPOSURE_OPTS_2_VOL = 60; //be caful to adjust it according to MAX/MIN_TUBE_VOL
+static const int DEF_EXPOSURE_OPTS_2_AMT = 1000; //be caful to adjust it according to MAX/MIN_TUBE_AMT
+static const int DEF_EXPOSURE_OPTS_2_DURA = 6; //be caful to adjust it according to MAX_EXPOSURE_DURA_STEP
+
+static const char* DEF_EXPOSURE_OPTS_3_TITLE = "手动设置";
+
+void SettingCfg::construct_default_exposure_opts()
+{
+    static exposure_opt_item_t def_exposure_opts[] =
+    {
+        {exposure_opt_type_auto, DEF_EXPOSURE_OPTS_0_TITLE, 0,
+        DEF_EXPOSURE_OPTS_0_VOL, DEF_EXPOSURE_OPTS_0_AMT, DEF_EXPOSURE_OPTS_0_DURA},
+
+        {exposure_opt_type_auto, DEF_EXPOSURE_OPTS_1_TITLE, 1,
+        DEF_EXPOSURE_OPTS_1_VOL, DEF_EXPOSURE_OPTS_1_AMT, DEF_EXPOSURE_OPTS_1_DURA},
+
+        {exposure_opt_type_auto, DEF_EXPOSURE_OPTS_2_TITLE, 2,
+        DEF_EXPOSURE_OPTS_2_VOL, DEF_EXPOSURE_OPTS_2_AMT, DEF_EXPOSURE_OPTS_2_DURA},
+
+        {exposure_opt_type_manual, DEF_EXPOSURE_OPTS_3_TITLE, 3,
+        DEF_EXPOSURE_OPTS_0_VOL, DEF_EXPOSURE_OPTS_0_AMT, DEF_EXPOSURE_OPTS_0_DURA},
+    };
+
+    for(qulonglong idx = 0; idx < sizeof(def_exposure_opts)/sizeof(def_exposure_opts[0]); ++idx)
+    {
+        exposureOptsCfg.insert(def_exposure_opts[idx].idx,
+                               &def_exposure_opts[idx]);
+    }
+}
 
 /**
  * @brief SettingCfg::readBaseConfig 读取data/base.xml文件中的数据
@@ -194,6 +295,108 @@ void SettingCfg::readBaseConfig(){
             }
         }
     }
+
+#define EXPOSURE_OPT_PTR_TYPE(e) (&((e).type))
+#define EXPOSURE_OPT_PTR_TITLE(e) (&((e).title))
+#define EXPOSURE_OPT_PTR_IDX(e) (&((e).idx))
+#define EXPOSURE_OPT_PTR_VOL(e) (&((e).vol))
+#define EXPOSURE_OPT_PTR_AMT(e) (&((e).amt))
+#define EXPOSURE_OPT_PTR_DURA(e) (&((e).dura))
+    typedef struct
+    {
+        QString key_or_tag;
+        void* ptr;
+    }read_cfg_helper_t;
+    clear_exposure_opts_cfg();
+    QDomNodeList exposure_opts = doc.elementsByTagName(TAG_STR_EXPOSURE_OPTS);
+    if(!exposure_opts.isEmpty())
+    {
+        QDomElement opts = exposure_opts.item(0).toElement();
+        QDomNodeList opt_list = opts.elementsByTagName(TAG_STR_OPT);
+        if(!opt_list.isEmpty())
+        {
+            for(int i = 0, count = opt_list.count(); i < count; i++)
+            {
+                exposure_opt_item_t* opt_item = new exposure_opt_item_t;
+                if(!opt_item)
+                {
+                    DIY_LOG(LOG_ERROR, "new exposure_opt_item_t error!!!!!");
+                    clear_exposure_opts_cfg();
+                    construct_default_exposure_opts();
+                    break;
+                }
+                read_cfg_helper_t helper[] =
+                {
+                    {TAG_STR_IDX, EXPOSURE_OPT_PTR_IDX(*opt_item)},
+                    {TAG_STR_TYPE, EXPOSURE_OPT_PTR_TYPE(*opt_item)},
+                    {TAG_STR_TITLE, EXPOSURE_OPT_PTR_TITLE(*opt_item)},
+                    {TAG_STR_TUBE_VOL, EXPOSURE_OPT_PTR_VOL(*opt_item)},
+                    {TAG_STR_TUBE_AMT, EXPOSURE_OPT_PTR_AMT(*opt_item)},
+                    {TAG_STR_DURATION, EXPOSURE_OPT_PTR_DURA(*opt_item)},
+                };
+                for(qulonglong h_idx = 0; h_idx < sizeof(helper)/sizeof(helper[0]); ++h_idx)
+                {
+                    QDomNode opt = opt_list.item(i), dom_item;
+                    dom_item = opt.namedItem(helper[h_idx].key_or_tag);
+                    if(!dom_item.isNull())
+                    {
+                        if(TAG_STR_TITLE == helper[h_idx].key_or_tag)
+                        {
+                            *((QString*)(helper[h_idx].ptr)) = dom_item.toElement().text();
+                        }
+                        else if(TAG_STR_TYPE == helper[h_idx].key_or_tag)
+                        {
+                            *((exposure_opt_type_t*)(helper[h_idx].ptr))
+                                    = (exposure_opt_type_t)(dom_item.toElement().text().toInt());
+                        }
+                        else
+                        {
+                            *((int*)(helper[h_idx].ptr))
+                                    = dom_item.toElement().text().toInt();
+                        }
+                    }
+                    else
+                    {
+                        DIY_LOG(LOG_WARN,
+                                "Lack opt item %ls in config file. This item is ignored.",
+                                helper[h_idx].key_or_tag.utf16());
+                        delete opt_item;
+                        continue;
+                    }
+                }
+                if(check_exposure_opt_value(opt_item))
+                {
+                    exposureOptsCfg.insert(opt_item->idx, opt_item);
+                }
+                else
+                {
+                    DIY_LOG(LOG_WARN, "Invalid opt item. Ignored.");
+                    delete opt_item;
+                }
+            }
+            if(0 == exposureOptsCfg.count())
+            {
+                DIY_LOG(LOG_WARN, "No valid opt items in config file, use default opts.");
+                construct_default_exposure_opts();
+            }
+        }
+        else
+        {
+            //default
+            construct_default_exposure_opts();
+        }
+    }
+    else
+    {
+        //default
+        construct_default_exposure_opts();
+    }
+#undef EXPOSURE_OPT_PTR_TYPE
+#undef EXPOSURE_OPT_PTR_TITLE
+#undef EXPOSURE_OPT_PTR_IDX
+#undef EXPOSURE_OPT_PTR_VOL
+#undef EXPOSURE_OPT_PTR_AMT
+#undef EXPOSURE_OPT_PTR_DURA
 }
 
 
