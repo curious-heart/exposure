@@ -52,8 +52,8 @@ SystemSetting::~SystemSetting()
 
 
 void SystemSetting::on_sysOk_clicked(){
-    SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
-    FpdSettingCfg fsc=SettingCfg::getInstance().getFpdSettingCfg();
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
     ssc.serialPortName=(ui->serialPort->currentText());
     if(ssc.fpdName!=ui->fpdName->currentText()){
         ssc.fpdName=(ui->fpdName->currentText());

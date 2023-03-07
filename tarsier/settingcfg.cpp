@@ -1,8 +1,10 @@
 #include "settingcfg.h"
+#include "logger.h"
 #include <QSettings>
 #include <QFile>
 #include <QtXml/QDomDocument>
 #include <iostream>
+
 
 /**
  * @brief SettingCfg::getInstance 获取单例的SettingCfg
@@ -44,6 +46,8 @@ void SettingCfg::readSettingConfig(){
     systemSettingCfg.numberOfRetries = settings.value("numberOfRetries").isNull()?systemSettingCfg.numberOfRetries:settings.value("numberOfRetries").toInt();
     systemSettingCfg.serverAddress = settings.value("serverAddress").isNull()?systemSettingCfg.serverAddress:settings.value("serverAddress").toInt();
     systemSettingCfg.exposureTimeIndex= settings.value("exposureTimeIndex").isNull()?systemSettingCfg.exposureTimeIndex:settings.value("exposureTimeIndex").toInt();
+    systemSettingCfg.tubeVol = settings.value("tubeVol", DEFAULT_TUBE_VOL).toInt();
+    systemSettingCfg.tubeAmt = settings.value("tubeAmt", DEFAULT_TUBE_AMT).toInt();
     systemSettingCfg.isAutoOff = settings.value("isAutoOff").isNull()?systemSettingCfg.isAutoOff:settings.value("isAutoOff").toInt();
     settings.endGroup();
 
@@ -69,6 +73,7 @@ void SettingCfg::readSettingConfig(){
  * @param fsc 探测器设置
  */
 void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc){
+    /*
     systemSettingCfg.serialPortName= ssc->serialPortName;
     systemSettingCfg.fpdName=ssc->fpdName;
     systemSettingCfg.serialParity=ssc->serialParity;
@@ -88,33 +93,51 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
     fpdSettingCfg.offsetCorrectOption=fsc->offsetCorrectOption;
     fpdSettingCfg.gainCorrectOption=fsc->gainCorrectOption;
     fpdSettingCfg.defectCorrectOption=fsc->defectCorrectOption;
+    */
+    if(ssc)
+    {
+        DIY_LOG(LOG_INFO, "writeSettingConfig: ssc");
+    }
+    if(fsc)
+    {
+        DIY_LOG(LOG_INFO, "writeSettingConfig: fsc");
+    }
+
     QSettings settings("data/settingCfg.ini", QSettings::IniFormat);
-    settings.beginGroup("System");
-    settings.setValue("sleepTime", ssc->sleepTime);
-    settings.setValue("shutdownTime", ssc->shutdownTime);
-    settings.setValue("imageDir", ssc->imageDir);
-    settings.endGroup();
+    if(ssc)
+    {
+        settings.beginGroup("System");
+        settings.setValue("sleepTime", ssc->sleepTime);
+        settings.setValue("shutdownTime", ssc->shutdownTime);
+        settings.setValue("imageDir", ssc->imageDir);
+        settings.endGroup();
 
-    settings.beginGroup("RtuSerial");
-    settings.setValue("serialPortName", ssc->serialPortName);
-    settings.setValue("serialParity", ssc->serialParity);
-    settings.setValue("serialBaudRate", ssc->serialBaudRate);
-    settings.setValue("serialDataBits", ssc->serialDataBits);
-    settings.setValue("serialStopBits", ssc->serialStopBits);
-    settings.setValue("timeout", ssc->timeout);
-    settings.setValue("numberOfRetries", ssc->numberOfRetries);
-    settings.setValue("serverAddress", ssc->serverAddress);
-    settings.setValue("exposureTimeIndex", ssc->exposureTimeIndex);
-
-    settings.endGroup();
+        settings.beginGroup("RtuSerial");
+        settings.setValue("serialPortName", ssc->serialPortName);
+        settings.setValue("serialParity", ssc->serialParity);
+        settings.setValue("serialBaudRate", ssc->serialBaudRate);
+        settings.setValue("serialDataBits", ssc->serialDataBits);
+        settings.setValue("serialStopBits", ssc->serialStopBits);
+        settings.setValue("timeout", ssc->timeout);
+        settings.setValue("numberOfRetries", ssc->numberOfRetries);
+        settings.setValue("serverAddress", ssc->serverAddress);
+        settings.setValue("exposureTimeIndex", ssc->exposureTimeIndex);
+        settings.endGroup();
+    }
     settings.beginGroup("Fpd");
-    settings.setValue("fpdName", ssc->fpdName);
-    settings.setValue("fpdWorkDir", ssc->fpdWorkDir);
-    settings.setValue("trigger", fsc->trigger);
-    settings.setValue("PREP_clearAcqParamDelayTime", fsc->PREP_clearAcqParamDelayTime);
-    settings.setValue("offsetCorrectOption", fsc->offsetCorrectOption);
-    settings.setValue("gainCorrectOption", fsc->gainCorrectOption);
-    settings.setValue("defectCorrectOption", fsc->defectCorrectOption);
+    if(ssc)
+    {
+        settings.setValue("fpdName", ssc->fpdName);
+        settings.setValue("fpdWorkDir", ssc->fpdWorkDir);
+    }
+    if(fsc)
+    {
+        settings.setValue("trigger", fsc->trigger);
+        settings.setValue("PREP_clearAcqParamDelayTime", fsc->PREP_clearAcqParamDelayTime);
+        settings.setValue("offsetCorrectOption", fsc->offsetCorrectOption);
+        settings.setValue("gainCorrectOption", fsc->gainCorrectOption);
+        settings.setValue("defectCorrectOption", fsc->defectCorrectOption);
+    }
     settings.endGroup();
 
 }
@@ -124,7 +147,7 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
  * @brief SettingCfg::getSystemSettingCfg 获得系统设置的配置信息
  * @return
  */
-SystemSettingCfg SettingCfg::getSystemSettingCfg(){
+SystemSettingCfg &SettingCfg::getSystemSettingCfg(){
     return systemSettingCfg;
 }
 
@@ -133,7 +156,7 @@ SystemSettingCfg SettingCfg::getSystemSettingCfg(){
  * @brief SettingCfg::getFpdSettingCfg 获取探测器设置的配置信息
  * @return
  */
-FpdSettingCfg SettingCfg::getFpdSettingCfg(){
+FpdSettingCfg &SettingCfg::getFpdSettingCfg(){
     return fpdSettingCfg;
 }
 

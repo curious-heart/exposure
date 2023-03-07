@@ -6,6 +6,10 @@
 #include <QSerialPort>
 #include <include/IRayEnumDef.h>
 
+#define DEFAULT_TUBE_VOL 70 //kv
+#define DEFAULT_TUBE_AMT 3000 //uA
+#define DEFAULT_EXPOSURE_TIME_IDX 10
+
 struct SystemSettingCfg{
     QString serialPortName = "COM1";  //串口名称
     int serialParity=QSerialPort::NoParity;
@@ -15,7 +19,9 @@ struct SystemSettingCfg{
     int timeout=1000;
     int numberOfRetries=3;
     int serverAddress=1;//1-255
-    int exposureTimeIndex=25;
+    int exposureTimeIndex=DEFAULT_EXPOSURE_TIME_IDX /*25*/;
+    int tubeVol = DEFAULT_TUBE_VOL;
+    int tubeAmt = DEFAULT_TUBE_AMT;
     int isAutoOff=0;
     QString fpdName="";
     QString fpdWorkDir="";
@@ -49,8 +55,8 @@ public:
     explicit SettingCfg(QObject *parent = nullptr);
     void readSettingConfig();
     void writeSettingConfig(SystemSettingCfg * ssc,FpdSettingCfg * fsc);
-    SystemSettingCfg getSystemSettingCfg();
-    FpdSettingCfg getFpdSettingCfg();
+    SystemSettingCfg &getSystemSettingCfg();
+    FpdSettingCfg &getFpdSettingCfg();
     void readBaseConfig();
     SystemBaseCfg getSystemBaseCfg();
     FpdBaseCfg getFpdBaseCfg();

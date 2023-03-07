@@ -899,7 +899,7 @@ int MainWindow::SetCalibrationOptions(){
         fpd->GetErrorInfo(ret);
         return ret;
     }
-    FpdSettingCfg fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
+    FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     ret=fpd->SyncInvoke(Cmd_SetCorrectOption,fpdSettingCfg.offsetCorrectOption,1000);
     if (ret!=Err_OK){
         fpd->GetErrorInfo(ret);
@@ -1295,7 +1295,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
                 //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#FF0000}");
                 ui->batteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
             }
-            SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
+            SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
             if(!ssc.isAutoOff)
                 break;
             if(iter.value()>(3200*6) && iter.value()<=(3700*6)){
@@ -1369,15 +1369,16 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
     //    }
 
     if(baudRate || serverAddress){
-        SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        FpdSettingCfg fsc=SettingCfg::getInstance().getFpdSettingCfg();
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        //FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
         if(baudRate){
             ssc.serialBaudRate=baudRate;
         }
         if(serverAddress){
             ssc.serverAddress=serverAddress;
         }
-        SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+        //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
 }
 
@@ -1500,10 +1501,11 @@ void MainWindow::writeExposureTime(){
     if(writeSuccess){
         ui->exposureSetting->setText(QString("%1").arg(es));
         //更新曝光时间的下标到配置文件
-        SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        FpdSettingCfg fsc=SettingCfg::getInstance().getFpdSettingCfg();
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        //FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
         ssc.exposureTimeIndex=exposureTimeIndex;
-        SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+        //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
 }
 
@@ -1832,10 +1834,11 @@ void MainWindow::on_saveImage_clicked()
         //fileName是文件名
         QString dirTemp=fileName.mid(0,fileName.lastIndexOf("/")+1);
         if(dirTemp!=dir){
-            SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
+            SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
             ssc.imageDir=dirTemp;
-            FpdSettingCfg fsc=SettingCfg::getInstance().getFpdSettingCfg();
-            SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+            //FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+            //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+            SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
         }
         if(!ui->preview->saveImage(fileName))
         {

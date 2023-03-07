@@ -13,7 +13,7 @@ FpdSetting::FpdSetting(QWidget *parent) :
     ui->ok->setText(NULL);
     ui->cancel->setText(NULL);
     updateTriggerMode();
-    FpdSettingCfg fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
+    FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     //    QVariant v(0);
     //    ui->trigger->addItem("Outer",Enm_TriggerMode::Enm_TriggerMode_Outer);
     //    ui->trigger->addItem("Inner",Enm_TriggerMode::Enm_TriggerMode_Inner);
@@ -108,8 +108,8 @@ void FpdSetting::on_trigger_currentIndexChanged(int index){
  * @brief FpdSetting::on_ok_clicked 点击确定按钮时
  */
 void FpdSetting::on_ok_clicked(){
-    SystemSettingCfg ssc=SettingCfg::getInstance().getSystemSettingCfg();
-    FpdSettingCfg fsc=SettingCfg::getInstance().getFpdSettingCfg();
+    //SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
     fsc.trigger=(ui->trigger->currentIndex());
     fsc.PREP_clearAcqParamDelayTime=(ui->clearAcqParamDelayTime->text().toInt());
     if(ui->SWPreOffset->isChecked()){
@@ -131,7 +131,8 @@ void FpdSetting::on_ok_clicked(){
     }else if(ui->HWDefect->isChecked()){
         fsc.defectCorrectOption=Enm_CorrectOption::Enm_CorrectOp_HW_Defect;
     }
-    SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+    //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+    SettingCfg::getInstance().writeSettingConfig(nullptr, &fsc);
     this->close();
     emit maskWidgetClosed();
 }
@@ -158,7 +159,7 @@ void FpdSetting::updateTriggerMode()
     ui->trigger->addItem(p,Enm_TriggerMode::Enm_TriggerMode_Prep);
     ui->trigger->addItem(srv,Enm_TriggerMode::Enm_TriggerMode_Service);
     ui->trigger->addItem(f,Enm_TriggerMode::Enm_TriggerMode_FreeSync);
-    FpdSettingCfg fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
+    FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     QMap<QString, QStringList> fpdTriggerModeMap=SettingCfg::getInstance().getFpdBaseCfg().fpdTriggerModeMap;
     QString fpdName=SettingCfg::getInstance().getSystemSettingCfg().fpdName;
     bool oflag=false,iflag=false,sflag=false,pflag=false, srvflag = false, fflag=false;
