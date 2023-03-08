@@ -48,7 +48,11 @@
     width:214px;
 }
 
-#label_2,#label_4,#label_3,#label,#label_5,#label_6,#exposureSelLabel{
+#label_2,#label_4,#volDisplayLabel,#amtDisplayLabel,#exposureTimeDisplayLabel,#label_6,#exposureSelLabel{
+    color:#FFFFFF;
+}
+#feedbackVLabel, #settingVLabel
+{
     color:#FFFFFF;
 }
 
@@ -71,29 +75,34 @@
     width:129px;
     border-image: url(:/images/green.png);
 }
+#exposureSelCombox
+{
+    width:90px;
+    height:40px;
+}
 
 #voltmeter{
     height:32px;
-    width:70px;
+    width:60px;
     qproperty-alignment:AlignHCenter;
     border-image: url(:/images/meter.png);
 }
 #ammeter{
     height:32px;
-    width:70px;
+    width:60px;
     qproperty-alignment:AlignHCenter;
     border-image: url(:/images/meter.png);
 }
 
 #volSet{
     height:32px;
-    width:70px;
+    width:60px;
     qproperty-alignment:AlignHCenter;
     border-image: url(:/images/input.png);
 }
 #amSet{
     height:32px;
-    width:70px;
+    width:60px;
     qproperty-alignment:AlignHCenter;
     border-image: url(:/images/input.png);
 }

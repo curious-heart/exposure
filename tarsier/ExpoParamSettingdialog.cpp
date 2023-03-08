@@ -37,7 +37,11 @@ ExpoParamSettingDialog::ExpoParamSettingDialog(QWidget *parent,
     }
 
     move((QApplication::desktop()->width() - this->width())/2,
-         QApplication::desktop()->height()/10);
+         QApplication::desktop()->height()/20);
+
+
+    ui->expoDuraDecBtn->setStyleSheet("width: 80; height: 80; border-image: url(:/images/timeSub-able.png)");
+    ui->expoDuraIncBtn->setStyleSheet("width: 80; height: 80; border-image: url(:/images/timeAdd-able.png)");
 }
 
 ExpoParamSettingDialog::~ExpoParamSettingDialog()

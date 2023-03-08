@@ -53,8 +53,6 @@ private slots:
     void onErrorOccurred(QString errorInfo);
     void onReadControllerDataFinished(QMap<int,quint16> map);
     void on_exposure_clicked();
-    void on_addTime_clicked();
-    void on_subTime_clicked();
     void on_range_clicked();
     void onReadExposureStatusTimerOutTime();
     void onReadRangeStatusTimerOutTime();
@@ -92,11 +90,6 @@ private slots:
     void onTenMinutesTimerOutTime();
     void onStartAcqWaitTimerTimeOut();
 
-    void on_volSet_editingFinished();
-
-    void on_amSet_editingFinished();
-
-
     void on_exposureSelCombox_currentIndexChanged(int index);
     void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
 
@@ -133,7 +126,7 @@ private:
     void refresh_ip_addr();
     void update_cfg_on_exposure_combox();
     void setup_exposure_options_combox();
-
+    void update_exposure_parameters_display_on_main();
 
 private:
     Ui::MainWindow *ui;

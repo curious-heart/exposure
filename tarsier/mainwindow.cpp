@@ -135,8 +135,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->volSet->installEventFilter(this);
     ui->amSet->installEventFilter(this);
-
-    //m_inp_md = new InputMethod(this);
 }
 
 
@@ -200,8 +198,8 @@ void MainWindow::InitActions(){
     ui->chargeState->setFixedSize(129,32);
     ui->batteryLevel->setFixedSize(129,32);
     ui->fpdbatteryLevel->setFixedSize(129,32);
-    ui->voltmeter->setFixedSize(129,32);
-    ui->ammeter->setFixedSize(129,32);
+    //ui->voltmeter->setFixedSize(129,32);
+    //ui->ammeter->setFixedSize(129,32);
 
 
     wwVal= new QLabel(ui->preview);
@@ -288,8 +286,6 @@ void MainWindow::InitActions(){
     ui->fpdSetting->setEnabled(true);
     ui->exposure->setEnabled(false);
     ui->range->setEnabled(false);
-    ui->addTime->setEnabled(false);
-    ui->subTime->setEnabled(false);
     ui->systemSetting->setText(NULL);
     ui->fpdSetting->setText(NULL);
     ui->connect->setText(NULL);
@@ -298,8 +294,6 @@ void MainWindow::InitActions(){
     ui->exitSystem->setText(NULL);
     ui->exposure->setText(NULL);
     ui->range->setText(NULL);
-    ui->addTime->setText(NULL);
-    ui->subTime->setText(NULL);
     if(!(chargeStateImg->load("images/red.png"))){
         delete chargeStateImg;
     }
@@ -348,10 +342,6 @@ void MainWindow::InitActions(){
 
     /*setup exposure user options combox.*/
     setup_exposure_options_combox();
-
-    ui->volSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeVol));
-    ui->amSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeAmt));
-    ui->exposureSetting->setText(QString("%1").arg(exposureTimeList[exposureTimeIndex]));
 
     timestamp=QDateTime::currentDateTime();
     connect(checkSleepAndShutdownTimer, &QTimer::timeout, this, &MainWindow::onCheckSleepAndShutdownTimerOutTime);
@@ -940,9 +930,7 @@ void MainWindow::keyPressEvent(QKeyEvent * k){
         on_exposure_clicked();
     }else if(k->key()==Qt::Key_VolumeUp && controllerConnectState==Enm_Connect_State::Connected){//音量+
         on_exposure_clicked();
-        // on_addTime_clicked();
     }else if(k->key()==Qt::Key_VolumeDown && controllerConnectState==Enm_Connect_State::Connected){//音量-
-        // on_subTime_clicked();
     }else if(k->key()==Qt::Key_D){
         //ui->preview->brightAddImage();
     }else if(k->key()==Qt::Key_A){
@@ -1100,10 +1088,6 @@ void MainWindow::onControllerConnectStateChanged(int state){
         }
         ui->range->setStyleSheet("border-image: url(:/images/range-able.png)");
         ui->range->setEnabled(true);
-        ui->addTime->setStyleSheet("border-image: url(:/images/timeAdd-able.png)");
-        ui->addTime->setEnabled(true);
-        ui->subTime->setStyleSheet("border-image: url(:/images/timeSub-able.png)");
-        ui->subTime->setEnabled(true);
     }else if(state==Enm_Connect_State::Connecting){
         statusBar()->showMessage("下位机控制器连接中", 5000);
     }else if(state==Enm_Connect_State::Disconnected){//已断开
@@ -1112,10 +1096,6 @@ void MainWindow::onControllerConnectStateChanged(int state){
         ui->exposure->setEnabled(false);
         ui->range->setStyleSheet("border-image: url(:/images/range-disable.png)");
         ui->range->setEnabled(false);
-        ui->addTime->setStyleSheet("border-image: url(:/images/timeAdd-disable.png)");
-        ui->addTime->setEnabled(false);
-        ui->subTime->setStyleSheet("border-image: url(:/images/timeSub-disable.png)");
-        ui->subTime->setEnabled(false);
     }else if(state==Enm_Connect_State::Disconnecting){//断开中
         statusBar()->showMessage("下位机控制器断开中", 5000);
     }else{
@@ -1471,32 +1451,6 @@ void MainWindow::on_exposure_clicked(){
     ui->exposure->setEnabled(true);
 }
 
-
-/**
- * @brief MainWindow::on_addTime_clicked 曝光时间+按钮槽函数
- */
-void MainWindow::on_addTime_clicked(){
-    if(exposureTimeIndex >= (MAX_EXPOSURE_DURA_STEP- 1)){
-        return;
-    }
-    exposureTimeIndex++;
-    writeExposureTime();
-}
-
-
-/**
- * @brief MainWindow::on_subTime_clicked 曝光时间-按钮槽函数
- */
-void MainWindow::on_subTime_clicked(){
-    if(exposureTimeIndex <= 0)
-    {
-        return;
-    }
-    exposureTimeIndex--;
-    writeExposureTime();
-}
-
-
 /**
  * @brief MainWindow::writeExposureTime 给下位机写入曝光时间
  */
@@ -1510,7 +1464,7 @@ bool MainWindow::writeExposureTime(bool write_cfg_file){
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
     bool writeSuccess=controller->writeData(Enm_Controller_Address::ExposureTime,1,serverAddress,qv);
     if(writeSuccess){
-        ui->exposureSetting->setText(QString("%1").arg(es));
+        ui->exposureSettingLineEdit->setText(QString("%1").arg(es));
         if(write_cfg_file)
         {
             //更新曝光时间的下标到配置文件
@@ -1531,9 +1485,6 @@ bool MainWindow::writeExposurekV(int kV, bool write_cfg_file)
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
     bool writeSuccess=controller->writeData(Enm_Controller_Address::VoltSet,1,serverAddress,qv);
     if(writeSuccess){
-        ui->volSet->setText(QString("%1").arg(kV));
-        ui->volSet->setStyleSheet("color: rgb(0, 153, 0)");
-
         if(write_cfg_file)
         {
             /*更新配置文件*/
@@ -1552,9 +1503,6 @@ bool MainWindow::writeExposuremA(int ua, bool write_cfg_file)
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
     bool writeSuccess=controller->writeData(Enm_Controller_Address::FilamentSet,1,serverAddress,qv);
     if(writeSuccess){
-        ui->amSet->setText(QString("%1").arg(ua));
-        ui->amSet->setStyleSheet("color: rgb(0, 153, 0)");
-
         if(write_cfg_file)
         {
             /*更新配置文件*/
@@ -1826,6 +1774,15 @@ int MainWindow::ConnectionControllerAndSetting(){
     int ret=controller->ConnectionController();
     if(ret==0){
         onControllerConnectStateChanged(Enm_Connect_State::Connected);
+        /*写入电压和电流*/
+        {
+            int kV, mA;
+            kV = SettingCfg::getInstance().getSystemSettingCfg().tubeVol;
+            writeExposurekV(kV);
+
+            mA = SettingCfg::getInstance().getSystemSettingCfg().tubeAmt;
+            writeExposuremA(mA);
+        }
         writeExposureTime();//连接成功后写入曝光时间
         if(!readVoltmeterAndAmmeterTimer->isActive()){
             readVoltmeterAndAmmeterTimer->setInterval(1000);
@@ -2192,33 +2149,6 @@ void MainWindow::onStartAcqWaitTimerTimeOut()
     }
 }
 
-void MainWindow::on_volSet_editingFinished()
-{
-    //int setVol = ui->voltmeter->text().toInt();
-    int setVol = ui->volSet->text().toInt();
-    DIY_LOG(LOG_INFO, "Input voltage: %dKV", setVol);
-    //if((setVol< 80 )&& (setVol>55))
-    if((setVol<= MAX_TUBE_VOL )&& (setVol >= MIN_TUBE_VOL))
-        writeExposurekV(setVol);
-    else
-        //writeExposurekV(70);
-        writeExposurekV(DEF_TUBE_VOL);
-}
-
-
-void MainWindow::on_amSet_editingFinished()
-{
-    //int setAm = ui->ammeter->text().toInt();
-    int setAm = ui->amSet->text().toInt();
-    DIY_LOG(LOG_INFO, "Input current: %dmA", setAm);
-    //if((setAm<= 6600 )&& (setAm>500))
-    if((setAm <= MAX_TUBE_AMT)&& (setAm >= MIN_TUBE_AMT))
-        writeExposuremA(setAm);
-    else
-        //writeExposuremA(2000);
-        writeExposuremA(DEF_TUBE_AMT);
-}
-
 void MainWindow::refresh_ip_addr()
 {
     QString info = QHostInfo::localHostName();
@@ -2263,6 +2193,8 @@ void MainWindow::update_cfg_on_exposure_combox()
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
     exposureTimeIndex = ssc.exposureTimeIndex;
+
+    update_exposure_parameters_display_on_main();
 }
 
 void MainWindow::setup_exposure_options_combox()
@@ -2308,7 +2240,8 @@ void MainWindow::on_exposureSelCombox_currentIndexChanged(int index)
         params.dura_idx = ssc.exposureTimeIndex;
 
         expo_param_setting->update_dialog_params_display(&params);
-        expo_param_setting->exec();
+        //expo_param_setting->exec();
+        expo_param_setting->open();
     }
 }
 
@@ -2333,4 +2266,18 @@ void MainWindow::on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_co
     {
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
+
+    update_exposure_parameters_display_on_main();
+}
+
+void MainWindow::update_exposure_parameters_display_on_main()
+{
+    ui->volSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeVol));
+    ui->volSet->setStyleSheet("color: rgb(0, 153, 0)");
+
+    ui->amSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeAmt));
+    ui->amSet->setStyleSheet("color: rgb(0, 153, 0)");
+
+    ui->exposureSettingLineEdit->setText(QString("%1").arg(exposureTimeList[exposureTimeIndex]));
+    ui->exposureSettingLineEdit->setStyleSheet("color: rgb(0, 153, 0)");
 }
