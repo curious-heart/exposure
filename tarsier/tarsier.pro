@@ -72,6 +72,7 @@ HEADERS += \
 
 FORMS += \
     exitsystem.ui \
+    exposure_manual_setting.ui \
     fpdsetting.ui \
     lowbatterywarning.ui \
     mainwindow.ui \

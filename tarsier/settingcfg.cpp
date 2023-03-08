@@ -2,10 +2,10 @@
 #include "logger.h"
 #include <QSettings>
 #include <QFile>
-#include <QtXml/QDomDocument>
 #include <iostream>
 
 const char* INI_GRP_USER_SETTINGS = "UserSettings";
+const char* INI_KEY_CURR_EXPOSURE_OPT = "currExposureOpt";
 const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
 const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
 
@@ -17,6 +17,12 @@ const char* TAG_STR_TUBE_VOL = INI_KEY_RTUSERIAL_TUBE_VOL;
 const char* TAG_STR_TUBE_AMT = INI_KEY_RTUSERIAL_TUBE_AMT;
 const char* TAG_STR_DURATION = "dura";
 const char* TAG_STR_IDX = "idx";
+
+typedef struct
+{
+    QString key_or_tag;
+    void* ptr;
+}read_cfg_helper_t;
 
 void SettingCfg::clear_exposure_opts_cfg()
 {
@@ -34,6 +40,18 @@ bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
     {
         return false;
     }
+
+    if(opt_item->idx < 0)
+    {
+       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int and >= 0.",
+               TAG_STR_IDX, opt_item->idx);
+       return false;
+    }
+    if(opt_item->type == exposure_opt_type_manual)
+    {
+        return true;
+    }
+
     if((opt_item->type != exposure_opt_type_auto)
             && (opt_item->type != exposure_opt_type_manual))
     {
@@ -59,8 +77,22 @@ bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
                TAG_STR_DURATION, opt_item->dura, 0, MAX_EXPOSURE_DURA_STEP-1);
        return false;
     }
+
     return true;
 }
+void SettingCfg::init_exposure_opt_item(exposure_opt_item_t* opt_item)
+{
+    if(opt_item)
+    {
+        opt_item->idx = -1;
+        opt_item->title = "";
+        opt_item->type = (exposure_opt_type_t)-1;
+        opt_item->vol = MIN_TUBE_VOL - 1;
+        opt_item->amt = MIN_TUBE_AMT - 1;
+        opt_item->dura = -1;
+    }
+}
+
 /**
  * @brief SettingCfg::getInstance 获取单例的SettingCfg
  * @return 单例的SettingCfg实例
@@ -123,6 +155,10 @@ void SettingCfg::readSettingConfig(){
     fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg
             = settings.value("innerTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg:settings.value("innerTriggerWaitBeforeAcqImg").toInt();
     settings.endGroup();
+
+    settings.beginGroup(INI_GRP_USER_SETTINGS);
+    systemSettingCfg.currExposureOpt = settings.value(INI_KEY_CURR_EXPOSURE_OPT, DEF_CURR_EXPOSURE_OPT).toInt();
+    settings.endGroup();
 }
 
 
@@ -183,6 +219,11 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
         settings.setValue("exposureTimeIndex", ssc->exposureTimeIndex);
         settings.setValue(INI_KEY_RTUSERIAL_TUBE_VOL, ssc->tubeVol);
         settings.setValue(INI_KEY_RTUSERIAL_TUBE_AMT, ssc->tubeAmt);
+        settings.endGroup();
+
+
+        settings.beginGroup(INI_GRP_USER_SETTINGS);
+        settings.setValue(INI_KEY_CURR_EXPOSURE_OPT, ssc->currExposureOpt);
         settings.endGroup();
     }
     settings.beginGroup("Fpd");
@@ -296,17 +337,18 @@ void SettingCfg::readBaseConfig(){
         }
     }
 
+    read_exposure_opts_cfg(doc);
+}
+
+void SettingCfg::read_exposure_opts_cfg(QDomDocument &doc)
+{
 #define EXPOSURE_OPT_PTR_TYPE(e) (&((e).type))
 #define EXPOSURE_OPT_PTR_TITLE(e) (&((e).title))
 #define EXPOSURE_OPT_PTR_IDX(e) (&((e).idx))
 #define EXPOSURE_OPT_PTR_VOL(e) (&((e).vol))
 #define EXPOSURE_OPT_PTR_AMT(e) (&((e).amt))
 #define EXPOSURE_OPT_PTR_DURA(e) (&((e).dura))
-    typedef struct
-    {
-        QString key_or_tag;
-        void* ptr;
-    }read_cfg_helper_t;
+
     clear_exposure_opts_cfg();
     QDomNodeList exposure_opts = doc.elementsByTagName(TAG_STR_EXPOSURE_OPTS);
     if(!exposure_opts.isEmpty())
@@ -315,9 +357,10 @@ void SettingCfg::readBaseConfig(){
         QDomNodeList opt_list = opts.elementsByTagName(TAG_STR_OPT);
         if(!opt_list.isEmpty())
         {
-            for(int i = 0, count = opt_list.count(); i < count; i++)
+            for(int opt_idx = 0, count = opt_list.count(); opt_idx < count; ++opt_idx)
             {
-                exposure_opt_item_t* opt_item = new exposure_opt_item_t;
+                exposure_opt_item_t* opt_item;
+                opt_item = new exposure_opt_item_t;
                 if(!opt_item)
                 {
                     DIY_LOG(LOG_ERROR, "new exposure_opt_item_t error!!!!!");
@@ -325,6 +368,7 @@ void SettingCfg::readBaseConfig(){
                     construct_default_exposure_opts();
                     break;
                 }
+                init_exposure_opt_item(opt_item);
                 read_cfg_helper_t helper[] =
                 {
                     {TAG_STR_IDX, EXPOSURE_OPT_PTR_IDX(*opt_item)},
@@ -334,9 +378,11 @@ void SettingCfg::readBaseConfig(){
                     {TAG_STR_TUBE_AMT, EXPOSURE_OPT_PTR_AMT(*opt_item)},
                     {TAG_STR_DURATION, EXPOSURE_OPT_PTR_DURA(*opt_item)},
                 };
+
+                QDomNode opt, dom_item;
+                opt = opt_list.item(opt_idx);
                 for(qulonglong h_idx = 0; h_idx < sizeof(helper)/sizeof(helper[0]); ++h_idx)
                 {
-                    QDomNode opt = opt_list.item(i), dom_item;
                     dom_item = opt.namedItem(helper[h_idx].key_or_tag);
                     if(!dom_item.isNull())
                     {
@@ -358,10 +404,8 @@ void SettingCfg::readBaseConfig(){
                     else
                     {
                         DIY_LOG(LOG_WARN,
-                                "Lack opt item %ls in config file. This item is ignored.",
+                                "Lack opt item %ls in config file.",
                                 helper[h_idx].key_or_tag.utf16());
-                        delete opt_item;
-                        continue;
                     }
                 }
                 if(check_exposure_opt_value(opt_item))
@@ -383,12 +427,16 @@ void SettingCfg::readBaseConfig(){
         else
         {
             //default
+            DIY_LOG(LOG_WARN, "Tag \"%s\" is not found in cfg file. Use default config.",
+                    TAG_STR_OPT);
             construct_default_exposure_opts();
         }
     }
     else
     {
         //default
+        DIY_LOG(LOG_WARN, "Tag \"%s\" is not found in cfg file. Use default config.",
+                TAG_STR_EXPOSURE_OPTS);
         construct_default_exposure_opts();
     }
 #undef EXPOSURE_OPT_PTR_TYPE
@@ -399,12 +447,16 @@ void SettingCfg::readBaseConfig(){
 #undef EXPOSURE_OPT_PTR_DURA
 }
 
+exposure_opts_t& SettingCfg::getExposureOptsCfg()
+{
+    return exposureOptsCfg;
+}
 
 /**
  * @brief SettingCfg::getSystemBaseCfg 获得系统设置中的基础信息
  * @return
  */
-SystemBaseCfg SettingCfg::getSystemBaseCfg(){
+SystemBaseCfg& SettingCfg::getSystemBaseCfg(){
     return systemBaseCfg;
 }
 
@@ -412,6 +464,6 @@ SystemBaseCfg SettingCfg::getSystemBaseCfg(){
  * @brief SettingCfg::getFpdBaseCfg 获得探测器设置中的基础数据
  * @return
  */
-FpdBaseCfg SettingCfg::getFpdBaseCfg(){
+FpdBaseCfg& SettingCfg::getFpdBaseCfg(){
     return fpdBaseCfg;
 }

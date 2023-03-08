@@ -327,13 +327,13 @@ void MainWindow::InitActions(){
     connect(ui->preview,&ImageLabel::imageLoaded,this,&MainWindow::onImageLoaded);
     connect(ui->preview,&ImageLabel::wwwlChanged,this,&MainWindow::onWwwlChanged);
 
-    exposureTimeIndex=SettingCfg::getInstance().getSystemSettingCfg().exposureTimeIndex;
-    if(exposureTimeIndex < 0 || exposureTimeIndex >= MAX_EXPOSURE_DURA_STEP)
-    {
-        exposureTimeIndex = DEF_EXPOSURE_DURA_IDX;
-    }
+    /*setup exposure user options combox.*/
+    setup_exposure_options_combox();
 
+    ui->volSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeVol));
+    ui->amSet->setText(QString("%1").arg(SettingCfg::getInstance().getSystemSettingCfg().tubeAmt));
     ui->exposureSetting->setText(QString("%1").arg(exposureTimeList[exposureTimeIndex]));
+
     timestamp=QDateTime::currentDateTime();
     connect(checkSleepAndShutdownTimer, &QTimer::timeout, this, &MainWindow::onCheckSleepAndShutdownTimerOutTime);
     if(!checkSleepAndShutdownTimer->isActive()){
@@ -2199,3 +2199,73 @@ void MainWindow::refresh_ip_addr()
             ui->IPaddr->setText("IP:" + addr.toString());
     }
 }
+
+
+void MainWindow::update_cfg_on_exposure_combox()
+{
+    int curr_opt = ui->exposureSelCombox->currentIndex();
+    exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    bool diff = false;
+    if(exposure_opt_type_auto == e_opts.value(curr_opt)->type)
+    {
+        if(e_opts.value(curr_opt)->vol != ssc.tubeVol
+                || e_opts.value(curr_opt)->amt != ssc.tubeAmt
+                || e_opts.value(curr_opt)->dura != ssc.exposureTimeIndex
+                || e_opts.value(curr_opt)->idx != ssc.currExposureOpt)
+        {
+            diff = true;
+
+            ssc.tubeVol = e_opts.value(curr_opt)->vol;
+            ssc.tubeAmt = e_opts.value(curr_opt)->amt;
+            ssc.exposureTimeIndex = e_opts.value(curr_opt)->dura;
+            ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
+        }
+    }
+    else if(e_opts.value(curr_opt)->idx != ssc.currExposureOpt)
+    {
+        diff = true;
+    }
+
+    if(diff)
+    {
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+    }
+    exposureTimeIndex = ssc.exposureTimeIndex;
+}
+
+void MainWindow::setup_exposure_options_combox()
+{
+    ui->exposureSelCombox->clear();
+
+    exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
+    exposure_opts_t::iterator it = e_opts.begin();
+    while(it != e_opts.end())
+    {
+        ui->exposureSelCombox->addItem(it.value()->title);
+        ++it;
+    }
+    int curr_opt =SettingCfg::getInstance().getSystemSettingCfg().currExposureOpt;
+    ui->exposureSelCombox->setCurrentIndex(curr_opt);
+
+    update_cfg_on_exposure_combox();
+
+    exposureTimeIndex = SettingCfg::getInstance().getSystemSettingCfg().exposureTimeIndex;
+    if(exposureTimeIndex < 0 || exposureTimeIndex >= MAX_EXPOSURE_DURA_STEP)
+    {
+        exposureTimeIndex = DEF_EXPOSURE_DURA_IDX;
+    }
+}
+
+void MainWindow::on_exposureSelCombox_currentIndexChanged(int index)
+{
+    update_cfg_on_exposure_combox();
+
+    int curr_opt = index;
+    exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
+    if(exposure_opt_type_manual == e_opts.value(curr_opt)->type)
+    {
+        //show dialog for manual input exposure parameters.
+    }
+}
+

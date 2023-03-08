@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMap>
 #include <QSerialPort>
+#include <QtXml/QDomDocument>
 #include <include/IRayEnumDef.h>
 
 extern const char* INI_KEY_RTUSERIAL_TUBE_VOL;
@@ -15,8 +16,9 @@ extern const char* INI_KEY_RTUSERIAL_TUBE_AMT;
 #define MAX_TUBE_AMT 6600
 #define DEF_TUBE_AMT 3000
 
-#define MAX_EXPOSURE_DURA_STEP 17
+#define MAX_EXPOSURE_DURA_STEP 17 //idx. refer to exposureTimeList in MainWindow.cpp.
 #define DEF_EXPOSURE_DURA_IDX 3
+#define DEF_CURR_EXPOSURE_OPT 1
 
 typedef enum
 {
@@ -50,6 +52,7 @@ struct SystemSettingCfg{
     QString sleepTime="off";
     QString shutdownTime="off";
     QString imageDir="";
+    int currExposureOpt = DEF_CURR_EXPOSURE_OPT;
 };
 struct SystemBaseCfg{
     QStringList fpdNameList;//探测器列表
@@ -81,8 +84,9 @@ public:
     SystemSettingCfg &getSystemSettingCfg();
     FpdSettingCfg &getFpdSettingCfg();
     void readBaseConfig();
-    SystemBaseCfg getSystemBaseCfg();
-    FpdBaseCfg getFpdBaseCfg();
+    SystemBaseCfg& getSystemBaseCfg();
+    FpdBaseCfg &getFpdBaseCfg();
+    exposure_opts_t& getExposureOptsCfg();
 private:
     SystemSettingCfg systemSettingCfg;
     FpdSettingCfg fpdSettingCfg;
@@ -90,7 +94,9 @@ private:
     FpdBaseCfg fpdBaseCfg;
 
     exposure_opts_t exposureOptsCfg;
+    void read_exposure_opts_cfg(QDomDocument &doc);
     void construct_default_exposure_opts();
+    void init_exposure_opt_item(exposure_opt_item_t* opt_item);
     void clear_exposure_opts_cfg();
     bool check_exposure_opt_value(exposure_opt_item_t* opt_item);
 };

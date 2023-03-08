@@ -96,6 +96,8 @@ private slots:
     void on_amSet_editingFinished();
 
 
+    void on_exposureSelCombox_currentIndexChanged(int index);
+
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
 
@@ -127,6 +129,8 @@ private:
     void writeExposuremA(int ua);
     bool dDriveExist();
     void refresh_ip_addr();
+    void update_cfg_on_exposure_combox();
+    void setup_exposure_options_combox();
 
 
 private:
