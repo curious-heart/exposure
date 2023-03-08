@@ -94,6 +94,19 @@ MainWindow::MainWindow(QWidget *parent)
     fpdSetting=new FpdSetting(this);
     controller=new MyController(this);
     maskWidget=new MaskWidget(this);
+
+    /*set up exposure manual setting dialog parameters.*/
+    ExpoParamSettingDialog::expo_params_validator_t expo_param_validator =
+    {
+        MIN_TUBE_VOL, MAX_TUBE_VOL, DEF_TUBE_VOL,
+        MIN_TUBE_AMT, MAX_TUBE_AMT, DEF_TUBE_AMT,
+        0,  MAX_EXPOSURE_DURA_STEP - 1, DEF_EXPOSURE_DURA_IDX,
+        exposureTimeList,
+        MAX_EXPOSURE_DURA_STEP,
+        true,
+    };
+    expo_param_setting = new ExpoParamSettingDialog(this, &expo_param_validator);
+
     lowBatteryWarning=new LowBatteryWarning(this);
     fpd=new MyFPD(this);
     imageOperation=new ImageOperation(this);
@@ -140,6 +153,8 @@ MainWindow::~MainWindow()
     fpdSetting=NULL;
     delete maskWidget;
     maskWidget=NULL;
+    delete expo_param_setting;
+    expo_param_setting = nullptr;
     delete lowBatteryWarning;
     lowBatteryWarning=NULL;
     delete readExposureStatusTimer;
@@ -306,6 +321,10 @@ void MainWindow::InitActions(){
     connect(systemSetting, &SystemSetting::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(fpdSetting, &FpdSetting::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(exitSystem, &ExitSystem::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
+    connect(expo_param_setting, &ExpoParamSettingDialog::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
+    connect(expo_param_setting, &ExpoParamSettingDialog::userInputDone,
+            this, &MainWindow::on_exposureUserInputDone);
+
     connect(lowBatteryWarning, &LowBatteryWarning::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(lowBatteryWarning, &LowBatteryWarning::tenMinutesTimerStarted, this,&MainWindow::onTenMinutesTimerStarted);
 
@@ -1481,7 +1500,7 @@ void MainWindow::on_subTime_clicked(){
 /**
  * @brief MainWindow::writeExposureTime 给下位机写入曝光时间
  */
-void MainWindow::writeExposureTime(){
+bool MainWindow::writeExposureTime(bool write_cfg_file){
     float es=exposureTimeList[exposureTimeIndex];
     //quint16 low = *((quint16*)&es);
     //quint16 high = *((quint16*)&es+1);
@@ -1492,16 +1511,20 @@ void MainWindow::writeExposureTime(){
     bool writeSuccess=controller->writeData(Enm_Controller_Address::ExposureTime,1,serverAddress,qv);
     if(writeSuccess){
         ui->exposureSetting->setText(QString("%1").arg(es));
-        //更新曝光时间的下标到配置文件
-        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        //FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
-        ssc.exposureTimeIndex=exposureTimeIndex;
-        //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
-        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        if(write_cfg_file)
+        {
+            //更新曝光时间的下标到配置文件
+            SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+            //FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+            ssc.exposureTimeIndex=exposureTimeIndex;
+            //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
+            SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        }
     }
+    return writeSuccess;
 }
 
-void MainWindow::writeExposurekV(int kV)
+bool MainWindow::writeExposurekV(int kV, bool write_cfg_file)
 {
     QVector<quint16> qv;
     qv.append(kV);
@@ -1511,16 +1534,19 @@ void MainWindow::writeExposurekV(int kV)
         ui->volSet->setText(QString("%1").arg(kV));
         ui->volSet->setStyleSheet("color: rgb(0, 153, 0)");
 
-        /*更新配置文件*/
-        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        ssc.tubeVol = kV;
-        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        if(write_cfg_file)
+        {
+            /*更新配置文件*/
+            SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+            ssc.tubeVol = kV;
+            SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        }
     }
+    return writeSuccess;
 }
 
-void MainWindow::writeExposuremA(int ua)
+bool MainWindow::writeExposuremA(int ua, bool write_cfg_file)
 {
-
     QVector<quint16> qv;
     qv.append(ua);
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
@@ -1529,11 +1555,15 @@ void MainWindow::writeExposuremA(int ua)
         ui->amSet->setText(QString("%1").arg(ua));
         ui->amSet->setStyleSheet("color: rgb(0, 153, 0)");
 
-        /*更新配置文件*/
-        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        ssc.tubeAmt = ua;
-        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        if(write_cfg_file)
+        {
+            /*更新配置文件*/
+            SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+            ssc.tubeAmt = ua;
+            SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+        }
     }
+    return writeSuccess;
 }
 
 /**
@@ -2225,6 +2255,7 @@ void MainWindow::update_cfg_on_exposure_combox()
     else if(e_opts.value(curr_opt)->idx != ssc.currExposureOpt)
     {
         diff = true;
+        ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
     }
 
     if(diff)
@@ -2236,10 +2267,10 @@ void MainWindow::update_cfg_on_exposure_combox()
 
 void MainWindow::setup_exposure_options_combox()
 {
-    ui->exposureSelCombox->clear();
-
     exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
     exposure_opts_t::iterator it = e_opts.begin();
+    ui->exposureSelCombox->blockSignals(true);
+    ui->exposureSelCombox->clear();
     while(it != e_opts.end())
     {
         ui->exposureSelCombox->addItem(it.value()->title);
@@ -2247,6 +2278,8 @@ void MainWindow::setup_exposure_options_combox()
     }
     int curr_opt =SettingCfg::getInstance().getSystemSettingCfg().currExposureOpt;
     ui->exposureSelCombox->setCurrentIndex(curr_opt);
+
+    ui->exposureSelCombox->blockSignals(false);
 
     update_cfg_on_exposure_combox();
 
@@ -2266,6 +2299,38 @@ void MainWindow::on_exposureSelCombox_currentIndexChanged(int index)
     if(exposure_opt_type_manual == e_opts.value(curr_opt)->type)
     {
         //show dialog for manual input exposure parameters.
+        maskWidget->show();
+
+        ExpoParamSettingDialog::expo_params_collection_t params;
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        params.vol = ssc.tubeVol;
+        params.amt = ssc.tubeAmt;
+        params.dura_idx = ssc.exposureTimeIndex;
+
+        expo_param_setting->update_dialog_params_display(&params);
+        expo_param_setting->exec();
     }
 }
 
+void MainWindow::on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params)
+{
+    /* We add the variable ret and judgeemnts to minimize the cfg-file-writtings.
+     * We try to write cfg file only once.
+    */
+    bool ret;
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+
+    ret = writeExposurekV(params.vol, false);
+    if(ret) ssc.tubeVol = params.vol;
+
+    ret = writeExposuremA(params.amt, false);
+    if(ret) ssc.tubeAmt = params.amt;
+
+    exposureTimeIndex = params.dura_idx;
+    ret = writeExposureTime(true);
+
+    if(!ret)
+    {
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+    }
+}

@@ -14,6 +14,7 @@
 #include "IRayInclude.h"
 #include "imageoperation.h"
 #include "lowbatterywarning.h"
+#include "ExpoParamSettingdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -97,6 +98,7 @@ private slots:
 
 
     void on_exposureSelCombox_currentIndexChanged(int index);
+    void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
 
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
@@ -124,9 +126,9 @@ private:
     int SetCalibrationOptions();
     void keyPressEvent(QKeyEvent * k);
     int ConnectionControllerAndSetting();
-    void writeExposureTime();
-    void writeExposurekV(int kV);
-    void writeExposuremA(int ua);
+    bool writeExposureTime(bool write_cfg_file = true);
+    bool writeExposurekV(int kV, bool write_cfg_file = true);
+    bool writeExposuremA(int ua, bool write_cfg_file = true);
     bool dDriveExist();
     void refresh_ip_addr();
     void update_cfg_on_exposure_combox();
@@ -142,6 +144,7 @@ private:
     ExitSystem *exitSystem;
     FpdSetting *fpdSetting;
     MaskWidget *maskWidget;
+    ExpoParamSettingDialog* expo_param_setting;
     LowBatteryWarning *lowBatteryWarning;
     QTimer * readExposureStatusTimer;
     QTimer * readRangeStatusTimer;

@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ExpoParamSettingdialog.cpp \
     exitsystem.cpp \
     fpdsetting.cpp \
     globalapplication.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
     thirdpart/qtsinglecoreapplication.cpp
 
 HEADERS += \
+    ExpoParamSettingdialog.h \
     IRayInclude.h \
     exitsystem.h \
     fpdsetting.h \
@@ -71,8 +73,8 @@ HEADERS += \
     thirdpart/qtsinglecoreapplication.h
 
 FORMS += \
+    ExpoParamSettingdialog.ui \
     exitsystem.ui \
-    exposure_manual_setting.ui \
     fpdsetting.ui \
     lowbatterywarning.ui \
     mainwindow.ui \
