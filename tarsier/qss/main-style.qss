@@ -79,6 +79,11 @@
 {
     width:90px;
     height:48px;
+    border-image: url(:/images/input.png);
+}
+#exposureSelCombox::drop-down
+{
+    border-image: url(:/images/more.png);
 }
 
 #voltmeter{
@@ -278,4 +283,27 @@ QRadioButton::indicator::checked {
     height:54px;
     width:155px;
     border-image: url(:/images/warning-notprompt.png);
+}
+#ExpoParamSettingDialog
+{
+    background-color: rgb(255, 255, 255);
+}
+#ExpoParamSettingDialog *
+{
+    font: 12pt "黑体";
+}
+#exposureParamSettingTitleLabel
+{
+    font: 22pt "黑体";
+}
+
+#okBtn{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/ok.png);
+}
+#cancelBtn{
+    height:54px;
+    width:186px;
+    border-image: url(:/images/cancel.png);
 }

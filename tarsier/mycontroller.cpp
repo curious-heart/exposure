@@ -1,6 +1,7 @@
 #include "mycontroller.h"
 #include <QModbusRtuSerialMaster>
 #include "settingcfg.h"
+#include "logger.h"
 #include <QVariant>
 #include <QMetaEnum>
 #include <QDebug>
@@ -147,7 +148,8 @@ bool MyController::writeData(int address, quint16 size, int serverAddress, QVect
         }
         return true;
     }else {
-        printf("写入数据错误\n ");
+        DIY_LOG(LOG_ERROR, "Write data error!");
+        //printf("写入数据错误\n ");
         return false;
     }
 }
