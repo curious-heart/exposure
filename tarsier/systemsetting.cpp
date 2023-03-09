@@ -1,6 +1,7 @@
 #include "systemsetting.h"
 #include "ui_systemsetting.h"
 #include "settingcfg.h"
+#include "version_def.h"
 
 #include <QtSerialPort/QSerialPortInfo>
 
@@ -43,6 +44,8 @@ SystemSetting::SystemSetting(QWidget *parent) :
     ui->fpdName->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().fpdName);
     ui->sleepTime->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().sleepTime);
     ui->shutdownTime->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().shutdownTime);
+
+    ui->versionLabel->setText(APP_VER_STR);
 }
 
 SystemSetting::~SystemSetting()

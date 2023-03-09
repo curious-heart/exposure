@@ -38,7 +38,8 @@ SOURCES += \
     thirdpart/qtlockedfile_unix.cpp \
     thirdpart/qtlockedfile_win.cpp \
     thirdpart/qtsingleapplication.cpp \
-    thirdpart/qtsinglecoreapplication.cpp
+    thirdpart/qtsinglecoreapplication.cpp \
+    version_def.cpp
 
 HEADERS += \
     ExpoParamSettingdialog.h \
@@ -70,7 +71,8 @@ HEADERS += \
     thirdpart/qtlocalpeer.h \
     thirdpart/qtlockedfile.h \
     thirdpart/qtsingleapplication.h \
-    thirdpart/qtsinglecoreapplication.h
+    thirdpart/qtsinglecoreapplication.h \
+    version_def.h
 
 FORMS += \
     ExpoParamSettingdialog.ui \

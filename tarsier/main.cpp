@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
     QThread th;
     start_log_thread(th);
 
-
     if(a.isRunning())
     {
         return !a.sendMessage("已经有一个实例在运行中");
