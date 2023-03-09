@@ -81,6 +81,12 @@ public:
     ~SettingCfg();
     void readSettingConfig();
     void writeSettingConfig(SystemSettingCfg * ssc,FpdSettingCfg * fsc);
+    /*
+     * 20230307：
+     * 注意：这几个函数的返回类型改为了reference，这样可以避免多次拷贝；但在使用时就必须注意，
+     * 如果对返回的结构体中某项进行了赋值，一定要writeSettingConfig，以避免本地数据与配置文件数据
+     * 不一致。
+    */
     SystemSettingCfg &getSystemSettingCfg();
     FpdSettingCfg &getFpdSettingCfg();
     void readBaseConfig();

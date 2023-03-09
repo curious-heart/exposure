@@ -93,6 +93,8 @@ private slots:
     void on_exposureSelCombox_currentIndexChanged(int index);
     void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
 
+    void on_exposureSelCombox_activated(int index);
+
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
 
@@ -119,14 +121,16 @@ private:
     int SetCalibrationOptions();
     void keyPressEvent(QKeyEvent * k);
     int ConnectionControllerAndSetting();
-    bool writeExposureTime(bool write_cfg_file = true);
+    bool writeExposureTime(int idx, bool write_cfg_file = true);
     bool writeExposurekV(int kV, bool write_cfg_file = true);
     bool writeExposuremA(int ua, bool write_cfg_file = true);
     bool dDriveExist();
     void refresh_ip_addr();
-    void update_cfg_on_exposure_combox();
+    void update_controller_or_cfg_on_exposure_combox();
     void setup_exposure_options_combox();
     void update_exposure_parameters_display_on_main();
+    bool write_exposure_params_to_controller_or_cfg(ExpoParamSettingDialog::expo_params_collection_t params, bool write_cfg = true);
+    void goto_user_input_dialog();
 
 private:
     Ui::MainWindow *ui;

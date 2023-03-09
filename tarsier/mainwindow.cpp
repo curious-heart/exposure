@@ -1222,8 +1222,11 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
                     {
                         readExposureStatusTimer->stop();
                     }
-                    statusBar()->showMessage("下位机曝光已结束", 5000);
                     exposure_state_trace = 0;
+
+                    statusBar()->showMessage("下位机曝光已结束", 5000);
+                    ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
+                    ui->exposure->setEnabled(true);
                 }
             }
         }
@@ -1447,15 +1450,18 @@ void MainWindow::on_exposure_clicked(){
                     log_str.utf16(), trigger, ret);
         }
     }
+    /*
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
     ui->exposure->setEnabled(true);
+    */
 }
 
 /**
  * @brief MainWindow::writeExposureTime 给下位机写入曝光时间
  */
-bool MainWindow::writeExposureTime(bool write_cfg_file){
-    float es=exposureTimeList[exposureTimeIndex];
+bool MainWindow::writeExposureTime(int idx, bool write_cfg_file){
+    //float es=exposureTimeList[exposureTimeIndex];
+    float es=exposureTimeList[idx];
     //quint16 low = *((quint16*)&es);
     //quint16 high = *((quint16*)&es+1);
     QVector<quint16> qv;
@@ -1776,14 +1782,16 @@ int MainWindow::ConnectionControllerAndSetting(){
         onControllerConnectStateChanged(Enm_Connect_State::Connected);
         /*写入电压和电流*/
         {
-            int kV, mA;
+            int kV, mA, idx;
             kV = SettingCfg::getInstance().getSystemSettingCfg().tubeVol;
             writeExposurekV(kV);
 
             mA = SettingCfg::getInstance().getSystemSettingCfg().tubeAmt;
             writeExposuremA(mA);
+
+            idx = SettingCfg::getInstance().getSystemSettingCfg().exposureTimeIndex;
+            writeExposureTime(idx);//连接成功后写入曝光时间
         }
-        writeExposureTime();//连接成功后写入曝光时间
         if(!readVoltmeterAndAmmeterTimer->isActive()){
             readVoltmeterAndAmmeterTimer->setInterval(1000);
             readVoltmeterAndAmmeterTimer->start();
@@ -2161,38 +2169,31 @@ void MainWindow::refresh_ip_addr()
 }
 
 
-void MainWindow::update_cfg_on_exposure_combox()
+void MainWindow::update_controller_or_cfg_on_exposure_combox()
 {
     int curr_opt = ui->exposureSelCombox->currentIndex();
     exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
     SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-    bool diff = false;
+    ExpoParamSettingDialog::expo_params_collection_t params;
+    bool write_cfg;
+
     if(exposure_opt_type_auto == e_opts.value(curr_opt)->type)
     {
-        if(e_opts.value(curr_opt)->vol != ssc.tubeVol
-                || e_opts.value(curr_opt)->amt != ssc.tubeAmt
-                || e_opts.value(curr_opt)->dura != ssc.exposureTimeIndex
-                || e_opts.value(curr_opt)->idx != ssc.currExposureOpt)
-        {
-            diff = true;
-
-            ssc.tubeVol = e_opts.value(curr_opt)->vol;
-            ssc.tubeAmt = e_opts.value(curr_opt)->amt;
-            ssc.exposureTimeIndex = e_opts.value(curr_opt)->dura;
-            ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
-        }
+        params.vol = e_opts.value(curr_opt)->vol;
+        params.amt = e_opts.value(curr_opt)->amt;
+        params.dura_idx = e_opts.value(curr_opt)->dura;
+        write_cfg = true;
     }
-    else if(e_opts.value(curr_opt)->idx != ssc.currExposureOpt)
+    else
     {
-        diff = true;
-        ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
+        params.vol = ssc.tubeVol;
+        params.amt = ssc.tubeAmt;
+        params.dura_idx = ssc.exposureTimeIndex;
+        write_cfg = false;
     }
-
-    if(diff)
-    {
-        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
-    }
-    exposureTimeIndex = ssc.exposureTimeIndex;
+    write_exposure_params_to_controller_or_cfg(params, write_cfg);
+    ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
+    SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
 
     update_exposure_parameters_display_on_main();
 }
@@ -2209,11 +2210,15 @@ void MainWindow::setup_exposure_options_combox()
         ++it;
     }
     int curr_opt =SettingCfg::getInstance().getSystemSettingCfg().currExposureOpt;
+    if(curr_opt >= ui->exposureSelCombox->count())
+    {
+        curr_opt = 0;
+    }
     ui->exposureSelCombox->setCurrentIndex(curr_opt);
 
     ui->exposureSelCombox->blockSignals(false);
 
-    update_cfg_on_exposure_combox();
+    update_controller_or_cfg_on_exposure_combox();
 
     exposureTimeIndex = SettingCfg::getInstance().getSystemSettingCfg().exposureTimeIndex;
     if(exposureTimeIndex < 0 || exposureTimeIndex >= MAX_EXPOSURE_DURA_STEP)
@@ -2222,51 +2227,66 @@ void MainWindow::setup_exposure_options_combox()
     }
 }
 
+void MainWindow::goto_user_input_dialog()
+{
+    //show dialog for manual input exposure parameters.
+    maskWidget->show();
+
+    ExpoParamSettingDialog::expo_params_collection_t params;
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    params.vol = ssc.tubeVol;
+    params.amt = ssc.tubeAmt;
+    params.dura_idx = ssc.exposureTimeIndex;
+
+    expo_param_setting->update_dialog_params_display(&params);
+    //expo_param_setting->exec();
+    expo_param_setting->open();
+}
+
 void MainWindow::on_exposureSelCombox_currentIndexChanged(int index)
 {
-    update_cfg_on_exposure_combox();
-
     int curr_opt = index;
     exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
     if(exposure_opt_type_manual == e_opts.value(curr_opt)->type)
     {
-        //show dialog for manual input exposure parameters.
-        maskWidget->show();
-
-        ExpoParamSettingDialog::expo_params_collection_t params;
-        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        params.vol = ssc.tubeVol;
-        params.amt = ssc.tubeAmt;
-        params.dura_idx = ssc.exposureTimeIndex;
-
-        expo_param_setting->update_dialog_params_display(&params);
-        //expo_param_setting->exec();
-        expo_param_setting->open();
+        goto_user_input_dialog();
+    }
+    else
+    {
+        update_controller_or_cfg_on_exposure_combox();
     }
 }
 
-void MainWindow::on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params)
+bool MainWindow::write_exposure_params_to_controller_or_cfg(ExpoParamSettingDialog::expo_params_collection_t params, bool write_cfg)
 {
     /* We add the variable ret and judgeemnts to minimize the cfg-file-writtings.
      * We try to write cfg file only once.
     */
-    bool ret;
+    bool c_ret, ret = false;
     SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
 
-    ret = writeExposurekV(params.vol, false);
-    if(ret) ssc.tubeVol = params.vol;
+    c_ret = writeExposurekV(params.vol, false);
+    if(c_ret && write_cfg) ssc.tubeVol = params.vol;
+    ret = ret || c_ret;
 
-    ret = writeExposuremA(params.amt, false);
-    if(ret) ssc.tubeAmt = params.amt;
+    c_ret = writeExposuremA(params.amt, false);
+    if(c_ret && write_cfg) ssc.tubeAmt = params.amt;
+    ret = ret || c_ret;
 
-    exposureTimeIndex = params.dura_idx;
-    ret = writeExposureTime(true);
+    c_ret = writeExposureTime(params.dura_idx, false);
+    if(c_ret && write_cfg) exposureTimeIndex = ssc.exposureTimeIndex = params.dura_idx;
+    ret = ret || c_ret;
 
-    if(!ret)
+    if(ret && write_cfg)
     {
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
+    return ret;
+}
 
+void MainWindow::on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params)
+{
+    write_exposure_params_to_controller_or_cfg(params);
     update_exposure_parameters_display_on_main();
 }
 
@@ -2281,3 +2301,14 @@ void MainWindow::update_exposure_parameters_display_on_main()
     ui->exposureSettingLineEdit->setText(QString("%1").arg(exposureTimeList[exposureTimeIndex]));
     ui->exposureSettingLineEdit->setStyleSheet("color: rgb(0, 153, 0)");
 }
+
+void MainWindow::on_exposureSelCombox_activated(int index)
+{
+    int curr_opt = index;
+    exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
+    if(exposure_opt_type_manual == e_opts.value(curr_opt)->type)
+    {
+        goto_user_input_dialog();
+    }
+}
+
