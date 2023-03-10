@@ -66,6 +66,7 @@ HEADERS += \
     maskwidget.h \
     mycontroller.h \
     myfpd.h \
+    pzm/sdk_4.1.16/ComApi/NetCom.h \
     settingcfg.h \
     systemsetting.h \
     thirdpart/qtlocalpeer.h \

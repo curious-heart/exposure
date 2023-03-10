@@ -1130,11 +1130,11 @@ void MainWindow::onErrorOccurred(QString errorInfo){
  */
 void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
 
-    quint16 exposureTime=NULL;
-    quint16 batteryVoltmeter=NULL;
-    quint16 oilBoxTemperature=NULL;
-    quint16 baudRate=NULL;
-    quint16 serverAddress=NULL;
+    quint16 exposureTime=0;//NULL;
+    quint16 batteryVoltmeter=0;//NULL;
+    quint16 oilBoxTemperature=0;//NULL;
+    quint16 baudRate=0;//NULL;
+    quint16 serverAddress=0;//NULL;
     QMap<int, quint16>::Iterator iter = map.begin();
     while (iter != map.end()) {
         switch (iter.key()) {
