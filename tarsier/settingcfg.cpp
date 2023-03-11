@@ -1,22 +1,28 @@
 #include "settingcfg.h"
 #include "logger.h"
+#include "fpdsetting.h"
 #include <QSettings>
 #include <QFile>
 #include <iostream>
 
-const char* INI_GRP_USER_SETTINGS = "UserSettings";
-const char* INI_KEY_CURR_EXPOSURE_OPT = "currExposureOpt";
-const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
-const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
+static const char* SETTING_CFG_INI = "data/settingCfg.ini";
 
-const char* TAG_STR_EXPOSURE_OPTS = "exposure_opts";
-const char* TAG_STR_OPT = "opt";
-const char* TAG_STR_TYPE = "type";
-const char* TAG_STR_TITLE = "title";
-const char* TAG_STR_TUBE_VOL = INI_KEY_RTUSERIAL_TUBE_VOL;
-const char* TAG_STR_TUBE_AMT = INI_KEY_RTUSERIAL_TUBE_AMT;
-const char* TAG_STR_DURATION = "dura";
-const char* TAG_STR_IDX = "idx";
+static const char* INI_GRP_USER_SETTINGS = "UserSettings";
+static const char* INI_KEY_CURR_EXPOSURE_OPT = "currExposureOpt";
+static const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
+static const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
+
+static const char* INI_GRP_FPD_HIS = "FpdHistorySettings";
+static const char* INI_KEY_TRIGGER_MODE = "trigger";
+
+static const char* TAG_STR_EXPOSURE_OPTS = "exposure_opts";
+static const char* TAG_STR_OPT = "opt";
+static const char* TAG_STR_TYPE = "type";
+static const char* TAG_STR_TITLE = "title";
+static const char* TAG_STR_TUBE_VOL = INI_KEY_RTUSERIAL_TUBE_VOL;
+static const char* TAG_STR_TUBE_AMT = INI_KEY_RTUSERIAL_TUBE_AMT;
+static const char* TAG_STR_DURATION = "dura";
+static const char* TAG_STR_IDX = "idx";
 
 typedef struct
 {
@@ -34,6 +40,18 @@ void SettingCfg::clear_exposure_opts_cfg()
     }
     exposureOptsCfg.clear();
 }
+
+void SettingCfg::clear_fpd_settings_his()
+{
+    fpd_settings_his_t::iterator it = m_fpd_settings_his.begin();
+    while(it != m_fpd_settings_his.end())
+    {
+        delete it.value();
+        ++it;
+    }
+    m_fpd_settings_his.clear();
+}
+
 bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
 {
     if(!opt_item)
@@ -115,13 +133,14 @@ SettingCfg::SettingCfg(QObject *parent): QObject(parent){
 SettingCfg::~SettingCfg()
 {
     clear_exposure_opts_cfg();
+    clear_fpd_settings_his();
 }
 
 /**
  * @brief SettingCfg::readSettingConfig 读取data/settingCfg.ini文件中的数据
  */
 void SettingCfg::readSettingConfig(){
-    QSettings settings("data/settingCfg.ini", QSettings::IniFormat);
+    QSettings settings(SETTING_CFG_INI , QSettings::IniFormat);
     settings.beginGroup("System");
     systemSettingCfg.sleepTime = settings.value("sleepTime").isNull()?systemSettingCfg.sleepTime:settings.value("sleepTime").toString();
     systemSettingCfg.shutdownTime = settings.value("shutdownTime").isNull()?systemSettingCfg.shutdownTime:settings.value("shutdownTime").toString();
@@ -158,6 +177,40 @@ void SettingCfg::readSettingConfig(){
 
     settings.beginGroup(INI_GRP_USER_SETTINGS);
     systemSettingCfg.currExposureOpt = settings.value(INI_KEY_CURR_EXPOSURE_OPT, DEF_CURR_EXPOSURE_OPT).toInt();
+    settings.endGroup();
+
+    /*read fpd settings history.*/
+    /*read from ini file*/
+    settings.beginGroup(INI_GRP_FPD_HIS);
+    QStringList sub_keys = settings.allKeys();
+    struct FpdSettingCfg* his;
+    for(QString& fpdn: sub_keys)
+    {
+        his= new(struct FpdSettingCfg);
+        if(his)
+        {
+            settings.beginGroup(fpdn);
+            his->trigger = settings.value(INI_KEY_TRIGGER_MODE, INVALID_TRIGGER_MODE).toInt();
+            settings.endGroup();
+            m_fpd_settings_his.insert(QString("%1/%2").arg(INI_GRP_FPD_HIS, fpdn), his);
+        }
+    }
+    /*if current fpdname info is not in his, add it.*/
+    QString curr_fpd_name = systemSettingCfg.fpdName;
+    if(!m_fpd_settings_his.contains(curr_fpd_name)
+            || m_fpd_settings_his.value(curr_fpd_name)->trigger != fpdSettingCfg.trigger)
+    {
+        /*Note: Need to confirm if there is memory leak. For all QMap has a point as value.*/
+        his= new(struct FpdSettingCfg);
+        if(his)
+        {
+            his->trigger = fpdSettingCfg.trigger;
+            m_fpd_settings_his.insert(QString("%1/%2").arg(INI_GRP_FPD_HIS, curr_fpd_name), his);
+            settings.beginGroup(curr_fpd_name);
+            settings.setValue(INI_KEY_TRIGGER_MODE, fpdSettingCfg.trigger);
+            settings.endGroup();
+        }
+    }
     settings.endGroup();
 }
 
@@ -198,7 +251,7 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
         DIY_LOG(LOG_INFO, "writeSettingConfig: fsc");
     }
 
-    QSettings settings("data/settingCfg.ini", QSettings::IniFormat);
+    QSettings settings(SETTING_CFG_INI, QSettings::IniFormat);
     if(ssc)
     {
         settings.beginGroup("System");
@@ -466,4 +519,53 @@ SystemBaseCfg& SettingCfg::getSystemBaseCfg(){
  */
 FpdBaseCfg& SettingCfg::getFpdBaseCfg(){
     return fpdBaseCfg;
+}
+
+
+QString SettingCfg::fpd_name_internal_to_ui(const QString &name)
+{
+    if(name == FPD_NAME_NONE_INTERNAL_STR)
+    {
+        return FPD_NAME_NONE_UI_STR;
+    }
+    else
+    {
+        return name;
+    }
+}
+
+QString SettingCfg::fpd_name_ui_to_internal(const QString &name)
+{
+    if(name == FPD_NAME_NONE_UI_STR)
+    {
+        return FPD_NAME_NONE_INTERNAL_STR;
+    }
+    else
+    {
+        return name;
+    }
+}
+
+void SettingCfg::update_fpd_setting_his()
+{
+    QSettings settings(SETTING_CFG_INI , QSettings::IniFormat);
+    settings.beginGroup(INI_GRP_FPD_HIS);
+    settings.beginGroup(systemSettingCfg.fpdName);
+    settings.setValue(INI_KEY_TRIGGER_MODE, fpdSettingCfg.trigger);
+    settings.endGroup();
+    settings.endGroup();
+
+    struct FpdSettingCfg* his;
+    his = new(struct FpdSettingCfg);
+    if(his)
+    {
+        his->trigger = fpdSettingCfg.trigger;
+        m_fpd_settings_his.insert(QString("%1/%2").arg(INI_GRP_FPD_HIS, systemSettingCfg.fpdName),
+                                                       his);
+    }
+}
+
+struct FpdSettingCfg* SettingCfg::get_fpd_his(QString & name)
+{
+    return m_fpd_settings_his.value(QString("%1/%2").arg(INI_GRP_FPD_HIS, name), nullptr);
 }

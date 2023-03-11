@@ -89,9 +89,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    systemSetting=new SystemSetting(this);
+    m_fpd_models = new CFpdModels();
+    systemSetting=new SystemSetting(this, m_fpd_models);
     exitSystem=new ExitSystem(this);
-    fpdSetting=new FpdSetting(this);
+    fpdSetting=new FpdSetting(this, m_fpd_models);
     controller=new MyController(this);
     maskWidget=new MaskWidget(this);
 
@@ -147,6 +148,8 @@ MainWindow::~MainWindow()
     systemSetting=NULL;
     delete exitSystem;
     exitSystem=NULL;
+    delete m_fpd_models;
+    m_fpd_models = nullptr;
     delete fpdSetting;
     fpdSetting=NULL;
     delete maskWidget;

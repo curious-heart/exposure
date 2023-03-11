@@ -7,8 +7,6 @@
 #include <QtXml/QDomDocument>
 #include <include/IRayEnumDef.h>
 
-extern const char* INI_KEY_RTUSERIAL_TUBE_VOL;
-extern const char* INI_KEY_RTUSERIAL_TUBE_AMT;
 #define MIN_TUBE_VOL 55 //kv
 #define MAX_TUBE_VOL 80
 #define DEF_TUBE_VOL 70
@@ -47,7 +45,7 @@ struct SystemSettingCfg{
     int tubeVol = DEF_TUBE_VOL;
     int tubeAmt = DEF_TUBE_AMT;
     int isAutoOff=0;
-    QString fpdName="";
+    QString fpdName=""; //This var contains FPD_NAME_NONE_INTERNAL_STR but not FPD_NAME_NONE_ZH_STR.
     QString fpdWorkDir="";
     QString sleepTime="off";
     QString shutdownTime="off";
@@ -72,6 +70,14 @@ struct FpdBaseCfg{
     QMap<QString, QStringList> fpdTriggerModeMap;//探测器与触发模式列表的对应关系
 };
 
+/* Just use the existed FpdSettingCfg,although for some fpd, not all info are valid.
+ * currently, we care "trigger" only.
+ *
+ * key: INI_GRP_FPD_HIS + "/" + fpdname
+ * FPD_NAME_NONE_ZH_STR is not used here. we use FPD_NAME_NONE_INTERNAL_STR.
+*/
+typedef QMap<QString, struct FpdSettingCfg*> fpd_settings_his_t;
+
 class SettingCfg : public QObject
 {
     Q_OBJECT
@@ -81,6 +87,10 @@ public:
     ~SettingCfg();
     void readSettingConfig();
     void writeSettingConfig(SystemSettingCfg * ssc,FpdSettingCfg * fsc);
+    void update_fpd_setting_his();
+    struct FpdSettingCfg* get_fpd_his(QString & name);
+    QString fpd_name_internal_to_ui(const QString &name);
+    QString fpd_name_ui_to_internal(const QString &name);
     /*
      * 20230307：
      * 注意：这几个函数的返回类型改为了reference，这样可以避免多次拷贝；但在使用时就必须注意，
@@ -98,6 +108,7 @@ private:
     FpdSettingCfg fpdSettingCfg;
     SystemBaseCfg systemBaseCfg;
     FpdBaseCfg fpdBaseCfg;
+    fpd_settings_his_t m_fpd_settings_his;
 
     exposure_opts_t exposureOptsCfg;
     void read_exposure_opts_cfg(QDomDocument &doc);
@@ -105,6 +116,8 @@ private:
     void init_exposure_opt_item(exposure_opt_item_t* opt_item);
     void clear_exposure_opts_cfg();
     bool check_exposure_opt_value(exposure_opt_item_t* opt_item);
+
+    void clear_fpd_settings_his();
 };
 
 #endif // SETTINGCFG_H

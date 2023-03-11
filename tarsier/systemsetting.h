@@ -2,6 +2,7 @@
 #define SYSTEMSETTING_H
 
 #include <QDialog>
+#include "fpdmodels.h"
 
 namespace Ui {
 class SystemSetting;
@@ -12,7 +13,8 @@ class SystemSetting : public QDialog
     Q_OBJECT
 
 public:
-    explicit SystemSetting(QWidget *parent = nullptr);
+    /**fpd_models MUST NOT be nullptr**/
+    explicit SystemSetting(QWidget *parent = nullptr, CFpdModels * fpd_models = nullptr);
     ~SystemSetting();
     QString getSerialPort(int nIndex, bool bValue);
 
@@ -33,6 +35,7 @@ private slots:
 
 private:
     Ui::SystemSetting *ui;
+    CFpdModels * m_fpd_models = nullptr; //this is passed from outside, so we do not need to release it.
 };
 
 #endif // SYSTEMSETTING_H

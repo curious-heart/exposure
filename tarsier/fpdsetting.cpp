@@ -5,138 +5,21 @@
 #include "pzm/sdk_4.1.16/ComApi/NetCom.h"
 #include "logger.h"
 
-struct mfg_series_list_t
-{
-    /*A manufacturer mfg has many product series, stored in series_list.*/
-    const char* mfg;
-    const char** series_list;
-    const int series_count;
-};
-static const char* FPD_MFG_IRAY = "iRay"; //奕瑞
-static const char* IRAY_S_MARS1417 = "Mars1417";
-static const char* IRAY_S_MARS1717 = "Mars1717";
-static const char* IRAY_SERIES_NAMES[] =
-{
-    IRAY_S_MARS1417,
-    IRAY_S_MARS1717,
-};
-
-static const char* FPD_MFG_PZM = "PZM"; //品臻
-static const char* PZM_S_4343Z = "4343Z";
-static const char* PZM_S_3543Z = "3543Z";
-static const char* PZM_SERIES_NAMES[] =
-{
-    PZM_S_4343Z,
-    PZM_S_3543Z,
-};
-
-static struct mfg_series_list_t FPD_MFG_SERIES_LOOKUP_LIST[] =
-{
-    {FPD_MFG_IRAY, IRAY_SERIES_NAMES, sizeof(IRAY_SERIES_NAMES)/sizeof(IRAY_SERIES_NAMES[0])},
-    {FPD_MFG_PZM, PZM_SERIES_NAMES, sizeof(PZM_SERIES_NAMES)/sizeof(PZM_SERIES_NAMES[0])},
-};
-
-QString FpdSetting::get_series_from_fpd_name(QString & n, QString * mfg)
-{
-    QString s = "";
-    for(qulonglong idx = 0;
-        idx < sizeof(FPD_MFG_SERIES_LOOKUP_LIST)/sizeof(FPD_MFG_SERIES_LOOKUP_LIST[0]);
-        ++idx)
-    {
-        for(int i = 0; i < FPD_MFG_SERIES_LOOKUP_LIST[idx].series_count; ++i)
-        {
-            if(n.contains(FPD_MFG_SERIES_LOOKUP_LIST[idx].series_list[i]))
-            {
-                s = FPD_MFG_SERIES_LOOKUP_LIST[idx].series_list[i];
-                if(mfg)
-                {
-                    *mfg = FPD_MFG_SERIES_LOOKUP_LIST[idx].mfg;
-                }
-                return s;
-            }
-        }
-    }
-    return s;
-}
-
-void FpdSetting::setup_fpd_capabilities_on_series()
-{
-    static const char* TRIGGER_MODE_OUTER = "Outer";
-    static const char* TRIGGER_MODE_INNER = "Inner";
-    static const char* TRIGGER_MODE_SOFT = "Software";
-    static const char* TRIGGER_MODE_PREP = "PREP";
-    static const char* TRIGGER_MODE_SRV = "Service";
-    static const char* TRIGGER_MODE_FREESYNC = "FreeSync";
-
-    /*Set fpd capabilites according to series.*/
-    fpd_series_capabilites_t* cap;
-    clear_m_fpd_mfg_list_cap();
-
-    /*iRay*/
-    cap = new(fpd_series_capabilites_t);
-    if(cap)
-    {
-        cap->trigger_mode_list.insert(TRIGGER_MODE_OUTER, Enm_TriggerMode_Outer);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_INNER, Enm_TriggerMode_Inner);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_SOFT, Enm_TriggerMode_Soft);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_PREP, Enm_TriggerMode_Prep);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_SRV, Enm_TriggerMode_Service);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_FREESYNC, Enm_TriggerMode_FreeSync);
-
-        m_fpd_series_list_cap.insert(IRAY_S_MARS1417, cap);
-    }
-    cap = new(fpd_series_capabilites_t);
-    if(cap)
-    {
-        cap->trigger_mode_list.insert(TRIGGER_MODE_OUTER, Enm_TriggerMode_Outer);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_INNER, Enm_TriggerMode_Inner);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_SOFT, Enm_TriggerMode_Soft);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_PREP, Enm_TriggerMode_Prep);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_SRV, Enm_TriggerMode_Service);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_FREESYNC, Enm_TriggerMode_FreeSync);
-
-        m_fpd_series_list_cap.insert(IRAY_S_MARS1717, cap);
-    }
-
-    /*PZM*/
-    static const char* TRIGGER_MODE_AED = "AED";
-    static const char* TRIGGER_MODE_HST = "HST";
-    cap = new(fpd_series_capabilites_t);
-    if(cap)
-    {
-        cap->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
-
-        m_fpd_series_list_cap.insert(PZM_S_4343Z, cap);
-    }
-    cap = new(fpd_series_capabilites_t);
-    if(cap)
-    {
-        cap->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
-        cap->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
-
-        m_fpd_series_list_cap.insert(PZM_S_3543Z, cap);
-    }
-}
-
-fpd_series_capabilites_t*FpdSetting:: get_fpd_capabilities_from_name(QString &n)
-{
-    fpd_series_capabilites_t *c;
-    QString s = get_series_from_fpd_name(n);
-    c = m_fpd_series_list_cap.value(s, nullptr);
-    return c;
-}
-
-FpdSetting::FpdSetting(QWidget *parent) :
+FpdSetting::FpdSetting(QWidget *parent, CFpdModels * fpd_models) :
     QDialog(parent),
-    ui(new Ui::FpdSetting)
+    ui(new Ui::FpdSetting),
+    m_fpd_models(fpd_models)
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::Dialog|Qt::FramelessWindowHint);
     this->setFixedSize(810, 480);
     ui->ok->setText(NULL);
     ui->cancel->setText(NULL);
-    setup_fpd_capabilities_on_series();
+    if(!m_fpd_models)
+    {
+        DIY_LOG(LOG_ERROR, "!!!!There must be a non NULL fpd_modles list.!!!!");
+        return;
+    }
     updateTriggerMode();
     FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     //    QVariant v(0);
@@ -209,24 +92,12 @@ FpdSetting::FpdSetting(QWidget *parent) :
     }
 }
 
-void FpdSetting::clear_m_fpd_mfg_list_cap()
-{
-    fpd_series_list_cap_t::iterator it = m_fpd_series_list_cap.begin();
-
-    while(it != m_fpd_series_list_cap.end())
-    {
-        delete it.value();
-        ++it;
-    }
-    m_fpd_series_list_cap.clear();
-}
-
 FpdSetting::~FpdSetting()
 {
     delete ui;
-    clear_m_fpd_mfg_list_cap();
-}
 
+    m_fpd_models = nullptr;
+}
 
 /**
  * @brief FpdSetting::on_trigger_currentIndexChanged 改变触犯方式时
@@ -248,7 +119,9 @@ void FpdSetting::on_trigger_currentIndexChanged(int index){
 void FpdSetting::on_ok_clicked(){
     //SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
     FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
-    fsc.trigger=(ui->trigger->currentIndex());
+    //fsc.trigger=(ui->trigger->currentIndex());
+    int curr_idx = ui->trigger->currentIndex();
+    fsc.trigger=ui->trigger->itemData(curr_idx).toInt();
     fsc.PREP_clearAcqParamDelayTime=(ui->clearAcqParamDelayTime->text().toInt());
     if(ui->SWPreOffset->isChecked()){
         fsc.offsetCorrectOption=Enm_CorrectOption::Enm_CorrectOp_SW_PreOffset;
@@ -271,6 +144,7 @@ void FpdSetting::on_ok_clicked(){
     }
     //SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
     SettingCfg::getInstance().writeSettingConfig(nullptr, &fsc);
+    SettingCfg::getInstance().update_fpd_setting_his();
     this->close();
     emit maskWidgetClosed();
 }
@@ -291,29 +165,33 @@ void FpdSetting::updateTriggerMode()
 {
     ui->trigger->clear();
     QString fpdName=SettingCfg::getInstance().getSystemSettingCfg().fpdName;
-    fpd_series_capabilites_t* cap = get_fpd_capabilities_from_name(fpdName);
-    if(!cap)
+    fpd_model_info_t* info = m_fpd_models->get_fpd_minfo_from_name(fpdName);
+    if(!info)
     {
         DIY_LOG(LOG_ERROR, "The FPD %ls is not supported, we can't find its trigger mode.",
                 fpdName.utf16());
         return;
     }
     QMap<QString, QStringList> fpdTriggerModeMap=SettingCfg::getInstance().getFpdBaseCfg().fpdTriggerModeMap;
+    FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
     const QStringList &cfg_cap_list = fpdTriggerModeMap.value(fpdName);
-    QMap<QString, int>::iterator it = cap->trigger_mode_list.begin();
-    int idx = 0;
-    while(it != cap->trigger_mode_list.end())
+    QMap<QString, int>::iterator it = info->trigger_mode_list.begin();
+    int idx = 0, curr_idx = 0;
+    while(it != info->trigger_mode_list.end())
     {
         ui->trigger->addItem(it.key(), it.value());
         if(!cfg_cap_list.contains(it.key()))
         {
             ui->trigger->setItemData(idx, QVariant(0), Qt::UserRole - 1);
         }
+        if(fpdSettingCfg.trigger == it.value())
+        {
+            curr_idx = idx;
+        }
         ++it;
         ++idx;
     }
-    FpdSettingCfg &fpdSettingCfg=SettingCfg::getInstance().getFpdSettingCfg();
-    ui->trigger->setCurrentIndex(fpdSettingCfg.trigger);
+    ui->trigger->setCurrentIndex(curr_idx);
 
     /*
 

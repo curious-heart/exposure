@@ -20,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     ExpoParamSettingdialog.cpp \
     exitsystem.cpp \
+    fpdmodels.cpp \
     fpdsetting.cpp \
     globalapplication.cpp \
     imagelabel.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     ExpoParamSettingdialog.h \
     IRayInclude.h \
     exitsystem.h \
+    fpdmodels.h \
     fpdsetting.h \
     globalapplication.h \
     imagelabel.h \

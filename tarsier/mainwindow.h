@@ -15,6 +15,7 @@
 #include "imageoperation.h"
 #include "lowbatterywarning.h"
 #include "ExpoParamSettingdialog.h"
+#include "fpdmodels.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -143,6 +144,7 @@ private:
     MaskWidget *maskWidget;
     ExpoParamSettingDialog* expo_param_setting;
     LowBatteryWarning *lowBatteryWarning;
+    CFpdModels * m_fpd_models;
     QTimer * readExposureStatusTimer;
     QTimer * readRangeStatusTimer;
     QTimer * readVoltmeterAndAmmeterTimer;
