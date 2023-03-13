@@ -99,7 +99,7 @@ void CFpdModels::setup_fpd_model_list()
     static const char* TRIGGER_MODE_AED = "AED";
     static const char* TRIGGER_MODE_HST = "HST";
     static const char* PZM_API_LIB_PFN = "pzm/sdk_4.1.16/ComApi/x64/ComApi";
-    static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.1.16/";
+    static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.1.16";
     info = new(fpd_model_info_t);
     if(info)
     {//4343Z

@@ -536,92 +536,130 @@ void MainWindow::SaveFile(const void* pData, unsigned size)
  * @return
  */
 int MainWindow::ConnectionFPD(){
-    refresh_ip_addr();
-    QString deb_ip_str = ui->IPaddr->text().mid(3);
-    QString fpdDllPath="FpdSys";
-    QString fpdWorkDir=QDir::currentPath() + "/" + SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
-    //qDebug()<<"basepath="<<QCoreApplication::applicationDirPath();
-    //qDebug()<<"fpdWorkDir=0"<<fpdWorkDir<<"0==="<<(fpdWorkDir=="");
-    if(fpdWorkDir==""){
-        return Err_OK;
+    int ret = Err_OK;
+
+    if(!m_curr_fpd_model)
+    {
+        DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");
+        return Err_Unknown;
     }
-    int ret=0;
-    if(!fpdCreateState){
-        ret=fpd->Create(fpdDllPath,fpdWorkDir.toStdString().c_str(),MyCallbackHandler);
-        if (ret!=Err_OK){
-            //qDebug()<<"Create error="<<ret;
-            fpd->GetErrorInfo(ret);
-            return ret;
+
+    switch(m_curr_fpd_model->sid)
+    {
+        case FPD_SID_IRAY_STATIC:
+        {
+            refresh_ip_addr();
+            QString deb_ip_str = ui->IPaddr->text().mid(3);
+            QString fpdDllPath="FpdSys";
+            QString fpdWorkDir=QDir::currentPath() + "/" + SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
+            //qDebug()<<"basepath="<<QCoreApplication::applicationDirPath();
+            //qDebug()<<"fpdWorkDir=0"<<fpdWorkDir<<"0==="<<(fpdWorkDir=="");
+            if(fpdWorkDir==""){
+                return Err_OK;
+            }
+            if(!fpdCreateState){
+                ret=fpd->Create(fpdDllPath,fpdWorkDir.toStdString().c_str(),MyCallbackHandler);
+                if (ret!=Err_OK){
+                    //qDebug()<<"Create error="<<ret;
+                    fpd->GetErrorInfo(ret);
+                    return ret;
+                }
+                fpdCreateState=true;
+            }
+            DIY_LOG(LOG_INFO, "Create fpd ok.");
+
+            QString str = ui->IPaddr->text().mid(3);
+            //    QString str = ui->IPaddr->text().split('.').last();
+            QByteArray IP = str.toLocal8Bit();
+            ret=fpd->SetAttr(Cfg_HostIP, IP.data());
+            if (ret!=Err_OK){
+                DIY_LOG(LOG_ERROR,
+                        QString("SetAttr(Cfg_HostIP %1) error: %2")
+                        .arg(str).arg(ret));
+                fpd->GetErrorInfo(ret);
+                return ret;
+            }
+            DIY_LOG(LOG_ERROR, QString("SetAttr(Cfg_HostIP %1) ok.").arg(str));
+
+            ret=fpd->SyncInvoke(Cmd_Connect,30000);
+            if (ret!=Err_OK){
+                //qDebug()<<"Cmd_Connect error="<<ret;
+                fpd->GetErrorInfo(ret);
+                statusBar()->showMessage(QString("探测器连接失败！"), 5000);
+                DIY_LOG(LOG_INFO, QString("SyncInvoke(Cmd_Connect,...) error: %1").arg(ret));
+                return ret;
+            }
+            DIY_LOG(LOG_INFO, "SyncInvoke(Cmd_Connect,...) OK");
+
+            //设置探测器触发模式
+            AttrResult ar;
+            ret=fpd->GetAttr(Attr_UROM_TriggerMode,ar);
+            if (ret!=Err_OK){
+                fpd->GetErrorInfo(ret);
+                disconnect_works(true);
+                DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode error: %1").arg(ret));
+                return ret;
+            }
+            DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode ok, mode: %1").arg(ar.nVal));
+
+            int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
+            if(ar.nVal!=trigger){
+                DIY_LOG(LOG_INFO, "Need to update trigger.");
+                ret=fpd->SetAttr(Attr_UROM_TriggerMode_W,trigger);
+                if (ret!=Err_OK){
+                    fpd->GetErrorInfo(ret);
+                    disconnect_works(true);
+                    DIY_LOG(LOG_INFO,
+                            QString("Set Attr_UROM_TriggerMode to %1 error: %2.")
+                            .arg(trigger).arg(ret));
+                    return ret;
+                }
+                DIY_LOG(LOG_INFO, QString("Set Attr_UROM_TriggerMode to %1 ok.").arg(trigger));
+
+                //ret=fpd->SyncInvoke(Cmd_WriteUserRAM,25000);
+                ret=fpd->SyncInvoke(Cmd_WriteUserROM,25000);
+                if (ret!=Err_OK){
+                    fpd->GetErrorInfo(ret);
+                    disconnect_works(true);
+                    DIY_LOG(LOG_INFO, QString("SyncInvoke Cmd_WriteUserROM error: %1.").arg(ret));
+                    return ret;
+                }
+                DIY_LOG(LOG_INFO, "SyncInvoke Cmd_WriteUserROM ok.");
+            }
+            //    T1= QDateTime::currentDateTime();
+            //    ret=SetCalibrationOptions();//连接成功设置模版+
+            //    if (ret!=Err_OK){
+            //        fpd->GetErrorInfo(ret);
+            //        return ret;
+            //    }
+
         }
-        fpdCreateState=true;
-    }
-    DIY_LOG(LOG_INFO, "Create fpd ok.");
+        break;
 
-    QString str = ui->IPaddr->text().mid(3);
-    //    QString str = ui->IPaddr->text().split('.').last();
-    QByteArray IP = str.toLocal8Bit();
-    ret=fpd->SetAttr(Cfg_HostIP, IP.data());
-    if (ret!=Err_OK){
-        DIY_LOG(LOG_ERROR,
-                QString("SetAttr(Cfg_HostIP %1) error: %2")
-                .arg(str).arg(ret));
-        fpd->GetErrorInfo(ret);
-        return ret;
-    }
-    DIY_LOG(LOG_ERROR, QString("SetAttr(Cfg_HostIP %1) ok.").arg(str));
-
-    ret=fpd->SyncInvoke(Cmd_Connect,30000);
-    if (ret!=Err_OK){
-        //qDebug()<<"Cmd_Connect error="<<ret;
-        fpd->GetErrorInfo(ret);
-        statusBar()->showMessage(QString("探测器连接失败！"), 5000);
-        DIY_LOG(LOG_INFO, QString("SyncInvoke(Cmd_Connect,...) error: %1").arg(ret));
-        return ret;
-    }
-    DIY_LOG(LOG_INFO, "SyncInvoke(Cmd_Connect,...) OK");
-
-    //设置探测器触发模式
-    AttrResult ar;
-    ret=fpd->GetAttr(Attr_UROM_TriggerMode,ar);
-    if (ret!=Err_OK){
-        fpd->GetErrorInfo(ret);
-        disconnect_works(true);
-        DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode error: %1").arg(ret));
-        return ret;
-    }
-    DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode ok, mode: %1").arg(ar.nVal));
-
-    int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
-    if(ar.nVal!=trigger){
-        DIY_LOG(LOG_INFO, "Need to update trigger.");
-        ret=fpd->SetAttr(Attr_UROM_TriggerMode_W,trigger);
-        if (ret!=Err_OK){
-            fpd->GetErrorInfo(ret);
-            disconnect_works(true);
-            DIY_LOG(LOG_INFO,
-                    QString("Set Attr_UROM_TriggerMode to %1 error: %2.")
-                    .arg(trigger).arg(ret));
-            return ret;
+        case FPD_SID_PZM_STATIC:
+        {
+            if(!pzm_fpd_handler)
+            {
+                DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
+                return Err_Unknown;
+            }
+            bool api_ret;
+            api_ret = pzm_fpd_handler->connect_to_fpd(m_curr_fpd_model);
+            if(!api_ret)
+            {
+                return Err_Unknown;
+            }
+            onFpdConnectStateChanged(Enm_Connect_State::Connecting);
         }
-        DIY_LOG(LOG_INFO, QString("Set Attr_UROM_TriggerMode to %1 ok.").arg(trigger));
+        break;
 
-        //ret=fpd->SyncInvoke(Cmd_WriteUserRAM,25000);
-        ret=fpd->SyncInvoke(Cmd_WriteUserROM,25000);
-        if (ret!=Err_OK){
-            fpd->GetErrorInfo(ret);
-            disconnect_works(true);
-            DIY_LOG(LOG_INFO, QString("SyncInvoke Cmd_WriteUserROM error: %1.").arg(ret));
-            return ret;
-        }
-        DIY_LOG(LOG_INFO, "SyncInvoke Cmd_WriteUserROM ok.");
+        case FPD_SID_NONE:
+            return Err_OK;
+
+        default:
+            DIY_LOG(LOG_ERROR, QString("Unknown FPD SID: %1").arg(m_curr_fpd_model->sid));
+            return Err_Unknown;
     }
-    //    T1= QDateTime::currentDateTime();
-    //    ret=SetCalibrationOptions();//连接成功设置模版+
-    //    if (ret!=Err_OK){
-    //        fpd->GetErrorInfo(ret);
-    //        return ret;
-    //    }
-
     return ret;
 }
 
@@ -631,24 +669,55 @@ int MainWindow::ConnectionFPD(){
  * @return
  */
 int MainWindow::DisconnectionFPD(){
-    QString fpdWorkDir=SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
-    if(fpdWorkDir==""){
-        return Err_OK;
+    if(!m_curr_fpd_model)
+    {
+        DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");
+        return Err_Unknown;
     }
-    int ret=fpd->SyncInvoke(Cmd_Disconnect,30000);
-    if (ret!=Err_OK){
-        fpd->GetErrorInfo(ret);
-        return ret;
-    }
-    ret=fpd->Destroy();
-    if(ret!=Err_OK){
-        fpd->GetErrorInfo(ret);
-        return ret;
-    }
-    ret=fpd->FreeIRayLibrary();
 
-    fpdCreateState=false;
-    return ret;
+    switch(m_curr_fpd_model->sid)
+    {
+        case FPD_SID_IRAY_STATIC:
+        {
+            QString fpdWorkDir=SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
+            if(fpdWorkDir==""){
+                return Err_OK;
+            }
+            int ret=fpd->SyncInvoke(Cmd_Disconnect,30000);
+            if (ret!=Err_OK){
+                fpd->GetErrorInfo(ret);
+                return ret;
+            }
+            ret=fpd->Destroy();
+            if(ret!=Err_OK){
+                fpd->GetErrorInfo(ret);
+                return ret;
+            }
+            ret=fpd->FreeIRayLibrary();
+
+            fpdCreateState=false;
+            return ret;
+        }
+        case FPD_SID_PZM_STATIC:
+        {
+            if(!pzm_fpd_handler)
+            {
+                DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
+                return Err_Unknown;
+            }
+            bool api_ret;
+            api_ret = pzm_fpd_handler->disconnect_from_fpd(m_curr_fpd_model);
+            if(!api_ret)
+            {
+                return Err_Unknown;
+            }
+            onFpdConnectStateChanged(Enm_Connect_State::Disconnecting);
+        }
+        break;
+    default:
+        ;
+    }
+
 }
 
 
@@ -1016,7 +1085,7 @@ FPDRESULT MainWindow::disconnect_works(bool part_disconn)
  * @brief MainWindow::on_connect_clicked 连接按钮槽函数（仅连接探测器）
  */
 void MainWindow::on_connect_clicked(){
-    if(fpd){
+    if(fpd || pzm_fpd_handler){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
             DIY_LOG(LOG_INFO, "on_connect_clicked: now is disconnected, begin to connect...");
             statusBar()->clearMessage();
@@ -1778,9 +1847,13 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
             }
             if(!pzm_fpd_handler)
             {
-                pzm_fpd_handler = new CPZM_Fpd(this, m_curr_fpd_model);
+                pzm_fpd_handler = new CPZM_Fpd(this);
                 connect(pzm_fpd_handler, &CPZM_Fpd::fpdErrorOccurred,
-                        this, &MainWindow::onErrorOccurred);
+                        this, &MainWindow::onErrorOccurred, Qt::QueuedConnection);
+                connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_comm_sig,
+                        this, &MainWindow::on_pzm_fpd_comm_sig, Qt::QueuedConnection);
+                connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_img_received_sig,
+                        this, &MainWindow::on_pzm_fpd_img_received_sig, Qt::QueuedConnection);
             }
             break;
         default:
@@ -2210,14 +2283,17 @@ void MainWindow::onWwwlChanged(int ww, int wl)
  */
 void MainWindow::onReadFpdBatteryLevelTimerOutTime()
 {
-    int fpdbatteryVal=fpd->GetBatteryLevel();
-    ui->fpdbatteryLevel->setText(QString("%1%").arg(fpdbatteryVal));
-    if(fpdbatteryVal<=100 && fpdbatteryVal>70){
-        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-green.png)");
-    }else if(fpdbatteryVal<=70 && fpdbatteryVal>20){
-        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-orange.png)");
-    }else if(fpdbatteryVal<=20 && fpdbatteryVal>=0){
-        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
+    if(fpd)
+    {
+        int fpdbatteryVal=fpd->GetBatteryLevel();
+        ui->fpdbatteryLevel->setText(QString("%1%").arg(fpdbatteryVal));
+        if(fpdbatteryVal<=100 && fpdbatteryVal>70){
+            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-green.png)");
+        }else if(fpdbatteryVal<=70 && fpdbatteryVal>20){
+            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-orange.png)");
+        }else if(fpdbatteryVal<=20 && fpdbatteryVal>=0){
+            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
+        }
     }
 }
 
@@ -2416,3 +2492,21 @@ void MainWindow::on_exposureSelCombox_activated(int index)
     }
 }
 
+void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
+{
+    DIY_LOG(LOG_INFO, QString("Received PZM event: %1, %2, %3").arg(evt).arg(sn_i).arg(sn_str));
+    switch(evt)
+    {
+    case EVENT_LINKUPEX:
+        onFpdConnectStateChanged(Enm_Connect_State::Connected);
+        break;
+    case EVENT_LINKDOWNEX:
+        onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
+        break;
+    default:
+        ;
+    }
+}
+
+void MainWindow::on_pzm_fpd_img_received_sig(char* img, int width, int height, int bit_dep)
+{}

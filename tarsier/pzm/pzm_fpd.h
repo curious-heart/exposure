@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QLibrary>
 
+#define PZM_SN_LEN (32)
 /*handler function type*/
 typedef BOOL (*Fnt_COM_Init)();
 typedef BOOL (*Fnt_COM_Uninit)();
@@ -53,19 +54,29 @@ class CPZM_Fpd: public QObject
     Q_OBJECT
 public:
     /*model can't be nullptr when constructing.*/
-    CPZM_Fpd(QObject *parent = nullptr, fpd_model_info_t* model = nullptr);
+    CPZM_Fpd(QObject *parent = nullptr);
     ~CPZM_Fpd();
+    bool connect_to_fpd(fpd_model_info_t* model);
+    bool disconnect_from_fpd(fpd_model_info_t* model);
+
+    /**/
+    static BOOL WINAPI FuncLinkexCallBack(char npara); /*EVENT_LINKUPEX*/
+    static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
+    static BOOL WINAPI FuncBreakexCallBack(char npara); /*EVENT_LINKDOWNEX*/
 
 private:
     QLibrary *m_api_lib = nullptr;
     fpd_model_info_t* m_model_info = nullptr; //this var is set by parent, so do not delete it here.
 
 private:
-    void resolve_lib_functions();
-    BOOL reg_pzm_callbacks();
+    void unload_library();
+    bool resolve_lib_functions();
+    bool reg_pzm_callbacks();
 
 signals:
     void fpdErrorOccurred(QString errorInfo);
+    void pzm_fpd_comm_sig(int evt, int sn_id = -1, QString sn_str = "");
+    void pzm_fpd_img_received_sig(CHAR* img, int width, int height, int bit_dep);
 
 private:
     /*api function name str*/
@@ -91,25 +102,25 @@ private:
     static constexpr const char* m_hstr_COM_ExposeReq = "COM_ExposeReq";
 
     /*api function poiter*/
-    Fnt_COM_Init m_hptr_COM_Init = nullptr;
-    Fnt_COM_Uninit m_hptr_COM_Uninit = nullptr;
-    Fnt_COM_SetCfgFilePath m_hptr_COM_SetCfgFilePath = nullptr;
-    Fnt_COM_List m_hptr_COM_List = nullptr;
-    Fnt_COM_Open m_hptr_COM_Open = nullptr;
-    Fnt_COM_Close m_hptr_COM_Close = nullptr;
-    Fnt_COM_StartNet m_hptr_COM_StartNet = nullptr;
-    Fnt_COM_StopNet m_hptr_COM_StopNet = nullptr;
-    Fnt_COM_RegisterEvCallBack m_hptr_COM_RegisterEvCallBack = nullptr;
-    Fnt_COM_SetCalibMode m_hptr_COM_SetCalibMode = nullptr;
-    Fnt_COM_GetFPsn m_hptr_COM_GetFPsn = nullptr;
-    Fnt_COM_GetFPsnEx m_hptr_COM_GetFPsnEx = nullptr;
-    Fnt_COM_GetFPCurStatus m_hptr_COM_GetFPCurStatus = nullptr;
-    Fnt_COM_GetFPCurStatusEx m_hptr_COM_GetFPCurStatusEx = nullptr;
-    Fnt_COM_GetImageMode m_hptr_COM_GetImageMode = nullptr;
-    Fnt_COM_GetImage m_hptr_COM_GetImage = nullptr;
-    Fnt_COM_AedAcq m_hptr_COM_AedAcq = nullptr;
-    Fnt_COM_AedTrigger m_hptr_COM_AedTrigger = nullptr;
-    Fnt_COM_Stop m_hptr_COM_Stop = nullptr;
-    Fnt_COM_ExposeReq m_hptr_COM_ExposeReq = nullptr;
+    Fnt_COM_Init m_hptr_COM_Init;
+    Fnt_COM_Uninit m_hptr_COM_Uninit;
+    Fnt_COM_SetCfgFilePath m_hptr_COM_SetCfgFilePath;
+    Fnt_COM_List m_hptr_COM_List;
+    Fnt_COM_Open m_hptr_COM_Open;
+    Fnt_COM_Close m_hptr_COM_Close;
+    Fnt_COM_StartNet m_hptr_COM_StartNet;
+    Fnt_COM_StopNet m_hptr_COM_StopNet;
+    Fnt_COM_RegisterEvCallBack m_hptr_COM_RegisterEvCallBack;
+    Fnt_COM_SetCalibMode m_hptr_COM_SetCalibMode;
+    Fnt_COM_GetFPsn m_hptr_COM_GetFPsn;
+    Fnt_COM_GetFPsnEx m_hptr_COM_GetFPsnEx;
+    Fnt_COM_GetFPCurStatus m_hptr_COM_GetFPCurStatus;
+    Fnt_COM_GetFPCurStatusEx m_hptr_COM_GetFPCurStatusEx;
+    Fnt_COM_GetImageMode m_hptr_COM_GetImageMode;
+    Fnt_COM_GetImage m_hptr_COM_GetImage;
+    Fnt_COM_AedAcq m_hptr_COM_AedAcq;
+    Fnt_COM_AedTrigger m_hptr_COM_AedTrigger;
+    Fnt_COM_Stop m_hptr_COM_Stop;
+    Fnt_COM_ExposeReq m_hptr_COM_ExposeReq;
 };
 #endif // PZM_FPD_H

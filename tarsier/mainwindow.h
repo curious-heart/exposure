@@ -97,6 +97,9 @@ private slots:
     void on_exposureSelCombox_activated(int index);
     void on_systemSettingAccepted();
 
+    void on_pzm_fpd_comm_sig(int evt, int sn_id = -1, QString sn_str = "");
+    void on_pzm_fpd_img_received_sig(char* img, int width, int height, int bit_dep);
+
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
 
