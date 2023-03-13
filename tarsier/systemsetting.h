@@ -28,6 +28,9 @@ signals:
      */
     void fpdAndControllerConnect();
 
+    /**/
+    void systemSettingAccepted();
+
 private slots:
     void on_sysOk_clicked();
 

@@ -168,8 +168,8 @@ void FpdSetting::updateTriggerMode()
     fpd_model_info_t* info = m_fpd_models->get_fpd_minfo_from_name(fpdName);
     if(!info)
     {
-        DIY_LOG(LOG_ERROR, "The FPD %ls is not supported, we can't find its trigger mode.",
-                fpdName.utf16());
+        DIY_LOG(LOG_ERROR,
+                QString("The FPD %1 is not supported, we can't find its trigger mode.").arg(fpdName));
         return;
     }
     QMap<QString, QStringList> fpdTriggerModeMap=SettingCfg::getInstance().getFpdBaseCfg().fpdTriggerModeMap;

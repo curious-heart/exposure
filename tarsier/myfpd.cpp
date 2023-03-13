@@ -278,16 +278,16 @@ FPDRESULT MyFPD::GetErrorInfo(int nErrorCode){
 {\
     if (Err_TaskPending == ret)\
     {\
-        DIY_LOG(LOG_INFO, "Test command %d invoke is pending, please wait task result event.",\
-                cmdId);\
+        DIY_LOG(LOG_INFO, \
+                QString("Test command %1 invoke is pending, please wait task result event.").arg(cmdId));\
     }\
     else if (Err_OK == ret)\
     {\
-        DIY_LOG(LOG_INFO, "Test command %d invoke succeed!", cmdId);\
+        DIY_LOG(LOG_INFO, QString("Test command %1 invoke succeed!").arg(cmdId));\
     }\
     else\
     {\
-        DIY_LOG(LOG_ERROR, "Test command %d invoke failed! ErrCode = %d.", cmdId, ret);\
+        DIY_LOG(LOG_ERROR, QString("Test command %1 invoke failed! ErrCode = %2.").arg(cmdId).arg(ret));\
     }\
 }
 
@@ -559,30 +559,31 @@ void MyFPD::MyCallback(int nDetectorID, int nEventID, int nEventLevel, const cha
     int cmdid_for_dbg = curCmdId;
     switch (nEventID){
         case Evt_TaskResult_Succeed://任务成功
-            DIY_LOG(LOG_INFO, "Evt_TaskResult_Succeed, curCmdID:%d.", cmdid_for_dbg);
+            DIY_LOG(LOG_INFO, QString("Evt_TaskResult_Succeed, curCmdID:%1.").arg(cmdid_for_dbg));
             lastError = Err_OK;
             if(nParam1==curCmdId){//判断返回的命令与调用的命令是否一致
                 SetEvent(waitAckEvent);//设置事件为有信号
             }
             break;
         case Evt_TaskResult_Failed://任务失败
-            DIY_LOG(LOG_INFO, "Evt_TaskResult_Failed, curCmdID:%d, err code:%d.",
-                    cmdid_for_dbg, nParam2);
+            DIY_LOG(LOG_INFO,
+                    QString("Evt_TaskResult_Failed, curCmdID:%1, err code:%2.").arg(cmdid_for_dbg, nParam2));
             lastError = nParam2;//任务失败时，nParam2返回错误码
             if(nParam1==curCmdId){//判断返回的命令与调用的命令是否一致
                 SetEvent(waitAckEvent);//设置事件为有信号
             }
             break;
         case Evt_TaskResult_Canceled://任务取消
-            DIY_LOG(LOG_INFO, "Evt_TaskResult_Canceled, curCmdID:%d.", cmdid_for_dbg);
+            DIY_LOG(LOG_INFO,
+                    QString("Evt_TaskResult_Canceled, curCmdID:%1.").arg(cmdid_for_dbg));
             if(nParam1==curCmdId){//判断返回的命令与调用的命令是否一致
                 SetEvent(waitAckEvent);//设置事件为有信号
             }
             break;
         default:
             DIY_LOG(LOG_INFO,
-                    "Unknown event ID, nEventID:%d, curCmdID:%d. evtlevel:%d, pszMsg:%s, nParam1:%d, nParam2:%d.",
-                    nEventID, cmdid_for_dbg, nEventLevel, pszMsg, nParam1, nParam2);
+                    QString("Unknown event ID, nEventID:%1, curCmdID:%2. evtlevel:%3, pszMsg:%4, nParam1:%5, nParam2:%6.")
+                    .arg(nEventID).arg(cmdid_for_dbg).arg(nEventLevel).arg(pszMsg).arg(nParam1).arg(nParam2));
             break;
     }
 }

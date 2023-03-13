@@ -61,8 +61,9 @@ bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
 
     if(opt_item->idx < 0)
     {
-       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int and >= 0.",
-               TAG_STR_IDX, opt_item->idx);
+       DIY_LOG(LOG_ERROR,
+               QString("Invalid exposure_opts %1: %2. It should be int and >= 0.")
+               .arg(TAG_STR_IDX).arg(opt_item->idx));
        return false;
     }
     if(opt_item->type == exposure_opt_type_manual)
@@ -73,26 +74,30 @@ bool SettingCfg::check_exposure_opt_value(exposure_opt_item_t* opt_item)
     if((opt_item->type != exposure_opt_type_auto)
             && (opt_item->type != exposure_opt_type_manual))
     {
-        DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int of %d or %d.",
-                TAG_STR_TYPE, opt_item->type, exposure_opt_type_auto, exposure_opt_type_manual);
+        DIY_LOG(LOG_ERROR,
+                QString("Invalid exposure_opts %1: %2. It should be int of %3 or %4.")
+                .arg(TAG_STR_TYPE).arg(opt_item->type).arg(exposure_opt_type_auto).arg(exposure_opt_type_manual));
         return false;
     }
     if((opt_item->vol > MAX_TUBE_VOL) || (opt_item->vol < MIN_TUBE_VOL))
     {
-       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
-               TAG_STR_TUBE_VOL, opt_item->vol, MIN_TUBE_VOL, MAX_TUBE_VOL);
+       DIY_LOG(LOG_ERROR,
+               QString("Invalid exposure_opts %1: %2. It should be int between [%3, %4].")
+               .arg(TAG_STR_TUBE_VOL).arg(opt_item->vol).arg(MIN_TUBE_VOL).arg(MAX_TUBE_VOL));
        return false;
     }
     if((opt_item->amt > MAX_TUBE_AMT) || (opt_item->amt < MIN_TUBE_AMT))
     {
-       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
-               TAG_STR_TUBE_AMT, opt_item->amt, MIN_TUBE_AMT, MAX_TUBE_AMT);
+       DIY_LOG(LOG_ERROR,
+               QString("Invalid exposure_opts %1: %2. It should be int between [%3, %4].")
+               .arg(TAG_STR_TUBE_AMT).arg(opt_item->amt).arg(MIN_TUBE_AMT).arg(MAX_TUBE_AMT));
        return false;
     }
     if((opt_item->dura >= MAX_EXPOSURE_DURA_STEP) || (opt_item->dura < 0))
     {
-       DIY_LOG(LOG_ERROR, "Invalid exposure_opts %s: %d. It should be int between [%d, %d].",
-               TAG_STR_DURATION, opt_item->dura, 0, MAX_EXPOSURE_DURA_STEP-1);
+       DIY_LOG(LOG_ERROR,
+               QString("Invalid exposure_opts %1: %2. It should be int between [%3, %4].")
+               .arg(TAG_STR_DURATION).arg(opt_item->dura).arg(0).arg(MAX_EXPOSURE_DURA_STEP-1));
        return false;
     }
 
@@ -457,8 +462,7 @@ void SettingCfg::read_exposure_opts_cfg(QDomDocument &doc)
                     else
                     {
                         DIY_LOG(LOG_WARN,
-                                "Lack opt item %ls in config file.",
-                                helper[h_idx].key_or_tag.utf16());
+                                QString("Lack opt item %1 in config file.").arg(helper[h_idx].key_or_tag));
                     }
                 }
                 if(check_exposure_opt_value(opt_item))
@@ -480,16 +484,18 @@ void SettingCfg::read_exposure_opts_cfg(QDomDocument &doc)
         else
         {
             //default
-            DIY_LOG(LOG_WARN, "Tag \"%s\" is not found in cfg file. Use default config.",
-                    TAG_STR_OPT);
+            DIY_LOG(LOG_WARN,
+                    QString("Tag \"%1\" is not found in cfg file. Use default config.")
+                    .arg(TAG_STR_OPT));
             construct_default_exposure_opts();
         }
     }
     else
     {
         //default
-        DIY_LOG(LOG_WARN, "Tag \"%s\" is not found in cfg file. Use default config.",
-                TAG_STR_EXPOSURE_OPTS);
+        DIY_LOG(LOG_WARN,
+                QString("Tag \"%1\" is not found in cfg file. Use default config.")
+                .arg(TAG_STR_EXPOSURE_OPTS));
         construct_default_exposure_opts();
     }
 #undef EXPOSURE_OPT_PTR_TYPE

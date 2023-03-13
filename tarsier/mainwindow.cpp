@@ -4,6 +4,7 @@
 #include "exitsystem.h"
 #include "fpdsetting.h"
 #include "myfpd.h"
+#include "./pzm/pzm_fpd.h"
 #include "mycontroller.h"
 #include "settingcfg.h"
 #include "mainwindow.h"
@@ -66,7 +67,8 @@ enum Enm_Controller_Address
 };
 
 
-static MyFPD *fpd=NULL;
+static MyFPD *fpd=NULL; //iRay fpd;
+static CPZM_Fpd * pzm_fpd_handler  = nullptr; //PZM fpd
 static ImageOperation *imageOperation=NULL;
 static QString imagePath=NULL;
 static QDateTime T1;//The last connected time or acquisition time
@@ -93,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent)
     systemSetting=new SystemSetting(this, m_fpd_models);
     exitSystem=new ExitSystem(this);
     fpdSetting=new FpdSetting(this, m_fpd_models);
+    m_curr_fpd_model = m_fpd_models->get_fpd_minfo_from_name(SettingCfg::getInstance().getSystemSettingCfg().fpdName);
     controller=new MyController(this);
     maskWidget=new MaskWidget(this);
 
@@ -109,7 +112,20 @@ MainWindow::MainWindow(QWidget *parent)
     expo_param_setting = new ExpoParamSettingDialog(this, &expo_param_validator);
 
     lowBatteryWarning=new LowBatteryWarning(this);
-    fpd=new MyFPD(this);
+    if(!m_curr_fpd_model)
+    {
+        DIY_LOG(LOG_ERROR,
+                QString("Unkonwn FPD name at initialization: %1")
+                .arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName));
+        QMessageBox::critical(nullptr, "!!!",
+                              QString("无法识别的探测器名称：%1").arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName));
+        return;
+    }
+    else
+    {
+        update_fpd_handler_on_new_model(m_curr_fpd_model);
+    }
+
     imageOperation=new ImageOperation(this);
     readExposureStatusTimer=new QTimer(this);
     readRangeStatusTimer=new QTimer(this);
@@ -187,6 +203,9 @@ MainWindow::~MainWindow()
     showImg=NULL;
     delete fpd;
     fpd=NULL;
+
+    delete pzm_fpd_handler;
+    pzm_fpd_handler = nullptr;
     delete imageOperation;
     imageOperation=NULL;
 
@@ -316,6 +335,8 @@ void MainWindow::InitActions(){
     //connect(ui->exitSystem, &QPushButton::clicked, exitSystem, &QPushButton::show);
     connect(systemSetting, &SystemSetting::fpdAndControllerConnect, this,&MainWindow::onConnectFpdAndController);
     connect(systemSetting, &SystemSetting::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
+    connect(systemSetting, &SystemSetting::systemSettingAccepted, this,&MainWindow::on_systemSettingAccepted);
+
     connect(fpdSetting, &FpdSetting::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(exitSystem, &ExitSystem::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(expo_param_setting, &ExpoParamSettingDialog::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
@@ -541,18 +562,20 @@ int MainWindow::ConnectionFPD(){
     QByteArray IP = str.toLocal8Bit();
     ret=fpd->SetAttr(Cfg_HostIP, IP.data());
     if (ret!=Err_OK){
-        DIY_LOG(LOG_ERROR, "SetAttr(Cfg_HostIP %ls) error: %d", str.utf16(), ret);
+        DIY_LOG(LOG_ERROR,
+                QString("SetAttr(Cfg_HostIP %1) error: %2")
+                .arg(str).arg(ret));
         fpd->GetErrorInfo(ret);
         return ret;
     }
-    DIY_LOG(LOG_ERROR, "SetAttr(Cfg_HostIP %ls) ok.", str.utf16());
+    DIY_LOG(LOG_ERROR, QString("SetAttr(Cfg_HostIP %1) ok.").arg(str));
 
     ret=fpd->SyncInvoke(Cmd_Connect,30000);
     if (ret!=Err_OK){
         //qDebug()<<"Cmd_Connect error="<<ret;
         fpd->GetErrorInfo(ret);
         statusBar()->showMessage(QString("探测器连接失败！"), 5000);
-        DIY_LOG(LOG_INFO, "SyncInvoke(Cmd_Connect,...) error: %d", ret);
+        DIY_LOG(LOG_INFO, QString("SyncInvoke(Cmd_Connect,...) error: %1").arg(ret));
         return ret;
     }
     DIY_LOG(LOG_INFO, "SyncInvoke(Cmd_Connect,...) OK");
@@ -563,10 +586,10 @@ int MainWindow::ConnectionFPD(){
     if (ret!=Err_OK){
         fpd->GetErrorInfo(ret);
         disconnect_works(true);
-        DIY_LOG(LOG_INFO, "Get Attr_UROM_TriggerMode error: %d", ret);
+        DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode error: %1").arg(ret));
         return ret;
     }
-    DIY_LOG(LOG_INFO, "Get Attr_UROM_TriggerMode ok, mode: %d", ar.nVal);
+    DIY_LOG(LOG_INFO, QString("Get Attr_UROM_TriggerMode ok, mode: %1").arg(ar.nVal));
 
     int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
     if(ar.nVal!=trigger){
@@ -575,17 +598,19 @@ int MainWindow::ConnectionFPD(){
         if (ret!=Err_OK){
             fpd->GetErrorInfo(ret);
             disconnect_works(true);
-            DIY_LOG(LOG_INFO, "Set Attr_UROM_TriggerMode to %d error: %d.", trigger, ret);
+            DIY_LOG(LOG_INFO,
+                    QString("Set Attr_UROM_TriggerMode to %1 error: %2.")
+                    .arg(trigger).arg(ret));
             return ret;
         }
-        DIY_LOG(LOG_INFO, "Set Attr_UROM_TriggerMode to %d ok.", trigger);
+        DIY_LOG(LOG_INFO, QString("Set Attr_UROM_TriggerMode to %1 ok.").arg(trigger));
 
         //ret=fpd->SyncInvoke(Cmd_WriteUserRAM,25000);
         ret=fpd->SyncInvoke(Cmd_WriteUserROM,25000);
         if (ret!=Err_OK){
             fpd->GetErrorInfo(ret);
             disconnect_works(true);
-            DIY_LOG(LOG_INFO, "SyncInvoke Cmd_WriteUserROM error: %d.", ret);
+            DIY_LOG(LOG_INFO, QString("SyncInvoke Cmd_WriteUserROM error: %1.").arg(ret));
             return ret;
         }
         DIY_LOG(LOG_INFO, "SyncInvoke Cmd_WriteUserROM ok.");
@@ -840,8 +865,8 @@ void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
     int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
 
     DIY_LOG(LOG_INFO,
-            "Write Controller finished. Current cmd: %d, current trigger mode: %d, ret:%d",
-            cmd_addr, trigger, ret);
+            QString("Write Controller finished. Current cmd: %1, current trigger mode: %2, ret:%3")
+            .arg(cmd_addr).arg(trigger).arg(ret));
 
     if(ret && (Enm_Controller_Address::ExposureStart == cmd_addr))
     {
@@ -853,8 +878,8 @@ void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
                     = SettingCfg::getInstance().getFpdSettingCfg().softwareTriggerWaitTimeBeforeAcqImg;
             wait_time = pre_exposure_time + curr_exposure_time;
             DIY_LOG(LOG_INFO,
-                    "software trigger, Write ExposureStart cmd finished, start timer:%d+%d=%d",
-                    pre_exposure_time, curr_exposure_time, wait_time);
+                    QString("software trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
+                    .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
             startAcqWaitTimer->start(wait_time);
         }
         else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
@@ -863,8 +888,8 @@ void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
                     = SettingCfg::getInstance().getFpdSettingCfg().innerTriggerWaitTimeBeforeAcqImg;
             wait_time = pre_exposure_time + curr_exposure_time;
             DIY_LOG(LOG_INFO,
-                    "inner trigger, Write ExposureStart cmd finished, start timer:%d+%d=%d",
-                    pre_exposure_time, curr_exposure_time, wait_time);
+                    QString("inner trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
+                    .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
             startAcqWaitTimer->start(wait_time);
         }
     }
@@ -878,7 +903,7 @@ void MainWindow::ControllerExposure(){
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
     bool w_ret;
     w_ret = controller->writeData(Enm_Controller_Address::ExposureStart,1,serverAddress,qv);
-    DIY_LOG(LOG_INFO, "controller->writeData ret: %d", w_ret);
+    DIY_LOG(LOG_INFO, QString("controller->writeData ret: %1").arg( w_ret));
     exposureStatus=0;//重置为下位机未开始曝光
     if(!readExposureStatusTimer->isActive()){
         //readExposureStatusTimer->setInterval(1000);
@@ -1022,7 +1047,7 @@ void MainWindow::on_connect_clicked(){
  * @param state 状态码
  */
 void MainWindow::onFpdConnectStateChanged(int state){
-    DIY_LOG(LOG_INFO, "onFpdConnectStateChanged: %d", state);
+    DIY_LOG(LOG_INFO, QString("onFpdConnectStateChanged: %1").arg(state));
     fpdConnectState=state;
     if(state==Enm_Connect_State::Connected){//已连接
         statusBar()->showMessage("探测器已连接", 5000);
@@ -1209,7 +1234,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
                 statusBar()->showMessage("下位机曝光已结束", 5000);
             }
             */
-            DIY_LOG(LOG_INFO, "read ExposureStatus: %d", exposureStatus);
+            DIY_LOG(LOG_INFO, QString("read ExposureStatus: %1").arg(exposureStatus));
             if(exposureStatus > 0)
             {
                 if(0 == exposure_state_trace)
@@ -1435,7 +1460,7 @@ void MainWindow::on_exposure_clicked(){
         }
         else
         {
-            DIY_LOG(LOG_ERROR, "Try exposure, but trigger mode is unknown:%d", trigger);
+            DIY_LOG(LOG_ERROR, QString("Try exposure, but trigger mode is unknown:%1").arg(trigger));
             log_str = QString("%1").arg(trigger);
         }
 
@@ -1449,8 +1474,8 @@ void MainWindow::on_exposure_clicked(){
         {
             //statusBar()->showMessage("Software触发失败", 5000);
             statusBar()->showMessage(log_str + "触发曝光失败", 5000);
-            DIY_LOG(LOG_ERROR, "Call %ls Trigger(trigger mode:%d) error:%d",
-                    log_str.utf16(), trigger, ret);
+            DIY_LOG(LOG_ERROR, QString("Call %1 Trigger(trigger mode:%2) error:%3")
+                    .arg(log_str).arg(trigger).arg(ret));
         }
     }
     /*
@@ -1685,6 +1710,82 @@ void MainWindow::on_systemSetting_clicked()
 {
     maskWidget->show();
     systemSetting->exec();
+}
+
+void MainWindow::on_systemSettingAccepted()
+{
+    fpd_model_info_t* new_model;
+    new_model = m_fpd_models->get_fpd_minfo_from_name(SettingCfg::getInstance().getSystemSettingCfg().fpdName);
+    if(!new_model)
+    {
+        DIY_LOG(LOG_ERROR,
+                QString("Select an unkonwn fpd model, name:%1........")
+                .arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName));
+    }
+    else if(new_model->sid != m_curr_fpd_model->sid)
+    {
+        update_fpd_handler_on_new_model(new_model);
+        m_curr_fpd_model = new_model;
+        DIY_LOG(LOG_INFO,
+                QString("Selected new FPD! mfg: %1; name: %2; sid: %3; apilib: %4.")
+                .arg(m_curr_fpd_model->mfg).arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName)
+                .arg(m_curr_fpd_model->sid).arg(m_curr_fpd_model->api_lib_pfn));
+    }
+    m_curr_fpd_model = new_model;
+}
+
+void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
+{
+    fpd_series_id_type_t new_sid;
+    if(!new_model)
+    {
+        DIY_LOG(LOG_WARN, "Pass into a NULL model pointer!");
+        return;
+    }
+
+    new_sid = new_model->sid;
+    switch(new_sid)
+    {
+        case FPD_SID_NONE:
+            if(fpd)
+            {
+                delete fpd;
+                fpd = nullptr;
+            }
+            if(pzm_fpd_handler)
+            {
+                delete pzm_fpd_handler;
+                pzm_fpd_handler = nullptr;
+            }
+            break;
+        case FPD_SID_IRAY_STATIC:
+            if(!fpd)
+            {
+                fpd = new MyFPD(this);
+            }
+            if(pzm_fpd_handler)
+            {
+                delete pzm_fpd_handler;
+                pzm_fpd_handler = nullptr;
+            }
+
+            break;
+        case FPD_SID_PZM_STATIC:
+            if(fpd)
+            {
+                delete fpd;
+                fpd = nullptr;
+            }
+            if(!pzm_fpd_handler)
+            {
+                pzm_fpd_handler = new CPZM_Fpd(this, m_curr_fpd_model);
+                connect(pzm_fpd_handler, &CPZM_Fpd::fpdErrorOccurred,
+                        this, &MainWindow::onErrorOccurred);
+            }
+            break;
+        default:
+            DIY_LOG(LOG_ERROR, QString("An unkonwn FPD SID: %1").arg(new_sid));
+    }
 }
 
 

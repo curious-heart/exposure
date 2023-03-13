@@ -32,6 +32,7 @@ SOURCES += \
     maskwidget.cpp \
     mycontroller.cpp \
     myfpd.cpp \
+    pzm/pzm_fpd.cpp \
     settingcfg.cpp \
     systemsetting.cpp \
     thirdpart/qtlocalpeer.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     maskwidget.h \
     mycontroller.h \
     myfpd.h \
+    pzm/pzm_fpd.h \
     pzm/sdk_4.1.16/ComApi/NetCom.h \
     settingcfg.h \
     systemsetting.h \

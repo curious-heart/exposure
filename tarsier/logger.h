@@ -68,11 +68,27 @@ void end_log_thread(QThread &th);
 /*
  * Use example:
  *     DIY_LOG(LOG_LEVEL::LOG_INFO, "info str.");
+ *     QString err_str;
+ *     DIY_LOG(LOG_LEVEL::LOG_WARN, err_str);
+*/
+#define DIY_LOG(level, log) \
+    {\
+        QString loc_str = QString(__FILE__) + QString("  [%1]").arg(__LINE__);\
+        if(g_LogSigEmitter)\
+        {\
+            __emit_log_signal__((int)level, loc_str, (log));\
+        }\
+    }
+
+/*
+ * Use example:
+ *     DIY_LOG(LOG_LEVEL::LOG_INFO, "info str.");
  *     DIY_LOG(LOG_LEVEL::LOG_ERROR, "error code:%d", (int)err);
  *
  *     QString ws("warning...");
  *     DIY_LOG(LOG_LEVEL::LOG_WARN, "warn message:%ls", ws.utf16());
 */
+/*
 #define DIY_LOG(level, fmt_str, ...) \
     {\
         QString log = QString::asprintf(fmt_str, ##__VA_ARGS__);\
@@ -82,4 +98,5 @@ void end_log_thread(QThread &th);
             __emit_log_signal__((int)level, loc_str, log);\
         }\
     }
+*/
 #endif // LOGGER_H

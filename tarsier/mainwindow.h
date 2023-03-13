@@ -95,6 +95,7 @@ private slots:
     void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
 
     void on_exposureSelCombox_activated(int index);
+    void on_systemSettingAccepted();
 
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
@@ -132,6 +133,7 @@ private:
     void update_exposure_parameters_display_on_main();
     bool write_exposure_params_to_controller_or_cfg(ExpoParamSettingDialog::expo_params_collection_t params, bool write_cfg = true);
     void goto_user_input_dialog();
+    void update_fpd_handler_on_new_model(fpd_model_info_t* new_model);
 
 private:
     Ui::MainWindow *ui;
@@ -187,7 +189,9 @@ private:
     bool promptState=false;      //低电量是否已经提示 true是  false否；
 
     //InputMethod * m_inp_md;
-    QLineEdit * m_curr_editor = nullptr;
+    //QLineEdit * m_curr_editor = nullptr;
+    /*This var point to an item in m_fpd_models, so do not delete it manually.*/
+    fpd_model_info_t* m_curr_fpd_model = nullptr;
 
 };
 

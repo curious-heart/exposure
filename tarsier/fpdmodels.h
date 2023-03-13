@@ -36,7 +36,7 @@ typedef struct
     fpd_image_info_t  img_info;
     int def_trigger_mdde;
     QMap<QString, int> trigger_mode_list; //key: trigger mode name; value: enum or macro value.
-    QString api_lib_pfn;
+    QString api_lib_pfn, cfg_file_pth;
 }fpd_model_info_t;
 
 /*PZM dose not have trigger mode definition. So we define it here by ourseleves.*/

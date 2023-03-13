@@ -91,6 +91,7 @@ void SystemSetting::on_sysOk_clicked(){
     this->close();
     //emit fpdAndControllerConnect();
     emit maskWidgetClosed();
+    emit systemSettingAccepted();
 }
 
 void SystemSetting::on_sysCancel_clicked()

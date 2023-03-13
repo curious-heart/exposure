@@ -57,12 +57,14 @@ void CFpdModels::setup_fpd_model_list()
     static const char* TRIGGER_MODE_SRV = "Service";
     static const char* TRIGGER_MODE_FREESYNC = "FreeSync";
     static const char* IRAY_API_LIB_PFN = "FpdSys";
+    static const char* IRAY_CFG_FILE_PTH = "";
     info = new(fpd_model_info_t);
     if(info)
     {//1417V3
         info->sid = FPD_SID_IRAY_STATIC;
         info->mfg = FPD_MFG_IRAY;
         info->api_lib_pfn = IRAY_API_LIB_PFN;
+        info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->img_info = {IMG_PIX_NORM_14I_35CM_L1, IMG_PIX_NORM_17I_43CM_L1, IMG_BITS_DEP_NORM};
         info->trigger_mode_list.insert(TRIGGER_MODE_OUTER, Enm_TriggerMode_Outer);
         info->trigger_mode_list.insert(TRIGGER_MODE_INNER, Enm_TriggerMode_Inner);
@@ -80,6 +82,7 @@ void CFpdModels::setup_fpd_model_list()
         info->sid = FPD_SID_IRAY_STATIC;
         info->mfg = FPD_MFG_IRAY;
         info->api_lib_pfn = IRAY_API_LIB_PFN;
+        info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->img_info = {IMG_PIX_NORM_17I_43CM_L1, IMG_PIX_NORM_17I_43CM_L1, IMG_BITS_DEP_NORM};
         info->trigger_mode_list.insert(TRIGGER_MODE_OUTER, Enm_TriggerMode_Outer);
         info->trigger_mode_list.insert(TRIGGER_MODE_INNER, Enm_TriggerMode_Inner);
@@ -96,12 +99,14 @@ void CFpdModels::setup_fpd_model_list()
     static const char* TRIGGER_MODE_AED = "AED";
     static const char* TRIGGER_MODE_HST = "HST";
     static const char* PZM_API_LIB_PFN = "pzm/sdk_4.1.16/ComApi/x64/ComApi";
+    static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.1.16/";
     info = new(fpd_model_info_t);
     if(info)
     {//4343Z
         info->sid = FPD_SID_PZM_STATIC;
         info->mfg = FPD_MFG_PZM;
         info->api_lib_pfn = PZM_API_LIB_PFN;
+        info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->img_info = {IMG_PIX_NORM_17I_43CM_L2, IMG_PIX_NORM_17I_43CM_L2, IMG_BITS_DEP_NORM};
         info->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
         info->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
@@ -115,6 +120,7 @@ void CFpdModels::setup_fpd_model_list()
         info->sid = FPD_SID_PZM_STATIC;
         info->mfg = FPD_MFG_PZM;
         info->api_lib_pfn = PZM_API_LIB_PFN;
+        info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->img_info = {IMG_PIX_NORM_14I_35CM_L2, IMG_PIX_NORM_17I_43CM_L2, IMG_BITS_DEP_NORM};
         info->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
         info->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
