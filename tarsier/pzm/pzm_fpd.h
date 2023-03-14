@@ -50,6 +50,8 @@ typedef CHAR (*Fnt_COM_GetFPCurStatus)();
 typedef CHAR (*Fnt_COM_GetFPCurStatusEx)(CHAR* psn);
 typedef CHAR (*Fnt_COM_LogPathSet)(CHAR* path);
 typedef CHAR (*Fnt_COM_ImgPathSet)(CHAR* path);
+typedef BOOL (*Fnt_COM_GetFPStatus)(TFPStat* ptFPStat);
+typedef BOOL (*Fnt_COM_GetFPStatusEx)(TFPStat* ptFPStat, CHAR* psn);
 
 class CPZM_Fpd: public QObject
 {
@@ -63,11 +65,15 @@ public:
     bool disconnect_from_fpd(fpd_model_info_t* model);
     bool start_aed_acquiring();
 
-    /**/
+    /*Callback functions*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
     static BOOL WINAPI FuncLinkexCallBack(char npara); /*EVENT_LINKUPEX*/
     static BOOL WINAPI FuncBreakCallBack(char npara); /*EVENT_LINKDOWNEX*/
     static BOOL WINAPI FuncBreakexCallBack(char npara); /*EVENT_LINKDOWNEX*/
+    static BOOL WINAPI FuncHeartBeatCallBack(char nEvent); /*EVENT_HEARTBEAT*/
+    static BOOL WINAPI FuncHeartBeatexCallBack(char nEvent); /*EVENT_HEARTBEATEX*/
+    static BOOL WINAPI FuncImageCallBack(char nEvent); /*EVENT_IMAGEVALID*/
+
 
 private:
     QLibrary *m_api_lib = nullptr;
@@ -109,6 +115,8 @@ private:
     static constexpr const char* m_hstr_COM_ExposeReq = "COM_ExposeReq";
     static constexpr const char* m_hstr_COM_LogPathSet = "COM_LogPathSet";
     static constexpr const char* m_hstr_COM_ImgPathSet= "COM_ImgPathSet";
+    static constexpr const char* m_hstr_COM_GetFPStatus = "COM_GetFPStatus";
+    static constexpr const char* m_hstr_COM_GetFPStatusEx = "COM_GetFPStatusEx";
 
     /*api function poiter*/
     Fnt_COM_Init m_hptr_COM_Init;
@@ -133,5 +141,7 @@ private:
     Fnt_COM_ExposeReq m_hptr_COM_ExposeReq;
     Fnt_COM_LogPathSet m_hptr_COM_LogPathSet;
     Fnt_COM_ImgPathSet m_hptr_COM_ImgPathSet;
+    Fnt_COM_GetFPStatus m_hptr_COM_GetFPStatus;
+    Fnt_COM_GetFPStatusEx m_hptr_COM_GetFPStatusEx;
 };
 #endif // PZM_FPD_H

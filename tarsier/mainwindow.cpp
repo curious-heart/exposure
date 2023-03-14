@@ -10,6 +10,7 @@
 #include "mainwindow.h"
 #include "mainwindow.h"
 #include "maskwidget.h"
+#include "common_tool_func.h"
 #include <QDateTime>
 #include <QKeyEvent>
 #include <QDebug>
@@ -85,6 +86,30 @@ static int exposureStatus=0;//未启动曝光
 static bool dDriveState;//D盘是否存在
 static QImage *img=NULL;
 static QString imageNum="";
+
+#define FPD_MODEL_PTR_CHECK(ret) \
+{\
+if(!m_curr_fpd_model)\
+{\
+    DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");\
+    return ret;\
+}\
+}
+
+#define FPD_HANDLER_CHECK(ret) \
+{\
+    FPD_MODEL_PTR_CHECK(ret)\
+    if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid && !fpd)\
+    {\
+        DIY_LOG(LOG_ERROR, "iRay fpd handler \"fpd\" is null. critical error.");\
+        return ret;\
+    }\
+    else if(FPD_SID_PZM_STATIC == m_curr_fpd_model->sid && !pzm_fpd_handler)\
+    {\
+        DIY_LOG(LOG_ERROR, "PZM: fpd handler \"pzm_fpd_handler\" is null. critical error.");\
+        return ret;\
+    }\
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -538,11 +563,7 @@ void MainWindow::SaveFile(const void* pData, unsigned size)
 int MainWindow::ConnectionFPD(){
     int ret = Err_OK;
 
-    if(!m_curr_fpd_model)
-    {
-        DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");
-        return Err_Unknown;
-    }
+    FPD_MODEL_PTR_CHECK(Err_Unknown);
 
     switch(m_curr_fpd_model->sid)
     {
@@ -669,11 +690,8 @@ int MainWindow::ConnectionFPD(){
  */
 int MainWindow::DisconnectionFPD(){
     int ret = Err_OK;
-    if(!m_curr_fpd_model)
-    {
-        DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");
-        return Err_Unknown;
-    }
+
+    FPD_MODEL_PTR_CHECK(Err_Unknown);
 
     switch(m_curr_fpd_model->sid)
     {
@@ -952,31 +970,59 @@ void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
             QString("Write Controller finished. Current cmd: %1, current trigger mode: %2, ret:%3")
             .arg(cmd_addr).arg(trigger).arg(ret));
 
+    if(!m_curr_fpd_model)
+    {
+        DIY_LOG(LOG_INFO, "fpd handler is null, no work to do.");
+        return;
+    }
+
     if(ret && (Enm_Controller_Address::ExposureStart == cmd_addr))
     {
-        int curr_exposure_time = exposureTimeList[exposureTimeIndex] * 1000;
-        int wait_time, pre_exposure_time;
-        if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
+        if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
         {
-            pre_exposure_time
-                    = SettingCfg::getInstance().getFpdSettingCfg().softwareTriggerWaitTimeBeforeAcqImg;
-            wait_time = pre_exposure_time + curr_exposure_time;
-            DIY_LOG(LOG_INFO,
-                    QString("software trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
-                    .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
-            startAcqWaitTimer->start(wait_time);
+            int curr_exposure_time = exposureTimeList[exposureTimeIndex] * 1000;
+            int wait_time, pre_exposure_time;
+            if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
+            {
+                pre_exposure_time
+                        = SettingCfg::getInstance().getFpdSettingCfg().softwareTriggerWaitTimeBeforeAcqImg;
+                wait_time = pre_exposure_time + curr_exposure_time;
+                DIY_LOG(LOG_INFO,
+                        QString("software trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
+                        .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
+                startAcqWaitTimer->start(wait_time);
+            }
+            else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
+            {
+                pre_exposure_time
+                        = SettingCfg::getInstance().getFpdSettingCfg().innerTriggerWaitTimeBeforeAcqImg;
+                wait_time = pre_exposure_time + curr_exposure_time;
+                DIY_LOG(LOG_INFO,
+                        QString("inner trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
+                        .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
+                startAcqWaitTimer->start(wait_time);
+            }
         }
-        else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
+        else if(FPD_SID_PZM_STATIC == m_curr_fpd_model->sid)
         {
-            pre_exposure_time
-                    = SettingCfg::getInstance().getFpdSettingCfg().innerTriggerWaitTimeBeforeAcqImg;
-            wait_time = pre_exposure_time + curr_exposure_time;
-            DIY_LOG(LOG_INFO,
-                    QString("inner trigger, Write ExposureStart cmd finished, start timer:%1+%2=%3")
-                    .arg(pre_exposure_time).arg(curr_exposure_time).arg(wait_time));
-            startAcqWaitTimer->start(wait_time);
+            FPD_HANDLER_CHECK();
+            if(!pzm_fpd_handler->start_aed_acquiring())
+            {
+                DIY_LOG(LOG_ERROR, "PZM: AED acquiring fails.");
+                return;
+            }
+            DIY_LOG(LOG_INFO, "PZM: AED acquiring success.");
+        }
+        else if(FPD_SID_NONE == m_curr_fpd_model->sid)
+        {
+            DIY_LOG(LOG_INFO, "Exposure cmd write, but now we do not use fpd.");
+        }
+        else
+        {
+            DIY_LOG(LOG_ERROR, QString("Unknown fpd sid: %1").arg(m_curr_fpd_model->sid));
         }
     }
+
 }
 /**
  * @brief MainWindow::ControllerExposure 控制下位机曝光
@@ -1513,66 +1559,89 @@ void MainWindow::on_exposure_clicked(){
     //    float ff=*((float*)&sum);
     //    qDebug()<<"ff="<<ff;
     int ret = Err_Unknown;
+
+    FPD_MODEL_PTR_CHECK();
+
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-disable.png)");
     ui->exposure->setEnabled(false);
-    QString fpdWorkDir=SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
-    if(fpdWorkDir==""){
-        DIY_LOG(LOG_INFO, "Exposure with fpdWorkDir is null.");
-        ControllerExposure();
-        statusBar()->showMessage("已曝光", 5000);
-    }else{
-        int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
-        QString log_str;
-        if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
-        {
-            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Software.");
-            ret = SoftwareTrigger();
-            log_str = "Software";
-        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
-        {
-            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Inner.");
-            ret = InnerTrigger();
-            log_str = "Inner";
-        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Outer)
-        {
-            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Outer.");
-            ret = OuterTrigger();
-            log_str = "Outer";
-        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Prep)
-        {
-            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Prep.");
-            ret = PREPTrigger();
-            log_str = "Prep";
-        }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_FreeSync)
-        {
-            DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: FreeSync.");
-            ret = FreesyncTrigger();
-            log_str = "FreeSync";
-        }
-        else
-        {
-            DIY_LOG(LOG_ERROR, QString("Try exposure, but trigger mode is unknown:%1").arg(trigger));
-            log_str = QString("%1").arg(trigger);
-        }
-
-        if(Err_OK == ret)
-        {
-            DIY_LOG(LOG_INFO, "Now call ControllerExposure.");
+    if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
+    {
+        QString fpdWorkDir=SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
+        if(fpdWorkDir==""){
+            DIY_LOG(LOG_INFO, "Exposure with fpdWorkDir is null.");
             ControllerExposure();
-            statusBar()->showMessage("开始采集图像", 5000);
-        }
-        else
-        {
-            //statusBar()->showMessage("Software触发失败", 5000);
-            statusBar()->showMessage(log_str + "触发曝光失败", 5000);
-            DIY_LOG(LOG_ERROR, QString("Call %1 Trigger(trigger mode:%2) error:%3")
-                    .arg(log_str).arg(trigger).arg(ret));
+            statusBar()->showMessage("已曝光", 5000);
+        }else{
+            int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
+            QString log_str;
+            if(trigger==Enm_TriggerMode::Enm_TriggerMode_Soft)
+            {
+                DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Software.");
+                ret = SoftwareTrigger();
+                log_str = "Software";
+            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Inner)
+            {
+                DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Inner.");
+                ret = InnerTrigger();
+                log_str = "Inner";
+            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Outer)
+            {
+                DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Outer.");
+                ret = OuterTrigger();
+                log_str = "Outer";
+            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_Prep)
+            {
+                DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: Prep.");
+                ret = PREPTrigger();
+                log_str = "Prep";
+            }else if(trigger==Enm_TriggerMode::Enm_TriggerMode_FreeSync)
+            {
+                DIY_LOG(LOG_INFO, "Begin exposure, trigger mode: FreeSync.");
+                ret = FreesyncTrigger();
+                log_str = "FreeSync";
+            }
+            else
+            {
+                DIY_LOG(LOG_ERROR, QString("Try exposure, but trigger mode is unknown:%1").arg(trigger));
+                log_str = QString("%1").arg(trigger);
+            }
+
+            if(Err_OK == ret)
+            {
+                DIY_LOG(LOG_INFO, "Now call ControllerExposure.");
+                ControllerExposure();
+                statusBar()->showMessage("开始采集图像", 5000);
+            }
+            else
+            {
+                //statusBar()->showMessage("Software触发失败", 5000);
+                statusBar()->showMessage(log_str + "触发曝光失败", 5000);
+                DIY_LOG(LOG_ERROR, QString("Call %1 Trigger(trigger mode:%2) error:%3")
+                        .arg(log_str).arg(trigger).arg(ret));
+            }
         }
     }
-    /*
-    ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
-    ui->exposure->setEnabled(true);
-    */
+    else if(FPD_SID_PZM_STATIC == m_curr_fpd_model->sid)
+    {
+        DIY_LOG(LOG_INFO, "PZM: Begin exposure.");
+        if(!pzm_fpd_handler)
+        {
+            DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
+            ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
+            ui->exposure->setEnabled(true);
+            return;
+        }
+        DIY_LOG(LOG_INFO, "Now call ControllerExposure.");
+        ControllerExposure();
+    }
+    else if(FPD_SID_NONE == m_curr_fpd_model->sid)
+    {
+        return;
+    }
+    else
+    {
+       DIY_LOG(LOG_ERROR, QString("Unkonwn fpd sid: %1").arg(m_curr_fpd_model->sid));
+    }
 }
 
 /**
@@ -2533,5 +2602,27 @@ void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
     }
 }
 
-void MainWindow::on_pzm_fpd_img_received_sig(char* img, int width, int height, int bit_dep)
-{}
+void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h, int bit_dep)
+{
+    DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
+
+    QString fn = m_curr_fpd_model->img_file_pth
+                   + "/"
+                   + common_tool_get_curr_dt_str() + ".aof";
+    QFile img_file(fn);
+    if(!img_file.open(QIODevice::WriteOnly))
+    {
+        DIY_LOG(LOG_ERROR, QString("PZM: open file %1 error").arg(fn));
+        delete []img_buf;
+        return;
+    }
+    int img_px_bytes = 2;
+    qint64 img_size = img_w * img_h * img_px_bytes;
+    qint64 written_size;
+    written_size = img_file.write(img_buf, img_size);
+    DIY_LOG(LOG_INFO,
+            QString("PZM: write file data. Image size: %1; written size:%2")
+            .arg(img_size).arg(written_size));
+    img_file.close();
+    delete []img_buf;
+}

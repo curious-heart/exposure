@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     ExpoParamSettingdialog.cpp \
+    common_tool_func.cpp \
     exitsystem.cpp \
     fpdmodels.cpp \
     fpdsetting.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
 HEADERS += \
     ExpoParamSettingdialog.h \
     IRayInclude.h \
+    common_tool_func.h \
     exitsystem.h \
     fpdmodels.h \
     fpdsetting.h \
