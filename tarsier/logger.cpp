@@ -41,9 +41,9 @@ Logger *Logger::instance()
  * @param loc_str 位置字符串，包括文件名和行号
  * @param log 日志内容
  */
+const char* log_dir_str = "tarsier_log", *log_file_str = "tarsier";
 void Logger::writeLog(QString level_str, QString loc_str, QString msg)
 {
-    static const char* log_dir_str = "tarsier_log", *log_file_str = "tarsier";
     QFileInfo info(log_dir_str);
     QString path = info.absoluteFilePath();
     QDir dir(path);

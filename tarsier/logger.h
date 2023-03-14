@@ -80,6 +80,7 @@ void end_log_thread(QThread &th);
         }\
     }
 
+extern const char* log_dir_str, *log_file_str;
 /*
  * Use example:
  *     DIY_LOG(LOG_LEVEL::LOG_INFO, "info str.");

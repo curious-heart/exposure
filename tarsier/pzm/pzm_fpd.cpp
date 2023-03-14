@@ -18,8 +18,28 @@ CPZM_Fpd::CPZM_Fpd(QObject *parent)
     }
 }
 
-void CPZM_Fpd::unload_library()
+bool CPZM_Fpd::load_library()
 {
+    QString err_str;
+    if(!m_model_info)
+    {
+        return false;
+    }
+
+    m_api_lib->setFileName(m_model_info->api_lib_pfn);
+    if(!m_api_lib->load())
+    {
+        err_str = QString("Load PZM library %1 error: %2.").arg(m_model_info->api_lib_pfn, m_api_lib->errorString());
+        DIY_LOG(LOG_ERROR, err_str);
+        return false;
+    }
+    m_lib_loaded = true;
+    return true;
+}
+
+bool CPZM_Fpd::unload_library()
+{
+    bool ret = true;
     if(m_api_lib && m_api_lib->isLoaded())
     {
         if(m_api_lib->unload())
@@ -29,16 +49,23 @@ void CPZM_Fpd::unload_library()
         else
         {
             DIY_LOG(LOG_ERROR, QString("Unload PZM library %ls failed.").arg(m_model_info->api_lib_pfn));
+            ret = false;
         }
     }
-    delete m_api_lib;
-    m_api_lib = nullptr;
-    return;
+    else
+    {
+        DIY_LOG(LOG_WARN, "Try to unload library, but library is not loaded");
+    }
+    m_lib_loaded = false;
+
+    return ret;
 }
 
 CPZM_Fpd::~CPZM_Fpd()
 {
     unload_library();
+    delete m_api_lib;
+    m_api_lib = nullptr;
 
     sg_curr_pzm_fpd_obj = nullptr;
 }
@@ -74,6 +101,9 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_AedTrigger, Fnt_COM_AedTrigger, m_hstr_COM_AedTrigger);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_Stop, Fnt_COM_Stop, m_hstr_COM_Stop);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_ExposeReq, Fnt_COM_ExposeReq, m_hstr_COM_ExposeReq);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_LogPathSet, Fnt_COM_LogPathSet, m_hstr_COM_LogPathSet);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_ImgPathSet, Fnt_COM_ImgPathSet, m_hstr_COM_ImgPathSet);
+
     return true;
 }
 #undef RESOLVE_LIBRARY_AND_CHECK
@@ -90,9 +120,10 @@ bool CPZM_Fpd::resolve_lib_functions()
 }
 bool CPZM_Fpd::reg_pzm_callbacks()
 {
-    REGISTER_EVT_CALL_BACK(EVENT_LINKDOWNEX, FuncBreakexCallBack, "FuncBreakexCallBack");
-    REGISTER_EVT_CALL_BACK(EVENT_LINKUPEX, FuncLinkexCallBack, "FuncLinkexCallBack");
     REGISTER_EVT_CALL_BACK(EVENT_LINKUP, FuncLinkCallBack, "FuncLinkCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_LINKUPEX, FuncLinkexCallBack, "FuncLinkexCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_LINKDOWN, FuncBreakCallBack, "FuncBreakCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_LINKDOWNEX, FuncBreakexCallBack, "FuncBreakexCallBack");
 
     return true;
 
@@ -114,6 +145,21 @@ bool CPZM_Fpd::reg_pzm_callbacks()
 }
 #undef REGISTER_EVT_CALL_BACK
 
+BOOL CPZM_Fpd::FuncLinkCallBack(char nEvent)
+{/*EVENT_LINKUP*/
+    DIY_LOG(LOG_INFO, QString("FuncLinkCallBack(%1)").arg(nEvent));
+    if(sg_curr_pzm_fpd_obj)
+    {
+        DIY_LOG(LOG_INFO, "connected");
+        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUP);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 BOOL CPZM_Fpd::FuncLinkexCallBack(char npara)
 {/*EVENT_LINKUPEX*/
     DIY_LOG(LOG_INFO, QString("FuncLinkexCallBack(%1)").arg(npara));
@@ -133,16 +179,16 @@ BOOL CPZM_Fpd::FuncLinkexCallBack(char npara)
     }
 }
 
-BOOL CPZM_Fpd::FuncBreakexCallBack(char npara)
-{/*EVENT_LINKDOWNEX*/
-    DIY_LOG(LOG_INFO, QString("FuncBreakexCallBack(%1)").arg(npara));
+BOOL CPZM_Fpd::FuncBreakCallBack(char npara)
+{/*EVENT_LINKDOWN*/
+    DIY_LOG(LOG_INFO, QString("FuncBreakCallBack(%1)").arg(npara));
     if(sg_curr_pzm_fpd_obj)
     {
         CHAR sn_buf[PZM_SN_LEN + 1];
         sg_curr_pzm_fpd_obj->m_hptr_COM_GetFPsnEx(npara, sn_buf);
         sn_buf[PZM_SN_LEN] = '\0';
         DIY_LOG(LOG_INFO, QString("broken sn: %1: %2").arg(npara).arg(sn_buf));
-        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUPEX, npara, QString(sn_buf));
+        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUP, npara, QString(sn_buf));
         return true;
     }
     else
@@ -151,13 +197,18 @@ BOOL CPZM_Fpd::FuncBreakexCallBack(char npara)
     }
 }
 
-BOOL CPZM_Fpd::FuncLinkCallBack(char nEvent)
-{/*EVENT_LINKUP*/
-    DIY_LOG(LOG_INFO, QString("FuncLinkCallBack(%1)").arg(nEvent));
+BOOL CPZM_Fpd::FuncBreakexCallBack(char npara)
+{/*EVENT_LINKDOWNEX*/
+    //This is "link broken down" event, not "closed" event. When normal close, this event is not released.
+
+    DIY_LOG(LOG_INFO, QString("FuncBreakexCallBack(%1)").arg(npara));
     if(sg_curr_pzm_fpd_obj)
     {
-        DIY_LOG(LOG_INFO, "connected");
-        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUP);
+        CHAR sn_buf[PZM_SN_LEN + 1];
+        sg_curr_pzm_fpd_obj->m_hptr_COM_GetFPsnEx(npara, sn_buf);
+        sn_buf[PZM_SN_LEN] = '\0';
+        DIY_LOG(LOG_INFO, QString("broken sn: %1: %2").arg(npara).arg(sn_buf));
+        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUPEX, npara, QString(sn_buf));
         return true;
     }
     else
@@ -176,12 +227,8 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
         DIY_LOG(LOG_ERROR, "fpd model pointer can't be null.");
         return false;
     }
-
-    m_api_lib->setFileName(model->api_lib_pfn);
-    if(!m_api_lib->load())
+    if(!load_library())
     {
-        err_str = QString("Load PZM library %1 error: %2.").arg(model->api_lib_pfn, m_api_lib->errorString());
-        DIY_LOG(LOG_ERROR, err_str);
         return false;
     }
     DIY_LOG(LOG_INFO, QString("Load PZM library %1 success.").arg(model->api_lib_pfn));
@@ -206,17 +253,37 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
 
     BOOL api_ret;
     QString curr_app_abs_pth = QDir::currentPath();//QCoreApplication::applicationDirPath();
-    QString cfg_abs_pth = curr_app_abs_pth + "/" + m_model_info->cfg_file_pth;
-    QByteArray ba = cfg_abs_pth.toUtf8();
+    QString file_abs_pth = curr_app_abs_pth + "/" + m_model_info->cfg_file_pth;
+    QByteArray ba = file_abs_pth.toUtf8();
     char * pth = ba.data();
     api_ret = m_hptr_COM_SetCfgFilePath(pth);
     if(!api_ret)
     {
         DIY_LOG(LOG_ERROR,
                 QString("Set PZM cfg file path error: %1")
-                .arg(sg_curr_pzm_fpd_obj->m_model_info->cfg_file_pth));
+                .arg(m_model_info->cfg_file_pth));
         unload_library();
         return false;
+    }
+    DIY_LOG(LOG_INFO, QString("Set PZM cfg file path: %1").arg(QString(pth)));
+
+    file_abs_pth = curr_app_abs_pth + "/" + m_model_info->log_file_pth;
+    ba = file_abs_pth.toUtf8();
+    pth = ba.data();
+    api_ret = m_hptr_COM_LogPathSet(pth);
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_WARN, QString("Set PZM log file path error: %1").arg(m_model_info->log_file_pth));
+    }
+    DIY_LOG(LOG_INFO, QString("Set PZM image file path: %1").arg(QString(pth)));
+
+    file_abs_pth = curr_app_abs_pth + "/" + m_model_info->img_file_pth;
+    ba = file_abs_pth.toUtf8();
+    pth = ba.data();
+    api_ret = m_hptr_COM_ImgPathSet(pth);
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_WARN, QString("Set PZM image file path error: %1").arg(m_model_info->img_file_pth));
     }
 
     api_ret = m_hptr_COM_Init();
@@ -240,15 +307,25 @@ bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* model)
 {
     BOOL api_ret;
     api_ret = m_hptr_COM_Close();
-    unload_library();
-    if(api_ret)
+    if(!api_ret)
     {
-        DIY_LOG(LOG_INFO, "PZM fpd closed.");
-        return true;
-    }
-    else
-    {
-        DIY_LOG(LOG_ERROR, "PZM COM_Close fails.");
+        DIY_LOG(LOG_ERROR, "PZM Close failes");
         return false;
     }
+    DIY_LOG(LOG_INFO, "PZM Closed.");
+
+    api_ret = m_hptr_COM_Uninit();
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_ERROR, "PZM Uninit failes");
+        return false;
+    }
+    DIY_LOG(LOG_INFO, "PZM Uninited.");
+
+    return unload_library();
+}
+
+bool CPZM_Fpd::start_aed_acquiring()
+{
+    return true;
 }

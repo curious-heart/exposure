@@ -649,7 +649,6 @@ int MainWindow::ConnectionFPD(){
             {
                 return Err_Unknown;
             }
-            onFpdConnectStateChanged(Enm_Connect_State::Connecting);
         }
         break;
 
@@ -669,6 +668,7 @@ int MainWindow::ConnectionFPD(){
  * @return
  */
 int MainWindow::DisconnectionFPD(){
+    int ret = Err_OK;
     if(!m_curr_fpd_model)
     {
         DIY_LOG(LOG_ERROR, "fpd model ptr is null. critical error.");
@@ -683,7 +683,7 @@ int MainWindow::DisconnectionFPD(){
             if(fpdWorkDir==""){
                 return Err_OK;
             }
-            int ret=fpd->SyncInvoke(Cmd_Disconnect,30000);
+            ret=fpd->SyncInvoke(Cmd_Disconnect,30000);
             if (ret!=Err_OK){
                 fpd->GetErrorInfo(ret);
                 return ret;
@@ -698,6 +698,8 @@ int MainWindow::DisconnectionFPD(){
             fpdCreateState=false;
             return ret;
         }
+        break;
+
         case FPD_SID_PZM_STATIC:
         {
             if(!pzm_fpd_handler)
@@ -709,15 +711,28 @@ int MainWindow::DisconnectionFPD(){
             api_ret = pzm_fpd_handler->disconnect_from_fpd(m_curr_fpd_model);
             if(!api_ret)
             {
+                DIY_LOG(LOG_ERROR, "PZM disconnect fails.");
                 return Err_Unknown;
             }
-            onFpdConnectStateChanged(Enm_Connect_State::Disconnecting);
+            /* Wait some time until FPD device close the connection.
+             * If no wait, and user connect/disconnects in a very short interval, SDK may crash.
+            */
+            Sleep(5000);
+            ret = Err_OK;
         }
         break;
-    default:
-        ;
-    }
 
+        case FPD_SID_NONE:
+        break;
+
+        default:
+        {
+            DIY_LOG(LOG_ERROR, QString("Unknown FPD SID: %1").arg(m_curr_fpd_model->sid));
+            ret = Err_Unknown;
+        }
+        break;
+    }
+    return ret;
 }
 
 
@@ -1051,9 +1066,12 @@ FPDRESULT MainWindow::disconnect_works(bool part_disconn)
     if(0 == ret)
     {
         onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
-        if(readFpdBatteryLevelTimer->isActive())
+        if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
         {
-            readFpdBatteryLevelTimer->stop();
+            if(readFpdBatteryLevelTimer->isActive())
+            {
+                readFpdBatteryLevelTimer->stop();
+            }
         }
     }
     else
@@ -1092,12 +1110,16 @@ void MainWindow::on_connect_clicked(){
             statusBar()->showMessage("正在连接探测器...", 5000);
             onFpdConnectStateChanged(Enm_Connect_State::Connecting);
             FPDRESULT ret=ConnectionFPD();
-            if(ret==0){
-                onFpdConnectStateChanged(Enm_Connect_State::Connected);
-                onReadFpdBatteryLevelTimerOutTime();//第一次获得探测器电量
-                if(!readFpdBatteryLevelTimer->isActive()){
-                    readFpdBatteryLevelTimer->setInterval(60*1000);
-                    readFpdBatteryLevelTimer->start();
+            if(ret==0)
+            {
+                if(fpd)
+                {
+                    onFpdConnectStateChanged(Enm_Connect_State::Connected);
+                    onReadFpdBatteryLevelTimerOutTime();//第一次获得探测器电量
+                    if(!readFpdBatteryLevelTimer->isActive()){
+                        readFpdBatteryLevelTimer->setInterval(60*1000);
+                        readFpdBatteryLevelTimer->start();
+                    }
                 }
             }
             else
@@ -2497,9 +2519,12 @@ void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
     DIY_LOG(LOG_INFO, QString("Received PZM event: %1, %2, %3").arg(evt).arg(sn_i).arg(sn_str));
     switch(evt)
     {
-    case EVENT_LINKUPEX:
+    case EVENT_LINKUP:
         onFpdConnectStateChanged(Enm_Connect_State::Connected);
         break;
+    case EVENT_LINKUPEX:
+        break;
+    case EVENT_LINKDOWN:
     case EVENT_LINKDOWNEX:
         onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
         break;

@@ -48,6 +48,8 @@ typedef BOOL (*Fnt_COM_GetFPsn)(CHAR* psn);
 typedef BOOL (*Fnt_COM_GetFPsnEx)(CHAR index, CHAR* psn);
 typedef CHAR (*Fnt_COM_GetFPCurStatus)();
 typedef CHAR (*Fnt_COM_GetFPCurStatusEx)(CHAR* psn);
+typedef CHAR (*Fnt_COM_LogPathSet)(CHAR* path);
+typedef CHAR (*Fnt_COM_ImgPathSet)(CHAR* path);
 
 class CPZM_Fpd: public QObject
 {
@@ -56,20 +58,25 @@ public:
     /*model can't be nullptr when constructing.*/
     CPZM_Fpd(QObject *parent = nullptr);
     ~CPZM_Fpd();
+    bool library_loaded() {return m_lib_loaded;}
     bool connect_to_fpd(fpd_model_info_t* model);
     bool disconnect_from_fpd(fpd_model_info_t* model);
+    bool start_aed_acquiring();
 
     /**/
-    static BOOL WINAPI FuncLinkexCallBack(char npara); /*EVENT_LINKUPEX*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
+    static BOOL WINAPI FuncLinkexCallBack(char npara); /*EVENT_LINKUPEX*/
+    static BOOL WINAPI FuncBreakCallBack(char npara); /*EVENT_LINKDOWNEX*/
     static BOOL WINAPI FuncBreakexCallBack(char npara); /*EVENT_LINKDOWNEX*/
 
 private:
     QLibrary *m_api_lib = nullptr;
+    bool m_lib_loaded = false;
     fpd_model_info_t* m_model_info = nullptr; //this var is set by parent, so do not delete it here.
 
 private:
-    void unload_library();
+    bool load_library();
+    bool unload_library();
     bool resolve_lib_functions();
     bool reg_pzm_callbacks();
 
@@ -100,6 +107,8 @@ private:
     static constexpr const char* m_hstr_COM_AedTrigger = "COM_AedTrigger";
     static constexpr const char* m_hstr_COM_Stop = "COM_Stop";
     static constexpr const char* m_hstr_COM_ExposeReq = "COM_ExposeReq";
+    static constexpr const char* m_hstr_COM_LogPathSet = "COM_LogPathSet";
+    static constexpr const char* m_hstr_COM_ImgPathSet= "COM_ImgPathSet";
 
     /*api function poiter*/
     Fnt_COM_Init m_hptr_COM_Init;
@@ -122,5 +131,7 @@ private:
     Fnt_COM_AedTrigger m_hptr_COM_AedTrigger;
     Fnt_COM_Stop m_hptr_COM_Stop;
     Fnt_COM_ExposeReq m_hptr_COM_ExposeReq;
+    Fnt_COM_LogPathSet m_hptr_COM_LogPathSet;
+    Fnt_COM_ImgPathSet m_hptr_COM_ImgPathSet;
 };
 #endif // PZM_FPD_H
