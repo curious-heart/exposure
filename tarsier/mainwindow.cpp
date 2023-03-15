@@ -1829,7 +1829,14 @@ void MainWindow::onImageSaveFinshed(QString path){
 
 void MainWindow::onImageCreateFinshed(QImage *img,QString imageNum)
 {
-    showImg=img;
+    if(!img)
+    {
+        DIY_LOG(LOG_ERROR, "Passed in a null img ptr.");
+        return;
+    }
+    *showImg=*img;
+    delete img; //this points to the same object as the static global var "img"
+
     QMatrix matrix;
     matrix.rotate(90);
     *showImg = showImg->transformed(matrix);
