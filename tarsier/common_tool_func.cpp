@@ -8,4 +8,3 @@ QString common_tool_get_curr_dt_str()
     QString dtstr = curDateTime.toString("yyyyMMddhhmmss");
     return dtstr;
 }
-

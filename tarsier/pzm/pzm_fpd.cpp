@@ -300,10 +300,10 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 
         int img_w = tImageMode.usCol; // sg_curr_pzm_fpd_obj->m_model_info->img_info.w;
         int img_h = tImageMode.usRow; //sg_curr_pzm_fpd_obj->m_model_info->img_info.h;
-        int img_px_bytes = 2; //PX_BITS_TO_BYTES(tImageMode.usPix); //PX_BITS_TO_BYTES(sg_curr_pzm_fpd_obj->m_model_info->img_info.bits);
+        int img_px_bytes = PX_BITS_TO_BYTES(tImageMode.usPix); //PX_BITS_TO_BYTES(sg_curr_pzm_fpd_obj->m_model_info->img_info.bits);
         DIY_LOG(LOG_INFO,
                 QString("PZM: get image mode: w: %1, h: %2, px_bytes: %3; type: %4")
-                .arg(img_w).arg(img_h).arg(tImageMode.usPix).arg(tImageMode.usType));
+                .arg(img_w).arg(img_h).arg(img_px_bytes).arg(tImageMode.usType));
 
         qint64 img_size = img_w * img_h * img_px_bytes;
         CHAR* img_buf = new CHAR[img_size];
@@ -416,10 +416,20 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
         return false;
     }
     DIY_LOG(LOG_INFO, "PZM: fpd opened.");
-    return api_ret;
+
+    api_ret = m_hptr_COM_SetCalibMode(IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_WARN, "PZM: SetCaliMode error!");
+    }
+    else
+    {
+        DIY_LOG(LOG_INFO, "PZM: SetCaliMode ok!");
+    }
+    return true;
 }
 
-bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* model)
+bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* /*model*/)
 {
     BOOL api_ret;
     api_ret = m_hptr_COM_Close();

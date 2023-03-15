@@ -61,7 +61,7 @@ private slots:
     void onReadBatteryLevelTimerOutTime();
     void onReadChargeStateTimerOutTime();
     void onCheckSleepAndShutdownTimerOutTime();
-    void onImageSaveFinshed(QString path);
+    //void onImageSaveFinshed(QString path);
     void onImageCreateFinshed(QImage *img,QString imageNum);
     void on_exitSystem_clicked();
     void onQDialogClosed();

@@ -33,11 +33,15 @@ typedef struct
 {
     QString mfg;
     fpd_series_id_type_t sid; //series id
+    /* img_info are not for image-receive-from-pd  process.
+     * in which case, images info are get dynamic from fpd.
+    */
     fpd_image_info_t  img_info;
     int def_trigger_mdde;
     QMap<QString, int> trigger_mode_list; //key: trigger mode name; value: enum or macro value.
     QString api_lib_pfn;
-    QString cfg_file_pth, log_file_pth, img_file_pth;
+    QString cfg_file_pth, log_file_pth;
+    QString img_file_pth, img_file_ext;
 }fpd_model_info_t;
 
 /*PZM dose not have trigger mode definition. So we define it here by ourseleves.*/

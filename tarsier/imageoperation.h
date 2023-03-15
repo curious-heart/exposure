@@ -37,7 +37,7 @@ signals:
      * @brief imageSaveFinshed 图片保存完毕
      * @param path 图片路径
      */
-    void imageSaveFinshed(QString path);
+    //void imageSaveFinshed(QString path);
     /**
      * @brief imageCreateFinshed 创建图片完成
      * @param img 图片

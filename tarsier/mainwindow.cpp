@@ -86,6 +86,7 @@ static int exposureStatus=0;//未启动曝光
 static bool dDriveState;//D盘是否存在
 static QImage *img=NULL;
 static QString imageNum="";
+static const char* sg_image_file_format_tif = ".tif";
 
 #define FPD_MODEL_PTR_CHECK(ret) \
 {\
@@ -1816,6 +1817,7 @@ void MainWindow::onCheckSleepAndShutdownTimerOutTime(){
  * @brief MainWindow::onImageSaveFinshed 当图片保存完毕时
  * @param path 图片路径
  */
+/* not used now.
 void MainWindow::onImageSaveFinshed(QString path){
     if((showImg->load(path))){
         QMatrix matrix;
@@ -1826,6 +1828,7 @@ void MainWindow::onImageSaveFinshed(QString path){
         contrastSlider->setValue(0);
     }
 }
+*/
 
 void MainWindow::onImageCreateFinshed(QImage *img,QString imageNum)
 {
@@ -2613,9 +2616,11 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
 {
     DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
 
-    QString fn = m_curr_fpd_model->img_file_pth
+    imageNum = common_tool_get_curr_dt_str();
+    QString main_fn = m_curr_fpd_model->img_file_pth
                    + "/"
-                   + common_tool_get_curr_dt_str() + ".aof";
+                   + m_curr_fpd_model->mfg + "_" + imageNum;
+    QString fn = main_fn + m_curr_fpd_model->img_file_ext;
     QFile img_file(fn);
     if(!img_file.open(QIODevice::WriteOnly))
     {
@@ -2631,5 +2636,40 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
             QString("PZM: write file data. Image size: %1; written size:%2")
             .arg(img_size).arg(written_size));
     img_file.close();
-    delete []img_buf;
+
+    QImage::Format img_format;
+    switch(bit_dep)
+    {
+        case 8:
+            img_format = QImage::Format_Grayscale8;
+            break;
+        case 16:
+            img_format = QImage::Format_Grayscale16;
+            break;
+        default:
+            img_format = QImage::Format_Grayscale16;
+            break;
+    }
+    img=new QImage((uchar*)img_buf, img_w, img_h, img_format);
+    if(!img)
+    {
+        DIY_LOG(LOG_ERROR,
+                QString("PZM: new QImage error for iamge info: w %1, h %2, bits %3.")
+                .arg(img_w).arg(img_h).arg(bit_dep));
+
+        delete []img_buf;
+        return;
+    }
+    else if(img->isNull())
+    {
+        DIY_LOG(LOG_ERROR,
+                QString("PZM: create QImage error: isNULL.  iamge info: w %1, h %2, bits %3.")
+                .arg(img_w).arg(img_h).arg(bit_dep));
+
+        delete []img_buf;
+        return;
+    }
+    QString img_fn = main_fn + sg_image_file_format_tif;
+    img->save(img_fn);
+    emit imageOperation->imageCreateFinshed(img,imageNum);
 }
