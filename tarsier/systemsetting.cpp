@@ -89,7 +89,7 @@ void SystemSetting::on_sysOk_clicked(){
     ssc.fpdWorkDir=(SettingCfg::getInstance().getSystemBaseCfg().fpdworkdirMap.value(in_s));
     SettingCfg::getInstance().writeSettingConfig(&ssc,&fsc);
     this->close();
-    //emit fpdAndControllerConnect();
+    emit fpdAndControllerConnect();
     emit maskWidgetClosed();
     emit systemSettingAccepted();
 }

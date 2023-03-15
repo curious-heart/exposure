@@ -322,6 +322,9 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
         DIY_LOG(LOG_INFO, "PZM: Get Image sucess.");
         sg_curr_pzm_fpd_obj->m_hptr_COM_Stop();
 
+        /*
+         * NOTE: img_buf is to be delete by the slot.
+        */
         emit sg_curr_pzm_fpd_obj->pzm_fpd_img_received_sig(img_buf, img_w, img_h, img_px_bytes *2);
 
         return TRUE;

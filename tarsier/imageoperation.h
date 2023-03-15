@@ -15,6 +15,13 @@ public:
     void FreeTiffLibrary();
     bool SaveTiffFile(QString path,IRayImage * iri);
 
+    typedef enum
+    {
+        IMG_OP_NONE = 0,
+        IMG_OP_ROTATE_R_90,
+        IMG_OP_ROTATE_L_90,
+    }img_op_type_t;;
+
 private:
     QLibrary *qLib;
     bool dllLoadStatus;
@@ -42,8 +49,9 @@ signals:
      * @brief imageCreateFinshed 创建图片完成
      * @param img 图片
      * @param imageNum 图片编号
+     * @param rotate 是否需要旋转
      */
-    void imageCreateFinshed(QImage *img,QString imageNum);
+    void imageCreateFinshed(QImage *img,QString imageNum, img_op_type_t op_t = IMG_OP_ROTATE_R_90);
 
 };
 

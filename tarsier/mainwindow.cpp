@@ -84,7 +84,7 @@ static int exposureTimeIndex=DEF_EXPOSURE_DURA_IDX/*3*/;
 static int exposureStatus=0;//未启动曝光
 //static int rangeStatus=0;//范围指示未启动
 static bool dDriveState;//D盘是否存在
-static QImage *img=NULL;
+//static QImage *img=NULL;
 static QString imageNum="";
 static const char* sg_image_file_format_tif = ".tif";
 
@@ -375,7 +375,7 @@ void MainWindow::InitActions(){
     connect(controller,&MyController::modbusErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(controller,&MyController::readDataFinished,this,&MainWindow::onReadControllerDataFinished);
     connect(controller,&MyController::writeDataFinished,this,&MainWindow::onWriteControllerDataFinished);
-    connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
+    //connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(imageOperation,&ImageOperation::imageOperationErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(readExposureStatusTimer, &QTimer::timeout, this, &MainWindow::onReadExposureStatusTimerOutTime);
     connect(readRangeStatusTimer, &QTimer::timeout, this, &MainWindow::onReadRangeStatusTimerOutTime);
@@ -504,6 +504,7 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
         const unsigned short * pImageData = pImg->pData;
         int nImageWidth = pImg->nWidth;
         int nImageHeight = pImg->nHeight;
+        QImage *img;
         //            int nImageBytesPerPixel=pImg->nBytesPerPixel;
         //            int nImageSize = nImageWidth * nImageHeight * nImageBytesPerPixel;
         //            IRayVariantMapItem * pImageTagItem = pImg->propList.pItems;
@@ -564,7 +565,7 @@ void MainWindow::SaveFile(const void* pData, unsigned size)
 int MainWindow::ConnectionFPD(){
     int ret = Err_OK;
 
-    FPD_MODEL_PTR_CHECK(Err_Unknown);
+    FPD_HANDLER_CHECK(Err_Unknown);
 
     switch(m_curr_fpd_model->sid)
     {
@@ -660,11 +661,6 @@ int MainWindow::ConnectionFPD(){
 
         case FPD_SID_PZM_STATIC:
         {
-            if(!pzm_fpd_handler)
-            {
-                DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
-                return Err_Unknown;
-            }
             bool api_ret;
             api_ret = pzm_fpd_handler->connect_to_fpd(m_curr_fpd_model);
             if(!api_ret)
@@ -692,7 +688,7 @@ int MainWindow::ConnectionFPD(){
 int MainWindow::DisconnectionFPD(){
     int ret = Err_OK;
 
-    FPD_MODEL_PTR_CHECK(Err_Unknown);
+    FPD_HANDLER_CHECK(Err_Unknown);
 
     switch(m_curr_fpd_model->sid)
     {
@@ -721,11 +717,6 @@ int MainWindow::DisconnectionFPD(){
 
         case FPD_SID_PZM_STATIC:
         {
-            if(!pzm_fpd_handler)
-            {
-                DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
-                return Err_Unknown;
-            }
             bool api_ret;
             api_ret = pzm_fpd_handler->disconnect_from_fpd(m_curr_fpd_model);
             if(!api_ret)
@@ -761,39 +752,51 @@ int MainWindow::DisconnectionFPD(){
  * @return
  */
 int MainWindow::PreOffsetCalibrationTemplate(){
-    QDateTime T2= QDateTime::currentDateTime();//The last Offset generating time
-    while(true){
-        QDateTime T= QDateTime::currentDateTime();//获取当前时间
-        if((!subsetSpecified&&T1.secsTo(T)>20*60) || (subsetSpecified&&T1.secsTo(T)>20*60&&T2.secsTo(T)>60*60)){
-            AttrResult ar;
-            int ret=fpd->GetAttr(Attr_State,ar);
-            if (ret!=Err_OK){
-                fpd->GetErrorInfo(ret);
-                //return ret;
-            }
-            int state=ar.nVal;
-            if(state!=Enm_DetectorState::Enm_State_Ready){
-                statusBar()->showMessage(QString("不能进行PreOffset校正模版,FPD状态为:%1").arg(state), 5000);
-                //return 2;
-            }
-            if(!subsetSpecified){
-                ret=fpd->SyncInvoke(Cmd_SetCaliSubset,"Mode1",3000);
-                if (ret!=Err_OK){
-                    fpd->GetErrorInfo(ret);
-                    //return ret;
-                }
-                subsetSpecified=true;
-            }
-            ret=fpd->SyncInvoke(Cmd_OffsetGeneration,3000);
-            if (ret!=Err_OK){
-                fpd->GetErrorInfo(ret);
-                //return ret;
-            }
-            T2=QDateTime::currentDateTime();
-        }
-        Sleep(60*1000);//每分钟检查一次
-    }
+    FPD_HANDLER_CHECK(Err_Unknown);
 
+    switch(m_curr_fpd_model->sid)
+    {
+        case FPD_SID_IRAY_STATIC:
+        {
+            QDateTime T2= QDateTime::currentDateTime();//The last Offset generating time
+            while(true){
+                QDateTime T= QDateTime::currentDateTime();//获取当前时间
+                if((!subsetSpecified&&T1.secsTo(T)>20*60) || (subsetSpecified&&T1.secsTo(T)>20*60&&T2.secsTo(T)>60*60)){
+                    AttrResult ar;
+                    int ret=fpd->GetAttr(Attr_State,ar);
+                    if (ret!=Err_OK){
+                        fpd->GetErrorInfo(ret);
+                        //return ret;
+                    }
+                    int state=ar.nVal;
+                    if(state!=Enm_DetectorState::Enm_State_Ready){
+                        statusBar()->showMessage(QString("不能进行PreOffset校正模版,FPD状态为:%1").arg(state), 5000);
+                        //return 2;
+                    }
+                    if(!subsetSpecified){
+                        ret=fpd->SyncInvoke(Cmd_SetCaliSubset,"Mode1",3000);
+                        if (ret!=Err_OK){
+                            fpd->GetErrorInfo(ret);
+                            //return ret;
+                        }
+                        subsetSpecified=true;
+                    }
+                    ret=fpd->SyncInvoke(Cmd_OffsetGeneration,3000);
+                    if (ret!=Err_OK){
+                        fpd->GetErrorInfo(ret);
+                        //return ret;
+                    }
+                    T2=QDateTime::currentDateTime();
+                }
+                Sleep(60*1000);//每分钟检查一次
+            }
+            break;
+        }
+
+        case FPD_SID_PZM_STATIC:
+        default:
+        break;
+    }
     return 0;
 }
 
@@ -803,6 +806,11 @@ int MainWindow::PreOffsetCalibrationTemplate(){
  */
 int MainWindow::SoftwareTrigger(){
     AttrResult ar;
+
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
+
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
         fpd->GetErrorInfo(ret);
@@ -853,6 +861,9 @@ int MainWindow::SoftwareTrigger(){
  * @return
  */
 int MainWindow::InnerTrigger(){
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
     int errorCode;
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
@@ -889,6 +900,9 @@ int MainWindow::InnerTrigger(){
  * @return
  */
 int MainWindow::OuterTrigger(){
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
@@ -913,6 +927,9 @@ int MainWindow::OuterTrigger(){
  * @return
  */
 int MainWindow::FreesyncTrigger(){
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
@@ -937,6 +954,9 @@ int MainWindow::FreesyncTrigger(){
  * @return
  */
 int MainWindow::PREPTrigger(){
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
@@ -971,14 +991,10 @@ void MainWindow::onWriteControllerDataFinished(int cmd_addr, bool ret)
             QString("Write Controller finished. Current cmd: %1, current trigger mode: %2, ret:%3")
             .arg(cmd_addr).arg(trigger).arg(ret));
 
-    if(!m_curr_fpd_model)
-    {
-        DIY_LOG(LOG_INFO, "fpd handler is null, no work to do.");
-        return;
-    }
-
     if(ret && (Enm_Controller_Address::ExposureStart == cmd_addr))
     {
+        FPD_HANDLER_CHECK();
+
         if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
         {
             int curr_exposure_time = exposureTimeList[exposureTimeIndex] * 1000;
@@ -1053,6 +1069,9 @@ void MainWindow::ControllerExposure(){
  * @return
  */
 int MainWindow::SetCalibrationOptions(){
+    FPD_HANDLER_CHECK(Err_Unknown);
+
+    /*This function is only for iRay detector.*/
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
@@ -1107,6 +1126,8 @@ void MainWindow::keyPressEvent(QKeyEvent * k){
 
 FPDRESULT MainWindow::disconnect_works(bool part_disconn)
 {
+    FPD_HANDLER_CHECK(Err_Unknown);
+
     DIY_LOG(LOG_INFO, "on_connect_clicked: now is connected, begin to disconnect...");
     onFpdConnectStateChanged(Enm_Connect_State::Disconnecting);
     FPDRESULT ret=DisconnectionFPD();
@@ -1150,7 +1171,9 @@ FPDRESULT MainWindow::disconnect_works(bool part_disconn)
  * @brief MainWindow::on_connect_clicked 连接按钮槽函数（仅连接探测器）
  */
 void MainWindow::on_connect_clicked(){
-    if(fpd || pzm_fpd_handler){
+    FPD_HANDLER_CHECK();
+
+    if(m_curr_fpd_model->sid != FPD_SID_NONE){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
             DIY_LOG(LOG_INFO, "on_connect_clicked: now is disconnected, begin to connect...");
             statusBar()->clearMessage();
@@ -1159,7 +1182,7 @@ void MainWindow::on_connect_clicked(){
             FPDRESULT ret=ConnectionFPD();
             if(ret==0)
             {
-                if(fpd)
+                if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
                 {
                     onFpdConnectStateChanged(Enm_Connect_State::Connected);
                     onReadFpdBatteryLevelTimerOutTime();//第一次获得探测器电量
@@ -1830,18 +1853,31 @@ void MainWindow::onImageSaveFinshed(QString path){
 }
 */
 
-void MainWindow::onImageCreateFinshed(QImage *img,QString imageNum)
+void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, ImageOperation::img_op_type_t op_t)
 {
-    if(!img)
+    if(!passedin_img)
     {
-        DIY_LOG(LOG_ERROR, "Passed in a null img ptr.");
+        DIY_LOG(LOG_ERROR, "Passed in a null passedin_img ptr.");
         return;
     }
-    *showImg=*img;
-    delete img; //this points to the same object as the static global var "img"
+    *showImg=*passedin_img;
+    delete passedin_img; //this is allocted by signal emitter, and we delete here.
 
     QMatrix matrix;
-    matrix.rotate(90);
+    switch(op_t)
+    {
+        case ImageOperation::IMG_OP_ROTATE_R_90:
+            matrix.rotate(90);
+            break;
+
+        case ImageOperation::IMG_OP_ROTATE_L_90:
+            matrix.rotate(270);
+            break;
+
+        default:
+            break;
+    }
+
     *showImg = showImg->transformed(matrix);
     ui->preview->loadImage(*showImg);
     // brightSlider->setValue(0);
@@ -1932,6 +1968,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
             if(!fpd)
             {
                 fpd = new MyFPD(this);
+                connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
             }
             if(pzm_fpd_handler)
             {
@@ -1977,40 +2014,61 @@ void MainWindow::on_fpdSetting_clicked()
  */
 void MainWindow::onConnectFpdAndController()
 {
-    if(fpd){
-        if(fpdConnectState==Enm_Connect_State::Disconnected){
+    /*
+     * Do not connect fpd here: it takes too long time.
+    */
+    FPD_HANDLER_CHECK();
+    if(FPD_SID_NONE != m_curr_fpd_model->sid)
+    {
+        if(fpdConnectState==Enm_Connect_State::Disconnected)
+        {
+            /*
             onFpdConnectStateChanged(Enm_Connect_State::Connecting);
             FPDRESULT ret=ConnectionFPD();
-            if(ret==0){
-                onFpdConnectStateChanged(Enm_Connect_State::Connected);
-                onReadFpdBatteryLevelTimerOutTime();//第一次获得探测器电量
-                if(!readFpdBatteryLevelTimer->isActive()){
-                    readFpdBatteryLevelTimer->setInterval(60*1000);
-                    readFpdBatteryLevelTimer->start();
+            if(ret==0)
+            {
+                if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
+                {
+                    onFpdConnectStateChanged(Enm_Connect_State::Connected);
+                    onReadFpdBatteryLevelTimerOutTime();//第一次获得探测器电量
+                    if(!readFpdBatteryLevelTimer->isActive()){
+                        readFpdBatteryLevelTimer->setInterval(60*1000);
+                        readFpdBatteryLevelTimer->start();
+                    }
                 }
             }
             else
             {
                 onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
             }
+            */
         }else{
-            //先断开探测器，然后重新连接
+            //断开探测器，不重新连接。连接耗时较久，还是让用户手动连接。
             FPDRESULT ret;
             ret = disconnect_works();
-            if(ret==0){
+            /*
+            if(ret==0)
+            {
                 onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
-                if(readFpdBatteryLevelTimer->isActive()){
-                    readFpdBatteryLevelTimer->stop();
+
+                if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
+                {
+                    if(readFpdBatteryLevelTimer->isActive()){
+                        readFpdBatteryLevelTimer->stop();
+                    }
                 }
                 onFpdConnectStateChanged(Enm_Connect_State::Connecting);
                 ret=ConnectionFPD();
                 //if(ret==1)
                 if(Err_OK == ret)
                 {
-                    onFpdConnectStateChanged(Enm_Connect_State::Connected);
-                    if(!readFpdBatteryLevelTimer->isActive()){
-                        readFpdBatteryLevelTimer->setInterval(60*1000);
-                        readFpdBatteryLevelTimer->start();
+                    if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
+                    {
+                        onFpdConnectStateChanged(Enm_Connect_State::Connected);
+                        if(!readFpdBatteryLevelTimer->isActive()){
+                            readFpdBatteryLevelTimer->setInterval(60*1000);
+                            readFpdBatteryLevelTimer->start();
+                        }
                     }
                 }
                 else
@@ -2018,6 +2076,7 @@ void MainWindow::onConnectFpdAndController()
                     onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
                 }
             }
+            */
         }
     }
     if(controller){
@@ -2384,7 +2443,10 @@ void MainWindow::onWwwlChanged(int ww, int wl)
  */
 void MainWindow::onReadFpdBatteryLevelTimerOutTime()
 {
-    if(fpd)
+    FPD_HANDLER_CHECK();
+
+    /*This function is only for iRay detector.*/
+    if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
     {
         int fpdbatteryVal=fpd->GetBatteryLevel();
         ui->fpdbatteryLevel->setText(QString("%1%").arg(fpdbatteryVal));
@@ -2424,8 +2486,10 @@ void MainWindow::onTenMinutesTimerOutTime()
 
 void MainWindow::onStartAcqWaitTimerTimeOut()
 {
+    FPD_HANDLER_CHECK();
+
+    /*This function is only for iRay detector.*/
     DIY_LOG(LOG_INFO, "onStartAcqWaitTimerTimeOut....");
-    if(fpd)
     {
         DIY_LOG(LOG_INFO, "now acquire(in onStartAcqWaitTimerTimeOut)....");
         int trigger=SettingCfg::getInstance().getFpdSettingCfg().trigger;
@@ -2612,6 +2676,18 @@ void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
     }
 }
 
+static void fpd_img_buf_cleanup_handler(void* ptr)
+{
+    if(!ptr)
+    {
+        DIY_LOG(LOG_WARN, "ptr is null, so no need to cleanup. But this is abnormal!");
+        return;
+    }
+    DIY_LOG(LOG_INFO, QString("Free memory from fpd_img_buf_cleanup_handler: 0x%1")
+            .arg((quint64)ptr, 8, 16, QLatin1Char('0')));
+    delete [](char*)ptr;
+}
+
 void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h, int bit_dep)
 {
     DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
@@ -2650,8 +2726,10 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
             img_format = QImage::Format_Grayscale16;
             break;
     }
-    img=new QImage((uchar*)img_buf, img_w, img_h, img_format);
-    if(!img)
+    /*img_buf will be deleted by the handler function.*/
+    QImage *q_img=new QImage((uchar*)img_buf, img_w, img_h, img_format,
+                           fpd_img_buf_cleanup_handler, img_buf);
+    if(!q_img)
     {
         DIY_LOG(LOG_ERROR,
                 QString("PZM: new QImage error for iamge info: w %1, h %2, bits %3.")
@@ -2660,7 +2738,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
         delete []img_buf;
         return;
     }
-    else if(img->isNull())
+    else if(q_img->isNull())
     {
         DIY_LOG(LOG_ERROR,
                 QString("PZM: create QImage error: isNULL.  iamge info: w %1, h %2, bits %3.")
@@ -2670,6 +2748,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
         return;
     }
     QString img_fn = main_fn + sg_image_file_format_tif;
-    img->save(img_fn);
-    emit imageOperation->imageCreateFinshed(img,imageNum);
+    q_img->save(img_fn);
+    emit imageOperation->imageCreateFinshed(q_img,imageNum, ImageOperation::IMG_OP_NONE);
+    /*It's the slot's responsbility to delete q_img.*/
 }
