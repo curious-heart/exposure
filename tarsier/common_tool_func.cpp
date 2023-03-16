@@ -1,4 +1,5 @@
 #include "common_tool_func.h"
+#include "logger.h"
 
 #include <QDateTime>
 #include <QNetworkInterface>
@@ -13,6 +14,7 @@ QString common_tool_get_curr_dt_str()
     return dtstr;
 }
 
+/*Not test yet ....*/
 bool set_fixed_ip_address(QString ipaddr_str)
 {
     bool finished = false;

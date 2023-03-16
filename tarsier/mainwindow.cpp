@@ -1650,7 +1650,6 @@ void MainWindow::on_exposure_clicked(){
         DIY_LOG(LOG_INFO, "PZM: Begin exposure.");
         if(!pzm_fpd_handler)
         {
-            DIY_LOG(LOG_ERROR, "pzm_fpd_handler is null. critical error!");
             ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
             ui->exposure->setEnabled(true);
             return;

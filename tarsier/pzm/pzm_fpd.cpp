@@ -22,6 +22,7 @@ static const char* sg_PZM_status_str_map[] =
 };
 
 static const char* sg_pzm_native_img_file_ext = ".aof";
+static const char* sg_pzm_host_ip_addr = "192.168.11.252";
 
 CPZM_Fpd::CPZM_Fpd(QObject *parent)
     : QObject(parent)
@@ -35,6 +36,12 @@ CPZM_Fpd::CPZM_Fpd(QObject *parent)
         emit fpdErrorOccurred(err_str);
         return;
     }
+    /*
+    if(!set_fixed_ip_address(sg_pzm_host_ip_addr))
+    {
+        DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(sg_pzm_host_ip_addr));
+    }
+    */
 }
 
 bool CPZM_Fpd::load_library()
