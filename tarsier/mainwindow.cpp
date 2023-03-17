@@ -1671,6 +1671,7 @@ void MainWindow::on_exitSystem_clicked()
 {
     maskWidget->show();
     exitSystem->exec();
+    maskWidget->close();
 }
 
 /**
@@ -1706,8 +1707,10 @@ void MainWindow::on_fpdSetting_clicked()
  */
 void MainWindow::onConnectFpdAndController()
 {
+    /*不连接探测器。耗时太久……还是让用户手动连接*/
     if(fpd){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
+            /*
             onFpdConnectStateChanged(Enm_Connect_State::Connecting);
             FPDRESULT ret=ConnectionFPD();
             if(ret==0){
@@ -1722,6 +1725,7 @@ void MainWindow::onConnectFpdAndController()
             {
                 onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
             }
+            */
         }else{
             //先断开探测器，然后重新连接
             FPDRESULT ret;
@@ -1732,6 +1736,7 @@ void MainWindow::onConnectFpdAndController()
                     readFpdBatteryLevelTimer->stop();
                 }
                 onFpdConnectStateChanged(Enm_Connect_State::Connecting);
+                /*
                 ret=ConnectionFPD();
                 //if(ret==1)
                 if(Err_OK == ret)
@@ -1746,6 +1751,7 @@ void MainWindow::onConnectFpdAndController()
                 {
                     onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
                 }
+                */
             }
         }
     }
@@ -2195,7 +2201,7 @@ void MainWindow::update_controller_or_cfg_on_exposure_combox()
     {
         params.vol = ssc.tubeVol;
         params.amt = ssc.tubeAmt;
-        params.dura_idx = ssc.exposureTimeIndex;
+        exposureTimeIndex = params.dura_idx = ssc.exposureTimeIndex;
         write_cfg = false;
     }
     write_exposure_params_to_controller_or_cfg(params, write_cfg);
@@ -2269,9 +2275,23 @@ bool MainWindow::write_exposure_params_to_controller_or_cfg(ExpoParamSettingDial
     /* We add the variable ret and judgeemnts to minimize the cfg-file-writtings.
      * We try to write cfg file only once.
     */
-    bool c_ret, ret = false;
-    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    bool ret = false;
+    writeExposurekV(params.vol, false);
 
+    writeExposuremA(params.amt, false);
+
+    writeExposureTime(params.dura_idx, false);
+
+    if(write_cfg)
+    {
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        ssc.tubeVol = params.vol;
+        ssc.tubeAmt = params.amt;
+        exposureTimeIndex = ssc.exposureTimeIndex = params.dura_idx;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+    }
+/*
+    bool c_ret;
     c_ret = writeExposurekV(params.vol, false);
     if(c_ret && write_cfg) ssc.tubeVol = params.vol;
     ret = ret || c_ret;
@@ -2288,6 +2308,7 @@ bool MainWindow::write_exposure_params_to_controller_or_cfg(ExpoParamSettingDial
     {
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
+*/
     return ret;
 }
 

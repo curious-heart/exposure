@@ -263,19 +263,19 @@ FpdSettingCfg &SettingCfg::getFpdSettingCfg(){
 }
 
 static const char* DEF_EXPOSURE_OPTS_0_TITLE = "高";
-static const int DEF_EXPOSURE_OPTS_0_VOL = MAX_TUBE_VOL;
-static const int DEF_EXPOSURE_OPTS_0_AMT = MAX_TUBE_AMT;
-static const int DEF_EXPOSURE_OPTS_0_DURA = MAX_EXPOSURE_DURA_STEP - 1;
+static const int DEF_EXPOSURE_OPTS_0_VOL = DEF_HIGH_TUBE_VOL;
+static const int DEF_EXPOSURE_OPTS_0_AMT = DEF_HIGH_TUBE_AMT;
+static const int DEF_EXPOSURE_OPTS_0_DURA = DEF_HIGH_EXPOSURE_DURA_STEP;
 
 static const char* DEF_EXPOSURE_OPTS_1_TITLE = "中";
-static const int DEF_EXPOSURE_OPTS_1_VOL = MAX_TUBE_VOL;
-static const int DEF_EXPOSURE_OPTS_1_AMT = DEF_TUBE_AMT;
-static const int DEF_EXPOSURE_OPTS_1_DURA = MAX_EXPOSURE_DURA_STEP - 1;
+static const int DEF_EXPOSURE_OPTS_1_VOL = DEF_MID_TUBE_VOL;
+static const int DEF_EXPOSURE_OPTS_1_AMT = DEF_MID_TUBE_AMT;
+static const int DEF_EXPOSURE_OPTS_1_DURA = DEF_MID_EXPOSURE_DURA_STEP;
 
 static const char* DEF_EXPOSURE_OPTS_2_TITLE = "低";
-static const int DEF_EXPOSURE_OPTS_2_VOL = 60; //be caful to adjust it according to MAX/MIN_TUBE_VOL
-static const int DEF_EXPOSURE_OPTS_2_AMT = 1000; //be caful to adjust it according to MAX/MIN_TUBE_AMT
-static const int DEF_EXPOSURE_OPTS_2_DURA = 6; //be caful to adjust it according to MAX_EXPOSURE_DURA_STEP
+static const int DEF_EXPOSURE_OPTS_2_VOL = DEF_LOW_TUBE_VOL; //be caful to adjust it according to MAX/MIN_TUBE_VOL
+static const int DEF_EXPOSURE_OPTS_2_AMT = DEF_LOW_TUBE_AMT;; //be caful to adjust it according to MAX/MIN_TUBE_AMT
+static const int DEF_EXPOSURE_OPTS_2_DURA = DEF_LOW_EXPOSURE_DURA_STEP; //be caful to adjust it according to MAX_EXPOSURE_DURA_STEP
 
 static const char* DEF_EXPOSURE_OPTS_3_TITLE = "手动设置";
 

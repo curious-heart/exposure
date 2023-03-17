@@ -14,31 +14,40 @@
 	    <idx>0</idx>
 	    <title>高</title>
 	    <tubeVol>70</tubeVol>
-	    <tubeAmt>6600</tubeAmt>
-	    <dura>16</dura>
+	    <tubeAmt>3000</tubeAmt>
+	    <dura>10</dura>
 	</opt> 
 
 	<opt>
 	    <type>0</type>
 	    <idx>1</idx>
-	    <title>中</title>
+	    <title>中高</title>
 	    <tubeVol>70</tubeVol>
 	    <tubeAmt>3000</tubeAmt>
-	    <dura>6</dura>
+	    <dura>0</dura>
 	</opt>
 
 	<opt>
 	    <type>0</type>
 	    <idx>2</idx>
+	    <title>中低</title>
+	    <tubeVol>70</tubeVol>
+	    <tubeAmt>1000</tubeAmt>
+	    <dura>0</dura>
+	</opt>
+
+	<opt>
+	    <type>0</type>
+	    <idx>3</idx>
 	    <title>低</title>
 	    <tubeVol>60</tubeVol>
-	    <tubeAmt>1000</tubeAmt>
-	    <dura>6</dura>
+	    <tubeAmt>2000</tubeAmt>
+	    <dura>0</dura>
 	</opt>
 
 	<opt>
 	    <type>1</type>
-	    <idx>3</idx>
+	    <idx>4</idx>
 	    <title>手动设置</title>
 	</opt>
     </exposure_opts>

@@ -12,12 +12,23 @@ extern const char* INI_KEY_RTUSERIAL_TUBE_AMT;
 #define MIN_TUBE_VOL 55 //kv
 #define MAX_TUBE_VOL 80
 #define DEF_TUBE_VOL 70
+#define DEF_HIGH_TUBE_VOL 70
+#define DEF_MID_TUBE_VOL 70
+#define DEF_LOW_TUBE_VOL 60
+
 #define MIN_TUBE_AMT 500 //mA
-#define MAX_TUBE_AMT 6600
+#define MAX_TUBE_AMT 3000//6600
 #define DEF_TUBE_AMT 3000
+#define DEF_HIGH_TUBE_AMT 3000//6600
+#define DEF_MID_TUBE_AMT 2500
+#define DEF_LOW_TUBE_AMT 1500//6600
 
 #define MAX_EXPOSURE_DURA_STEP 17 //idx. refer to exposureTimeList in MainWindow.cpp.
-#define DEF_EXPOSURE_DURA_IDX 3
+#define DEF_HIGH_EXPOSURE_DURA_STEP 10 //idx. refer to exposureTimeList in MainWindow.cpp.
+#define DEF_MID_EXPOSURE_DURA_STEP 6 //idx. refer to exposureTimeList in MainWindow.cpp.
+#define DEF_LOW_EXPOSURE_DURA_STEP 2 //idx. refer to exposureTimeList in MainWindow.cpp.
+#define DEF_EXPOSURE_DURA_IDX 2
+
 #define DEF_CURR_EXPOSURE_OPT 1
 
 typedef enum
