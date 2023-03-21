@@ -187,6 +187,7 @@ private:
     //InputMethod * m_inp_md;
     QLineEdit * m_curr_editor = nullptr;
 
+
 };
 
 #endif // MAINWINDOW_H

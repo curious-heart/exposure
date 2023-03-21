@@ -84,6 +84,8 @@ static bool dDriveState;//D盘是否存在
 static QImage *img=NULL;
 static QString imageNum="";
 
+static QImage sg_clear_image;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -135,6 +137,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->volSet->installEventFilter(this);
     ui->amSet->installEventFilter(this);
+
+    sg_clear_image = QImage("image/camera-background.png");
 }
 
 
@@ -1239,7 +1243,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             break;
         case Enm_Controller_Address::BatteryLevel://电池电量   使用下位计算的电量
         {
-
+            //DIY_LOG(LOG_INFO, "-----------BatterLevel: %d", iter.value());
             ui->batteryLevel->setText(QString("%1%").arg(iter.value()));//上位计算
             if(iter.value()<=100 && iter.value()>70){
                 //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#90EE90}");
@@ -1256,6 +1260,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
 
         case Enm_Controller_Address::BatteryVoltmeter://电池电压   可上位计算电量
         {
+            //DIY_LOG(LOG_INFO, "............BatteryVoltmeter: %d", iter.value());
             //int batteryLevel=0;
             int i=0;
             int index=-1;
@@ -1316,6 +1321,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             break;
         case Enm_Controller_Address::State://充能状态
         {
+            //DIY_LOG(LOG_INFO, "+++++++Controller state: %d", iter.value());
 
             if(iter.value() == 0){//正常
                 ui->chargeState->setStyleSheet("border-image: url(:/images/green.png)");
@@ -1454,6 +1460,7 @@ void MainWindow::on_exposure_clicked(){
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-able.png)");
     ui->exposure->setEnabled(true);
     */
+    ui->preview->loadImage(sg_clear_image);
 }
 
 /**
