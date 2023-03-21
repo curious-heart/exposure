@@ -36,12 +36,10 @@ CPZM_Fpd::CPZM_Fpd(QObject *parent)
         emit fpdErrorOccurred(err_str);
         return;
     }
-    /*
     if(!set_fixed_ip_address(sg_pzm_host_ip_addr))
     {
         DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(sg_pzm_host_ip_addr));
     }
-    */
 }
 
 bool CPZM_Fpd::load_library()

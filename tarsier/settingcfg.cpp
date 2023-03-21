@@ -247,6 +247,7 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
     fpdSettingCfg.gainCorrectOption=fsc->gainCorrectOption;
     fpdSettingCfg.defectCorrectOption=fsc->defectCorrectOption;
     */
+    /*
     if(ssc)
     {
         DIY_LOG(LOG_INFO, "writeSettingConfig: ssc");
@@ -255,6 +256,7 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
     {
         DIY_LOG(LOG_INFO, "writeSettingConfig: fsc");
     }
+    */
 
     QSettings settings(SETTING_CFG_INI, QSettings::IniFormat);
     if(ssc)
