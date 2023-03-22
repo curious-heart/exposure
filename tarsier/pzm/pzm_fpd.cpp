@@ -21,7 +21,6 @@ static const char* sg_PZM_status_str_map[] =
 "STATUS_DST",//#define STATUS_DST		      (CHAR)0x09
 };
 
-static const char* sg_pzm_native_img_file_ext = ".aof";
 static const char* sg_pzm_host_ip_addr = "192.168.11.252";
 
 CPZM_Fpd::CPZM_Fpd(QObject *parent)

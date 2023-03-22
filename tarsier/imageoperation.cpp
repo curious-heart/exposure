@@ -1,9 +1,12 @@
 #include "imageoperation.h"
 #include <QDebug>
+#include <QMetaType>
 
 ImageOperation::ImageOperation(QObject *parent) : QObject(parent){
     //dllLoadStatus=false;
     qLib=new QLibrary();
+
+    qRegisterMetaType<img_op_type_t>();
 }
 
 ImageOperation::~ImageOperation(){

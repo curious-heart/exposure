@@ -11,6 +11,7 @@
 #include "mainwindow.h"
 #include "maskwidget.h"
 #include "common_tool_func.h"
+#include "imageoperation.h"
 #include <QDateTime>
 #include <QKeyEvent>
 #include <QDebug>
@@ -385,8 +386,10 @@ void MainWindow::InitActions(){
     connect(readFpdBatteryLevelTimer, &QTimer::timeout, this, &MainWindow::onReadFpdBatteryLevelTimerOutTime);
     connect(tenMinutesTimer, &QTimer::timeout, this, &MainWindow::onTenMinutesTimerOutTime);
     connect(startAcqWaitTimer, &QTimer::timeout, this, &MainWindow::onStartAcqWaitTimerTimeOut);
-    //    connect(imageOperation,&ImageOperation::imageSaveFinshed,this,&MainWindow::onImageSaveFinshed);
+    //connect(imageOperation,&ImageOperation::imageSaveFinshed,this,&MainWindow::onImageSaveFinshed);
+
     connect(imageOperation,&ImageOperation::imageCreateFinshed,this,&MainWindow::onImageCreateFinshed);
+
     connect(ui->preview,&ImageLabel::imageLoaded,this,&MainWindow::onImageLoaded);
     connect(ui->preview,&ImageLabel::wwwlChanged,this,&MainWindow::onWwwlChanged);
 
@@ -533,7 +536,8 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                 QString path=dirPath+"/tiffImage"+imageNum+".tif";
                 img->save(path);
             }
-            emit imageOperation->imageCreateFinshed(img,imageNum);
+            DIY_LOG(LOG_INFO, "Create image ok, now try to show it");
+            emit imageOperation->imageCreateFinshed(img,imageNum, ImageOperation::IMG_OP_ROTATE_R_90);
         }
         //        QDateTime curDateTime=QDateTime::currentDateTime();
         //        QString path=QDir::currentPath() + "/image/tiffImage"+curDateTime.toString("yyyyMMddhhmmss")+".tif";
@@ -864,17 +868,17 @@ int MainWindow::InnerTrigger(){
     FPD_HANDLER_CHECK(Err_Unknown);
 
     /*This function is only for iRay detector.*/
-    int errorCode;
+    //int errorCode;
     AttrResult ar;
     int ret=fpd->GetAttr(Attr_State,ar);
     if (ret!=Err_OK){
         fpd->GetErrorInfo(ret);
-        errorCode  = 1;
+        //errorCode  = 1;
     }
     int state=ar.nVal;
     if(state!=Enm_DetectorState::Enm_State_Ready){
         statusBar()->showMessage(QString("FPD状态为:%1").arg(state), 5000);
-        errorCode  = 2;
+        //errorCode  = 2;
     }
     /*
      * 根据iDetector log，inner模式与software模式时序类似，只是不需要手动下发Cmd_StartAcq。
@@ -882,7 +886,7 @@ int MainWindow::InnerTrigger(){
     if(ret!=Err_TaskPending){
         fpd->GetErrorInfo(ret);
         statusBar()->showMessage(QString("FPD错误代码为:%1").arg(ret), 5000);
-        errorCode  = 3;
+        //errorCode  = 3;
     }
     */
     //  ControllerExposure();
@@ -1320,8 +1324,8 @@ void MainWindow::onErrorOccurred(QString errorInfo){
 void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
 
     quint16 exposureTime=0;//NULL;
-    quint16 batteryVoltmeter=0;//NULL;
-    quint16 oilBoxTemperature=0;//NULL;
+    //quint16 batteryVoltmeter=0;//NULL;
+    //quint16 oilBoxTemperature=0;//NULL;
     quint16 baudRate=0;//NULL;
     quint16 serverAddress=0;//NULL;
     QMap<int, quint16>::Iterator iter = map.begin();
@@ -1436,7 +1440,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             }else if(iter.value()<=70 && iter.value()>20){
                 //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#FFA500}");
                 ui->batteryLevel->setStyleSheet("border-image: url(:/images/electric-orange.png)");
-            }else if(iter.value()<=20 && iter.value()>=0){
+            }else if(iter.value()<=20/* && iter.value()>=0*/){
                 //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#FF0000}");
                 ui->batteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
             }
@@ -1500,7 +1504,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
 
         case Enm_Controller_Address::OilBoxTemperature://油盒温度低位
         {
-            oilBoxTemperature=iter.value();
+            //oilBoxTemperature=iter.value();
         }
             break;
         case Enm_Controller_Address::State://充能状态
@@ -1647,6 +1651,7 @@ void MainWindow::on_exposure_clicked(){
     }
     else if(FPD_SID_PZM_STATIC == m_curr_fpd_model->sid)
     {
+        /*Currently, PZM support only AED mode, so we do not do trigger mode check here now.*/
         DIY_LOG(LOG_INFO, "PZM: Begin exposure.");
         if(!pzm_fpd_handler)
         {
@@ -1659,6 +1664,8 @@ void MainWindow::on_exposure_clicked(){
     }
     else if(FPD_SID_NONE == m_curr_fpd_model->sid)
     {
+        DIY_LOG(LOG_INFO, "No detector connected, just exposure...");
+        ControllerExposure();
         return;
     }
     else
@@ -1839,7 +1846,8 @@ void MainWindow::onCheckSleepAndShutdownTimerOutTime(){
  * @brief MainWindow::onImageSaveFinshed 当图片保存完毕时
  * @param path 图片路径
  */
-/* not used now.
+/*
+ * not used now.
 void MainWindow::onImageSaveFinshed(QString path){
     if((showImg->load(path))){
         QMatrix matrix;
@@ -1854,15 +1862,28 @@ void MainWindow::onImageSaveFinshed(QString path){
 
 void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, ImageOperation::img_op_type_t op_t)
 {
+    DIY_LOG(LOG_INFO, "Enter onImageCreateFinshed.");
     if(!passedin_img)
     {
         DIY_LOG(LOG_ERROR, "Passed in a null passedin_img ptr.");
         return;
     }
+    DIY_LOG(LOG_INFO, "Now show the image.");
+
     *showImg=*passedin_img;
     delete passedin_img; //this is allocted by signal emitter, and we delete here.
 
-    QMatrix matrix;
+    if(showImg->isNull())
+    {
+        DIY_LOG(LOG_ERROR, "This is a null image.");
+    }
+    else
+    {
+        //DIY_LOG(LOG_INFO, "Save and test the image.");
+        //showImg->save("./zzzzzzzzzz.tif");
+    }
+    //QMatrix matrix;
+    QTransform matrix;
     switch(op_t)
     {
         case ImageOperation::IMG_OP_ROTATE_R_90:
@@ -1877,7 +1898,7 @@ void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, Ima
             break;
     }
 
-    *showImg = showImg->transformed(matrix);
+    *showImg = showImg->transformed(matrix, Qt::FastTransformation);
     ui->preview->loadImage(*showImg);
     // brightSlider->setValue(0);
     // contrastSlider->setValue(0);
@@ -2043,8 +2064,9 @@ void MainWindow::onConnectFpdAndController()
             */
         }else{
             //断开探测器，不重新连接。连接耗时较久，还是让用户手动连接。
-            FPDRESULT ret;
-            ret = disconnect_works();
+            //FPDRESULT ret;
+            /*ret =*/
+            disconnect_works();
             /*
             if(ret==0)
             {

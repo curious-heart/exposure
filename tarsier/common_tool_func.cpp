@@ -18,7 +18,7 @@ QString common_tool_get_curr_dt_str()
 bool set_dynamic_ip()
 {
     QString cmd_str = "netsh";
-    bool finished = false;
+    //bool finished = false;
     // 获取本地网络接口列表
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     // 遍历接口列表，查找需要设置IP地址的接口

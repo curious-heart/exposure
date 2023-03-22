@@ -62,7 +62,7 @@ private slots:
     void onReadChargeStateTimerOutTime();
     void onCheckSleepAndShutdownTimerOutTime();
     //void onImageSaveFinshed(QString path);
-    void onImageCreateFinshed(QImage *img,QString imageNum, ImageOperation::img_op_type_t op_t = ImageOperation::IMG_OP_ROTATE_R_90);
+    void onImageCreateFinshed(QImage *img,QString imageNum, ImageOperation::img_op_type_t op_t/* = ImageOperation::IMG_OP_ROTATE_R_90*/);
     void on_exitSystem_clicked();
     void onQDialogClosed();
     void on_systemSetting_clicked();
