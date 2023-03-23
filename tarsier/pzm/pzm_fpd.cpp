@@ -4,6 +4,7 @@
 
 #include <QDir>
 #include <QDateTime>
+#include <QHostAddress>
 
 static CPZM_Fpd* sg_curr_pzm_fpd_obj = nullptr;
 static TFPStat sg_tFPStat;
@@ -86,7 +87,28 @@ bool CPZM_Fpd::unload_library()
 
 CPZM_Fpd::~CPZM_Fpd()
 {
-    unload_library();
+    TComFpList fpl;
+    fpl.ncount = 0;
+    m_hptr_COM_List(&fpl);
+    if(fpl.ncount > 0)
+    {
+        DIY_LOG(LOG_INFO, QString("PZM: the following fpd is connected, now disconnect from it/them:"));
+        for(int idx = 0; idx < fpl.ncount; idx++)
+        {
+            QString info_str;
+            QHostAddress haddr(fpl.tFpNode[idx].FPIP);
+            fpl.tFpNode[idx].FPPsn[PZM_SN_LEN - 1] = '\0';
+            info_str = QString("SN: %1, IP: %2, connect: %3, open: %4")
+                       .arg(fpl.tFpNode[idx].FPPsn).arg(haddr.toString())
+                       .arg(fpl.tFpNode[idx].connect).arg(fpl.tFpNode[idx].opened);
+        }
+
+        disconnect_from_fpd(m_model_info);
+    }
+    else
+    {
+        unload_library();
+    }
     delete m_api_lib;
     m_api_lib = nullptr;
 
@@ -184,7 +206,7 @@ bool CPZM_Fpd::reg_pzm_callbacks()
 
 BOOL CPZM_Fpd::FuncLinkCallBack(char nEvent)
 {/*EVENT_LINKUP*/
-    DIY_LOG(LOG_INFO, QString("PZM: FuncLinkCallBack(%1)").arg(nEvent));
+    DIY_LOG(LOG_INFO, QString("PZM: FuncLinkCallBack(%1)").arg((int)nEvent));
     if(sg_curr_pzm_fpd_obj)
     {
         DIY_LOG(LOG_INFO, "PZM: connected");
@@ -196,13 +218,13 @@ BOOL CPZM_Fpd::FuncLinkCallBack(char nEvent)
 
 BOOL CPZM_Fpd::FuncLinkexCallBack(char npara)
 {/*EVENT_LINKUPEX*/
-    DIY_LOG(LOG_INFO, QString("PZM: FuncLinkexCallBack(%1)").arg(npara));
+    DIY_LOG(LOG_INFO, QString("PZM: FuncLinkexCallBack(%1)").arg((int)npara));
     if(sg_curr_pzm_fpd_obj)
     {
         CHAR sn_buf[PZM_SN_LEN + 1];
         sg_curr_pzm_fpd_obj->m_hptr_COM_GetFPsnEx(npara, sn_buf);
         sn_buf[PZM_SN_LEN] = '\0';
-        DIY_LOG(LOG_INFO, QString("PZM: connected sn: %1: %2").arg(npara).arg(sn_buf));
+        DIY_LOG(LOG_INFO, QString("PZM: connected sn: %1: %2").arg((int)npara).arg(sn_buf));
         emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUPEX, npara, QString(sn_buf));
 
         return TRUE;
@@ -254,7 +276,7 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
     }
     hb_int_cnt = 0;
 
-    DIY_LOG(LOG_INFO, QString("PZM: FuncHeartBeatCallBack(%1)").arg(nEvent));
+    DIY_LOG(LOG_INFO, QString("PZM: FuncHeartBeatCallBack(%1)").arg((int)nEvent));
     if(sg_curr_pzm_fpd_obj)
     {
         CHAR fp_curr_status;
@@ -268,7 +290,7 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
 
         fp_curr_status = sg_curr_pzm_fpd_obj->m_hptr_COM_GetFPCurStatus();
         DIY_LOG(LOG_INFO, QString("PZM: heart break, current status: %1:%2")
-                .arg(fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
+                .arg((int)fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
 
         /*processing........*/
         return TRUE;
@@ -483,7 +505,7 @@ bool CPZM_Fpd::start_aed_acquiring()
         {
             DIY_LOG(LOG_ERROR,
                     QString("PZM: AedAcq works only in idle status, but current status is %1:%2.")
-                    .arg(fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
+                    .arg((int)fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
             ret = false;
         }
         break;

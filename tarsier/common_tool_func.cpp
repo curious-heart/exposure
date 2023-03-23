@@ -45,12 +45,21 @@ bool set_dynamic_ip()
         }
         QStringList cmd_args;
         cmd_args << "interface" << "ip" << "set" << "address" << QString("%1").arg(if_idx) << "dhcp";
-        {
+        //{
             QString cmd_line = cmd_str;
             foreach(const QString& s, cmd_args) cmd_line += " " + s;
             DIY_LOG(LOG_INFO, QString("QProcess cmd: %1").arg(cmd_line));
-        }
+        //}
         bool f_ret = true;
+        system(cmd_line.toUtf8());
+
+        /*
+         * QProcess needs administrator priviledge, so we use system lib fun instead.
+         * But when call system, there is a blink of console window; no good method
+         * to avoid it now...
+        */
+
+        /*
         QProcess qp;
         qp.start(cmd_str, cmd_args);
         bool qp_wf_ret = qp.waitForFinished(10000);
@@ -71,6 +80,7 @@ bool set_dynamic_ip()
             DIY_LOG(LOG_ERROR, QString("Set dynamic ip on %1, exit code: %2.").arg(if_hr_name).arg(ex_c));
             if(ex_c != 0) f_ret = false;
         }
+        */
         return f_ret;
     }
     DIY_LOG(LOG_INFO, QString("Set dynamic ip fail: no available interface."));
@@ -80,7 +90,6 @@ bool set_dynamic_ip()
 bool set_fixed_ip_address(QString ipaddr_str, QString addr_mask, QString gw)
 {
     QString cmd_str = "netsh";
-    bool finished = false;
     // 获取本地网络接口列表
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     // 遍历接口列表，查找需要设置IP地址的接口
@@ -113,8 +122,12 @@ bool set_fixed_ip_address(QString ipaddr_str, QString addr_mask, QString gw)
             QString cmd_line = cmd_str;
             foreach(const QString& s, cmd_args) cmd_line += " " + s;
             DIY_LOG(LOG_INFO, QString("QProcess cmd: %1").arg(cmd_line));
+            DIY_LOG(LOG_INFO, QString("QProcess cmd(utf8)") + cmd_line.toUtf8());
         //}
         bool f_ret = true;
+        system(cmd_line.toUtf8());
+
+        /*
         QProcess qp;
         qp.start(cmd_str, cmd_args);
         bool qp_wf_ret = qp.waitForFinished(10000);
@@ -135,39 +148,7 @@ bool set_fixed_ip_address(QString ipaddr_str, QString addr_mask, QString gw)
             DIY_LOG(LOG_INFO, QString("Set ip addr %1 finished, exit code: %2").arg(ipaddr_str).arg(ex_c));
             if(ex_c != 0) f_ret = false;
         }
+        */
         return f_ret;
-
-        // 获取接口的IP地址列表
-        QList<QNetworkAddressEntry> entries = interface.addressEntries();
-        // 遍历IP地址列表，设置需要设置的IP地址
-        foreach (QNetworkAddressEntry entry, entries)
-        {
-            QAbstractSocket::NetworkLayerProtocol prot = entry.ip().protocol();
-            QString addr = entry.ip().toString();
-            DIY_LOG(LOG_INFO, QString("----prot: %1, addr: %2").arg(prot).arg(addr));
-            // 判断IP地址类型是否为IPv4
-            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol)
-            {
-                QNetworkAddressEntry new_entry = entry;
-                // 设置IP地址和子网掩码
-                QHostAddress new_ip(ipaddr_str);
-                QHostAddress new_netmask("255.255.255.0");
-                //entry.setIp(new_ip);
-                //entry.setNetmask(new_netmask);
-                new_entry.setIp(new_ip);
-                new_entry.setNetmask(new_netmask);
-                int e_idx = entries.indexOf(entry);
-                // 更新接口的IP地址列表
-                entries.replace(e_idx, entry);
-                //interface.setAddressEntries(entries);
-                finished = true;
-                break;
-             }
-         }
-        if(finished)
-        {
-            break;
-        }
     }
-    return finished;
 }

@@ -1983,6 +1983,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                 delete pzm_fpd_handler;
                 pzm_fpd_handler = nullptr;
             }
+            set_dynamic_ip();
             break;
         case FPD_SID_IRAY_STATIC:
             if(!fpd)
