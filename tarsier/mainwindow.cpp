@@ -573,11 +573,11 @@ int MainWindow::ConnectionFPD(){
 
     FPD_HANDLER_CHECK(Err_Unknown);
 
+    refresh_ip_addr();
     switch(m_curr_fpd_model->sid)
     {
         case FPD_SID_IRAY_STATIC:
         {
-            refresh_ip_addr();
             QString deb_ip_str = ui->IPaddr->text().mid(3);
             QString fpdDllPath="FpdSys";
             QString fpdWorkDir=QDir::currentPath() + "/" + SettingCfg::getInstance().getSystemSettingCfg().fpdWorkDir;
@@ -1179,6 +1179,7 @@ FPDRESULT MainWindow::disconnect_works(bool part_disconn)
 void MainWindow::on_connect_clicked(){
     FPD_HANDLER_CHECK();
 
+    refresh_ip_addr();
     if(m_curr_fpd_model->sid != FPD_SID_NONE){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
             DIY_LOG(LOG_INFO, "on_connect_clicked: now is disconnected, begin to connect...");
@@ -1985,7 +1986,8 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                 delete pzm_fpd_handler;
                 pzm_fpd_handler = nullptr;
             }
-            set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
+            //set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
+            set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC);
             break;
         case FPD_SID_IRAY_STATIC:
             if(!fpd)
@@ -2021,7 +2023,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                     if(!pzm_fpd_handler->pzm_ip_set_ok())
                     {
                         QMessageBox::information(nullptr,"",
-                                                 "PZ探测器需要设置固定IP。固定IP设置失败，请连接探测器Wi-Fi后手动设置IP地址。");
+                                                 "PZ探测器需要设置固定IP。固定IP设置失败，请检查是否连接上探测器Wi-Fi热点，或者有IP地址冲突。");
                     }
                 }
                 else
@@ -2546,7 +2548,10 @@ void MainWindow::refresh_ip_addr()
     foreach(QHostAddress addr, ip.addresses())
     {
         if(addr.protocol() == QAbstractSocket::IPv4Protocol)
+        {
             ui->IPaddr->setText("IP:" + addr.toString());
+            break;
+        }
     }
 }
 

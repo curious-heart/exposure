@@ -16,7 +16,8 @@ MyFPD::MyFPD(QObject *parent) : QObject(parent){
     //使用事件的信号状态配合回调函数、curCmdId、lastError实现同步的invoke请求，
     waitAckEvent = CreateEvent(NULL, false, false, NULL);
     qLib=new QLibrary();
-    set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
+    //set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
+    set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC);
 }
 
 

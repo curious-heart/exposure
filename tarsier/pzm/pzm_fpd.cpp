@@ -39,14 +39,11 @@ CPZM_Fpd::CPZM_Fpd(QObject *parent, fpd_model_info_t* model)
     }
     if(m_model_info)
     {
-        if(!set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip))
+        m_ip_set_ok = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
+        //m_ip_set_ok = set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
+        if(!m_ip_set_ok)
         {
-            m_ip_set_ok = false;
             DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(m_model_info->host_ip));
-        }
-        else
-        {
-            m_ip_set_ok = true;
         }
     }
     m_obj_init_ok = true;
@@ -394,6 +391,17 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
         DIY_LOG(LOG_ERROR, "PZM: fpd model pointer can't be null.");
         return false;
     }
+
+    if(!m_ip_set_ok)
+    {
+        m_ip_set_ok = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
+        if(!m_ip_set_ok)
+        {
+            DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(m_model_info->host_ip));
+            return false;
+        }
+    }
+
     if(!load_library())
     {
         return false;
