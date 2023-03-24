@@ -32,6 +32,7 @@ extern const char* FPD_NAME_NONE_UI_STR;
 typedef struct
 {
     QString mfg;
+    QString model;
     fpd_series_id_type_t sid; //series id
     /* img_info are not for image-receive-from-pd  process.
      * in which case, images info are get dynamic from fpd.
@@ -42,6 +43,7 @@ typedef struct
     QString api_lib_pfn;
     QString cfg_file_pth, log_file_pth;
     QString img_file_pth, img_file_ext;
+    QString host_ip;
 }fpd_model_info_t;
 
 /*PZM dose not have trigger mode definition. So we define it here by ourseleves.*/
@@ -60,10 +62,14 @@ class CFpdModels
 public:
     CFpdModels();
     ~CFpdModels();
-    fpd_model_info_t* get_fpd_minfo_from_name(QString &n);
+
+    /*parameter: n, the "fpdname" element in base.xml file.*/
+    fpd_model_info_t* get_fpd_minfo_from_name(const QString &n);
+    void fill_host_ip_info_from_cfg(const QMap<QString, QString>& fpd_name_host_ip_map);
 
 private:
     fpd_model_info_list_t m_fpd_model_info_list;
+    bool fpd_name_model_match(const QString &name, const QString &model);
     void clear_fpd_model_list();
     void setup_fpd_model_list();
 };

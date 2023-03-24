@@ -68,6 +68,7 @@ struct FpdSettingCfg{
 };
 struct FpdBaseCfg{
     QMap<QString, QStringList> fpdTriggerModeMap;//探测器与触发模式列表的对应关系
+    QMap<QString, QString> fpdHostIp;
 };
 
 /* Just use the existed FpdSettingCfg,although for some fpd, not all info are valid.

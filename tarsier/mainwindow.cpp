@@ -119,6 +119,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     m_fpd_models = new CFpdModels();
+    m_fpd_models->fill_host_ip_info_from_cfg(SettingCfg::getInstance().getFpdBaseCfg().fpdHostIp);
+
     systemSetting=new SystemSetting(this, m_fpd_models);
     exitSystem=new ExitSystem(this);
     fpdSetting=new FpdSetting(this, m_fpd_models);
@@ -1944,20 +1946,20 @@ void MainWindow::on_systemSettingAccepted()
     new_model = m_fpd_models->get_fpd_minfo_from_name(SettingCfg::getInstance().getSystemSettingCfg().fpdName);
     if(!new_model)
     {
+        m_curr_fpd_model = new_model;
         DIY_LOG(LOG_ERROR,
                 QString("Select an unkonwn fpd model, name:%1........")
                 .arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName));
     }
-    else if(new_model->sid != m_curr_fpd_model->sid)
+    else if(new_model->model != m_curr_fpd_model->model)
     {
         update_fpd_handler_on_new_model(new_model);
         m_curr_fpd_model = new_model;
         DIY_LOG(LOG_INFO,
                 QString("Selected new FPD! mfg: %1; name: %2; sid: %3; apilib: %4.")
-                .arg(m_curr_fpd_model->mfg).arg(SettingCfg::getInstance().getSystemSettingCfg().fpdName)
+                .arg(m_curr_fpd_model->mfg, SettingCfg::getInstance().getSystemSettingCfg().fpdName)
                 .arg(m_curr_fpd_model->sid).arg(m_curr_fpd_model->api_lib_pfn));
     }
-    m_curr_fpd_model = new_model;
 }
 
 void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
@@ -1983,7 +1985,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                 delete pzm_fpd_handler;
                 pzm_fpd_handler = nullptr;
             }
-            set_dynamic_ip();
+            set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
             break;
         case FPD_SID_IRAY_STATIC:
             if(!fpd)
@@ -2006,13 +2008,26 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
             }
             if(!pzm_fpd_handler)
             {
-                pzm_fpd_handler = new CPZM_Fpd(this);
-                connect(pzm_fpd_handler, &CPZM_Fpd::fpdErrorOccurred,
-                        this, &MainWindow::onErrorOccurred, Qt::QueuedConnection);
-                connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_comm_sig,
-                        this, &MainWindow::on_pzm_fpd_comm_sig, Qt::QueuedConnection);
-                connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_img_received_sig,
-                        this, &MainWindow::on_pzm_fpd_img_received_sig, Qt::QueuedConnection);
+                pzm_fpd_handler = new CPZM_Fpd(this, new_model);
+                if(pzm_fpd_handler && pzm_fpd_handler->pzm_fpd_obj_init_ok())
+                {
+                    connect(pzm_fpd_handler, &CPZM_Fpd::fpdErrorOccurred,
+                            this, &MainWindow::onErrorOccurred, Qt::QueuedConnection);
+                    connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_comm_sig,
+                            this, &MainWindow::on_pzm_fpd_comm_sig, Qt::QueuedConnection);
+                    connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_img_received_sig,
+                            this, &MainWindow::on_pzm_fpd_img_received_sig, Qt::QueuedConnection);
+
+                    if(!pzm_fpd_handler->pzm_ip_set_ok())
+                    {
+                        QMessageBox::information(nullptr,"",
+                                                 "PZ探测器需要设置固定IP。固定IP设置失败，请连接探测器Wi-Fi后手动设置IP地址。");
+                    }
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr,"!!!", "初始化PZ探测器对象失败！");
+                }
             }
             break;
         default:

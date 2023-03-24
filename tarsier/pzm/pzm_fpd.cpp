@@ -22,24 +22,34 @@ static const char* sg_PZM_status_str_map[] =
 "STATUS_DST",//#define STATUS_DST		      (CHAR)0x09
 };
 
-static const char* sg_pzm_host_ip_addr = "192.168.11.252";
-
-CPZM_Fpd::CPZM_Fpd(QObject *parent)
+CPZM_Fpd::CPZM_Fpd(QObject *parent, fpd_model_info_t* model)
     : QObject(parent)
 {
     QString err_str;
+    m_model_info = model;
+
     m_api_lib = new QLibrary();
     if(!m_api_lib)
     {
         err_str = "PZM: new QLibrary fail!!!";
         DIY_LOG(LOG_ERROR, err_str);
-        emit fpdErrorOccurred(err_str);
+        m_obj_init_ok = false;
+        m_ip_set_ok = false;
         return;
     }
-    if(!set_fixed_ip_address(sg_pzm_host_ip_addr))
+    if(m_model_info)
     {
-        DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(sg_pzm_host_ip_addr));
+        if(!set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip))
+        {
+            m_ip_set_ok = false;
+            DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(m_model_info->host_ip));
+        }
+        else
+        {
+            m_ip_set_ok = true;
+        }
     }
+    m_obj_init_ok = true;
 }
 
 bool CPZM_Fpd::load_library()
@@ -87,32 +97,46 @@ bool CPZM_Fpd::unload_library()
 
 CPZM_Fpd::~CPZM_Fpd()
 {
-    TComFpList fpl;
-    fpl.ncount = 0;
-    m_hptr_COM_List(&fpl);
-    if(fpl.ncount > 0)
+    if(m_com_opened)
     {
-        DIY_LOG(LOG_INFO, QString("PZM: the following fpd is connected, now disconnect from it/them:"));
-        for(int idx = 0; idx < fpl.ncount; idx++)
         {
-            QString info_str;
-            QHostAddress haddr(fpl.tFpNode[idx].FPIP);
-            fpl.tFpNode[idx].FPPsn[PZM_SN_LEN - 1] = '\0';
-            info_str = QString("SN: %1, IP: %2, connect: %3, open: %4")
-                       .arg(fpl.tFpNode[idx].FPPsn).arg(haddr.toString())
-                       .arg(fpl.tFpNode[idx].connect).arg(fpl.tFpNode[idx].opened);
-        }
+            TComFpList fpl;
+            fpl.ncount = 0;
+            m_hptr_COM_List(&fpl);
+            DIY_LOG(LOG_INFO, QString("PZM: the following fpd is connected, now disconnect from it/them:"));
+            QString info_str = "";
+            for(int idx = 0; idx < fpl.ncount; idx++)
+            {
+                QHostAddress haddr(fpl.tFpNode[idx].FPIP);
+                fpl.tFpNode[idx].FPPsn[PZM_SN_LEN - 1] = '\0';
+                info_str = QString("SN: %1, IP: %2, connect: %3, open: %4")
+                           .arg(fpl.tFpNode[idx].FPPsn, haddr.toString())
+                           .arg(fpl.tFpNode[idx].connect).arg(fpl.tFpNode[idx].opened);
+            }
+            DIY_LOG(LOG_INFO, info_str);
 
+        }
         disconnect_from_fpd(m_model_info);
+        m_com_opened = false;
     }
-    else
-    {
-        unload_library();
-    }
+
     delete m_api_lib;
     m_api_lib = nullptr;
+    m_obj_init_ok = false;
 
     sg_curr_pzm_fpd_obj = nullptr;
+    m_ip_set_ok = false;
+
+}
+
+bool CPZM_Fpd::pzm_fpd_obj_init_ok()
+{
+    return m_obj_init_ok;
+}
+
+bool CPZM_Fpd::pzm_ip_set_ok()
+{
+    return m_ip_set_ok;
 }
 
 #define RESOLVE_LIBRARY_AND_CHECK(ptr, fn_type, fn_name)\
@@ -364,8 +388,6 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 //exposed hanlers.
 bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
 {
-    QString err_str;
-
     m_model_info = model;
     if(!m_model_info)
     {
@@ -445,6 +467,7 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
         return false;
     }
     DIY_LOG(LOG_INFO, "PZM: fpd opened.");
+    m_com_opened = true;
 
     api_ret = m_hptr_COM_SetCalibMode(IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
     if(!api_ret)
@@ -468,6 +491,8 @@ bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* /*model*/)
         return false;
     }
     DIY_LOG(LOG_INFO, "PZM: Closed.");
+
+    m_com_opened = false;
 
     api_ret = m_hptr_COM_Uninit();
     if(!api_ret)

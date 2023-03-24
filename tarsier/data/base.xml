@@ -10,6 +10,7 @@
 	    <fpdname>PZM4343Z</fpdname> 
 	    <fpdworkdir>work_dir/PZM4343Z</fpdworkdir> 
 	    <fpdtriggermode>AED</fpdtriggermode>
+	    <host_ip>192.168.11.252</host_ip>
         </fpd>
     </fpds>
 

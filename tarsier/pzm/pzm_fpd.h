@@ -58,12 +58,14 @@ class CPZM_Fpd: public QObject
     Q_OBJECT
 public:
     /*model can't be nullptr when constructing.*/
-    CPZM_Fpd(QObject *parent = nullptr);
+    CPZM_Fpd(QObject *parent = nullptr, fpd_model_info_t* model = nullptr);
     ~CPZM_Fpd();
     bool library_loaded() {return m_lib_loaded;}
     bool connect_to_fpd(fpd_model_info_t* model);
     bool disconnect_from_fpd(fpd_model_info_t* model);
     bool start_aed_acquiring();
+    bool pzm_fpd_obj_init_ok();
+    bool pzm_ip_set_ok();
 
     /*Callback functions*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
@@ -76,6 +78,9 @@ public:
 
 
 private:
+    bool m_obj_init_ok = false;
+    bool m_ip_set_ok = false;
+    bool m_com_opened = false;
     QLibrary *m_api_lib = nullptr;
     bool m_lib_loaded = false;
     fpd_model_info_t* m_model_info = nullptr; //this var is set by parent, so do not delete it here.

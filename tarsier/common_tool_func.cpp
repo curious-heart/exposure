@@ -8,6 +8,87 @@
 #include <QList>
 #include <QProcess>
 
+QNetworkInterface::InterfaceType local_intf_type_to_qnintf_type(ip_intf_type_t l_t)
+{
+    switch(l_t)
+    {
+       case IP_INTF_WIFI:
+            return QNetworkInterface::Wifi;
+
+       case IP_INTF_ETHERNET:
+            return QNetworkInterface::Ethernet;
+
+        default:
+            return QNetworkInterface::Unknown;
+    }
+}
+
+ip_intf_type_t qnintf_type_to_local_intf_type(QNetworkInterface::InterfaceType q_t)
+{
+    switch(q_t)
+    {
+        case QNetworkInterface::Wifi:
+            return IP_INTF_WIFI;
+
+        case QNetworkInterface::Ethernet:
+            return IP_INTF_ETHERNET;
+
+        default:
+            return IP_INTF_OTHER;
+    }
+}
+
+bool set_host_ip_address(ip_intf_type_t intf, ip_set_type_t set_type, QString ip_addr,
+                         QString ip_mask, QString gw)
+{
+   QNetworkInterface::InterfaceType q_intf;
+   q_intf = local_intf_type_to_qnintf_type(intf);
+   if(QNetworkInterface::Unknown == q_intf)
+   {
+       DIY_LOG(LOG_ERROR, QString("Unknown interface type: %1").arg(intf));
+       return false;
+   }
+
+    // 获取本地网络接口列表
+    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    // 遍历接口列表，查找需要设置IP地址的接口
+    foreach (QNetworkInterface interface, interfaces)
+    {
+        int if_idx = interface.index();
+        QNetworkInterface::InterfaceFlags if_f = interface.flags();
+        QNetworkInterface::InterfaceType if_t = interface.type();
+        QString if_name = interface.name();
+        QString if_hr_name = interface.humanReadableName();
+        QString if_hd_addr = interface.hardwareAddress();
+        DIY_LOG(LOG_INFO, "==================================");
+        DIY_LOG(LOG_INFO,
+                QString("Interface id: %1, flags: %2, type: %3, name: %4, hr_name: %5, hd_addr: %6")
+                .arg(if_idx).arg(if_f).arg(if_t).arg(if_name, if_hr_name, if_hd_addr));
+        // 过滤非活动接口和Loopback接口
+        if (!(if_f & QNetworkInterface::IsUp)
+                || (if_f & QNetworkInterface::IsLoopBack)
+                || ((if_t != q_intf))
+                )
+        {
+            continue;
+        }
+        QString cmd_line, cmd_str = "netsh";
+        cmd_line = cmd_str + " interface" + " ip" + " set" + " address"
+                + QString(" %1").arg(if_idx);
+        if(IP_SET_TYPE_IPV4_DYNAMIC == set_type)
+        {
+            cmd_line += " dhcp";
+        }
+        else
+        {
+            cmd_line += QString(" static") + " " + ip_addr + " " + ip_mask + " " + gw;
+        }
+        system(cmd_line.toUtf8());
+        DIY_LOG(LOG_INFO, QString("IP set cmd: %1").arg(cmd_line));
+    }
+    return true;
+}
+
 QString common_tool_get_curr_dt_str()
 {
     QDateTime curDateTime = QDateTime::currentDateTime();

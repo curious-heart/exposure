@@ -23,6 +23,7 @@ static const char* TAG_STR_TUBE_VOL = INI_KEY_RTUSERIAL_TUBE_VOL;
 static const char* TAG_STR_TUBE_AMT = INI_KEY_RTUSERIAL_TUBE_AMT;
 static const char* TAG_STR_DURATION = "dura";
 static const char* TAG_STR_IDX = "idx";
+static const char* TAG_HOST_IP = "host_ip";
 
 typedef struct
 {
@@ -390,6 +391,8 @@ void SettingCfg::readBaseConfig(){
                 systemBaseCfg.fpdworkdirMap.insert(key,value);
                 QString triggerMode=fpd.namedItem("fpdtriggermode").toElement().text();
                 fpdBaseCfg.fpdTriggerModeMap.insert(key,triggerMode.split("/"));
+                QString host_ip = fpd.namedItem(TAG_HOST_IP).toElement().text();
+                fpdBaseCfg.fpdHostIp.insert(key, host_ip);
 
                 //printf("%s\n",key.toStdString().data());
                 //printf("%s\n",value.toStdString().data());

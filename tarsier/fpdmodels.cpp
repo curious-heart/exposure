@@ -42,6 +42,7 @@ void CFpdModels::setup_fpd_model_list()
     {
         info->sid = FPD_SID_NONE;
         info->mfg = FPD_MFG_NONE;
+        info->model = FPD_MODEL_NONE;
         info->api_lib_pfn = "";
         info->cfg_file_pth = "";
         info->img_file_pth = "";
@@ -49,6 +50,7 @@ void CFpdModels::setup_fpd_model_list()
         info->img_info = {0, 0, 0};
         info->trigger_mode_list.clear();
         info->def_trigger_mdde = INVALID_TRIGGER_MODE;
+        info->host_ip = "";
         m_fpd_model_info_list.insert(FPD_MODEL_NONE, info);
     }
 
@@ -69,6 +71,7 @@ void CFpdModels::setup_fpd_model_list()
     {//1417V3
         info->sid = FPD_SID_IRAY_STATIC;
         info->mfg = FPD_MFG_IRAY;
+        info->model = IRAY_MODEL_MARS1417V3;
         info->api_lib_pfn = IRAY_API_LIB_PFN;
         info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->log_file_pth = IRAY_LOG_FILE_PTH;
@@ -82,6 +85,7 @@ void CFpdModels::setup_fpd_model_list()
         info->trigger_mode_list.insert(TRIGGER_MODE_SRV, Enm_TriggerMode_Service);
         info->trigger_mode_list.insert(TRIGGER_MODE_FREESYNC, Enm_TriggerMode_FreeSync);
         info->def_trigger_mdde = Enm_TriggerMode_Inner;
+        info->host_ip = "";
 
         m_fpd_model_info_list.insert(IRAY_MODEL_MARS1417V3, info);
     }
@@ -90,6 +94,7 @@ void CFpdModels::setup_fpd_model_list()
     {//1717
         info->sid = FPD_SID_IRAY_STATIC;
         info->mfg = FPD_MFG_IRAY;
+        info->model = IRAY_MODEL_MARS1717;
         info->api_lib_pfn = IRAY_API_LIB_PFN;
         info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->log_file_pth = IRAY_LOG_FILE_PTH;
@@ -103,6 +108,7 @@ void CFpdModels::setup_fpd_model_list()
         info->trigger_mode_list.insert(TRIGGER_MODE_SRV, Enm_TriggerMode_Service);
         info->trigger_mode_list.insert(TRIGGER_MODE_FREESYNC, Enm_TriggerMode_FreeSync);
         info->def_trigger_mdde = Enm_TriggerMode_Inner;
+        info->host_ip = "";
 
         m_fpd_model_info_list.insert(IRAY_MODEL_MARS1717, info);
     }
@@ -120,6 +126,7 @@ void CFpdModels::setup_fpd_model_list()
     {//4343Z
         info->sid = FPD_SID_PZM_STATIC;
         info->mfg = FPD_MFG_PZM;
+        info->model = PZM_MODEL_4343Z;
         info->api_lib_pfn = PZM_API_LIB_PFN;
         info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->log_file_pth = QString(log_dir_str) + "/" + PZM_LOG_FILE_PTH;
@@ -129,6 +136,7 @@ void CFpdModels::setup_fpd_model_list()
         info->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
         info->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
         info->def_trigger_mdde = PZM_TRIGGER_MODE_AED;
+        info->host_ip = "";
 
         m_fpd_model_info_list.insert(PZM_MODEL_4343Z, info);
     }
@@ -137,6 +145,7 @@ void CFpdModels::setup_fpd_model_list()
     {//3543Z
         info->sid = FPD_SID_PZM_STATIC;
         info->mfg = FPD_MFG_PZM;
+        info->model = PZM_MODEL_3543Z;
         info->api_lib_pfn = PZM_API_LIB_PFN;
         info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->log_file_pth = QString(log_dir_str) + "/" + PZM_LOG_FILE_PTH;
@@ -146,17 +155,38 @@ void CFpdModels::setup_fpd_model_list()
         info->trigger_mode_list.insert(TRIGGER_MODE_AED, PZM_TRIGGER_MODE_AED);
         info->trigger_mode_list.insert(TRIGGER_MODE_HST, PZM_TRIGGER_MODE_HST);
         info->def_trigger_mdde = PZM_TRIGGER_MODE_AED;
+        info->host_ip = "";
 
         m_fpd_model_info_list.insert(PZM_MODEL_3543Z, info);
     }
 }
 
-fpd_model_info_t* CFpdModels:: get_fpd_minfo_from_name(QString &n)
+/*
+ * the host ip info here is not used actually, just record it for info complement...
+ * we use the host ip infro directly from cfg file.
+*/
+void CFpdModels::fill_host_ip_info_from_cfg(const QMap<QString, QString>& fpd_name_host_ip_map)
+{
+    QMap<QString, QString>::const_iterator it;
+    fpd_model_info_t * model_info;
+    for(it = fpd_name_host_ip_map.begin(); it != fpd_name_host_ip_map.end(); ++it)
+    {
+        model_info = get_fpd_minfo_from_name(it.key());
+        if(model_info)
+        {
+            model_info->host_ip = it.value();
+        }
+    }
+}
+
+/*parameter: n, the "fpdname" element in base.xml file.*/
+fpd_model_info_t* CFpdModels:: get_fpd_minfo_from_name(const QString &n)
 {
     fpd_model_info_list_t::iterator it;
     for(it = m_fpd_model_info_list.begin(); it != m_fpd_model_info_list.end(); ++it)
     {
-        if(n.contains(it.key()))
+        //if(n.contains(it.key()))
+        if(fpd_name_model_match(n, it.key()))
         {
             return it.value();
         }
@@ -174,4 +204,16 @@ void CFpdModels::clear_fpd_model_list()
         ++it;
     }
     m_fpd_model_info_list.clear();
+}
+
+bool CFpdModels::fpd_name_model_match(const QString &name, const QString &model)
+{
+    if(name.contains(model))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
