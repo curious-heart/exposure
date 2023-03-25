@@ -85,7 +85,8 @@ static float exposureTimeList[MAX_EXPOSURE_DURA_STEP]={0.50, 0.55, 0.60, 0.65, 0
 static int exposureTimeIndex=DEF_EXPOSURE_DURA_IDX/*3*/;
 static int exposureStatus=0;//未启动曝光
 //static int rangeStatus=0;//范围指示未启动
-static bool dDriveState;//D盘是否存在
+//static bool dDriveState;//D盘是否存在
+static QString sg_image_save_dir = "./";
 //static QImage *img=NULL;
 static QString imageNum="";
 static const char* sg_image_file_format_tif = ".tif";
@@ -181,7 +182,7 @@ MainWindow::MainWindow(QWidget *parent)
     sleepState=false;
     fpdCreateState=false;
     imageShowState=false;
-    dDriveState=false;
+    //dDriveState=false;
     InitActions();
 
     ui->volSet->installEventFilter(this);
@@ -310,6 +311,7 @@ void MainWindow::InitActions(){
     resetButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/reset.png)");
     connect(resetButton, &QPushButton::clicked, this,&MainWindow::onRestButtonClicked);
 
+    /*
     wwVal->hide();
     wlVal->hide();
     rotateButton->hide();
@@ -318,6 +320,8 @@ void MainWindow::InitActions(){
     zoomButton->hide();
     translationButton->hide();
     resetButton->hide();
+    */
+    show_image_op_info_widgets(false);
 
 
 
@@ -353,11 +357,15 @@ void MainWindow::InitActions(){
     ui->exitSystem->setText(NULL);
     ui->exposure->setText(NULL);
     ui->range->setText(NULL);
-    if(!(chargeStateImg->load("images/red.png"))){
+    if(!(chargeStateImg->load("images/red.png")))
+    {
         delete chargeStateImg;
     }
-    ui->chargeState->setAlignment(Qt::AlignCenter);
-    ui->chargeState->setPixmap(QPixmap::fromImage(*chargeStateImg));
+    else
+    {
+        ui->chargeState->setAlignment(Qt::AlignCenter);
+        ui->chargeState->setPixmap(QPixmap::fromImage(*chargeStateImg));
+    }
     //ui->batteryLevel->setValue(100);
     //ui->batteryLevel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#90EE90}");
@@ -429,7 +437,8 @@ void MainWindow::InitActions(){
     }
     connect(mWebSocketServer,SIGNAL(newConnection()),this,SLOT(onNewConnectioned()));
     //判断d盘是否存在
-    dDriveState=dDriveExist();
+    //dDriveState=dDriveExist();
+    sg_image_save_dir = get_image_save_pth_prefix();
 }
 
 /**
@@ -537,14 +546,19 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
         if(!img->isNull()){
             QDateTime curDateTime=QDateTime::currentDateTime();
             imageNum=curDateTime.toString("yyyyMMddhhmmss");
-            if(dDriveState){//如果D盘存在，自动保存图片到D盘
+            //if(dDriveState) //之前的实现中，如果D盘存在，自动保存图片到D盘. 不再判断，直接保存。
+            {
+                QString exposure_info_str = get_exposure_info_str();
                 QString day=curDateTime.toString("yyyyMMdd");
-                QString dirPath="D:/"+day;
+                //QString dirPath="D:/"+day;
+                QString dirPath = sg_image_save_dir + day;
                 QDir qdir;
                 if(!qdir.exists(dirPath)){
                     qdir.mkdir(dirPath);
                 }
-                QString path=dirPath+"/tiffImage"+imageNum+".tif";
+                //QString path=dirPath+"/tiffImage"+imageNum+".tif";
+                QString path = dirPath + "/tiffImage" + imageNum  + "_" + exposure_info_str
+                                + sg_image_file_format_tif;
                 img->save(path);
             }
             DIY_LOG(LOG_INFO, "Create image ok, now try to show it");
@@ -1608,6 +1622,8 @@ void MainWindow::on_exposure_clicked(){
     //    qDebug()<<"ff="<<ff;
     int ret = Err_Unknown;
 
+    clear_preview_area();
+
     FPD_MODEL_PTR_CHECK();
 
     ui->exposure->setStyleSheet("border-image: url(:/images/exposure-disable.png)");
@@ -1774,6 +1790,40 @@ bool MainWindow::dDriveExist()
     return false;
 }
 
+/*
+ *  If there are more than 1 disk partion, select the non C disk; or return empty, that is,
+ *  using the current dir.
+*/
+QString MainWindow::get_image_save_pth_prefix()
+{
+    QFileInfoList sys_root_dirs = QDir::drives();
+    QString info_str = "", selected_prefix = "./", absp_str = "";
+    bool found = false;
+
+    foreach(const QFileInfo &fi, sys_root_dirs)
+    {
+        absp_str = fi.absoluteFilePath();
+        info_str += absp_str  + ", ";
+        if(!found && (absp_str != "C:/"))
+        {
+            selected_prefix = absp_str;
+            found = true;
+        }
+    }
+    if(!info_str.isEmpty())
+    {
+        info_str.chop(2); //remove the tailing ", ".
+        DIY_LOG(LOG_INFO, QString("The system has the following root dirs: %1").arg(info_str));
+    }
+    else
+    {
+        DIY_LOG(LOG_INFO, "No system root dir found...");
+    }
+    DIY_LOG(LOG_INFO, QString("Selected dir to save image files: %1").arg(selected_prefix));
+
+    return selected_prefix;
+}
+
 
 /**
  * @brief MainWindow::on_range_clicked 范围指示启动
@@ -1882,7 +1932,7 @@ void MainWindow::onImageSaveFinshed(QString path){
 
 void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, ImageOperation::img_op_type_t op_t)
 {
-    DIY_LOG(LOG_INFO, "Enter onImageCreateFinshed.");
+    DIY_LOG(LOG_INFO, "Enter onImageCreateFinished.");
     if(!passedin_img)
     {
         DIY_LOG(LOG_ERROR, "Passed in a null passedin_img ptr.");
@@ -2472,6 +2522,7 @@ void MainWindow::onImageLoaded()
     if(!imageShowState){
         ui->saveImage->setEnabled(true);
         ui->saveImage->setStyleSheet("border-image: url(:/images/saveImage-able.png)");
+        /*
         wwVal->show();
         wlVal->show();
         rotateButton->show();
@@ -2480,8 +2531,31 @@ void MainWindow::onImageLoaded()
         zoomButton->show();
         translationButton->show();
         resetButton->show();
+        */
+        show_image_op_info_widgets(true);
         imageShowState=true;
     }
+}
+
+void MainWindow::show_image_op_info_widgets(bool show)
+{
+    wwVal->setVisible(show);
+    wlVal->setVisible(show);
+    rotateButton->setVisible(show);
+    wwwlButton->setVisible(show);
+    antiColorButton->setVisible(show);
+    zoomButton->setVisible(show);
+    translationButton->setVisible(show);
+    resetButton->setVisible(show);
+}
+
+void MainWindow::clear_preview_area()
+{
+    QImage clear_image(1, 1, QImage::Format_ARGB32);
+    clear_image.fill(QColor(0, 0, 0, 0));
+    ui->preview->loadImage(clear_image);
+    show_image_op_info_widgets(false);
+    imageShowState = false;
 }
 
 /**
@@ -2767,14 +2841,24 @@ static void fpd_img_buf_cleanup_handler(void* ptr)
     delete [](char*)ptr;
 }
 
+QString MainWindow::get_exposure_info_str()
+{
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    return QString("%1kV-%2uA-%3s").arg(ssc.tubeVol) .arg(ssc.tubeAmt)
+                                 .arg(exposureTimeList[ssc.exposureTimeIndex]);
+}
+
 void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h, int bit_dep)
 {
     DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
 
+    QString exposure_info_str = get_exposure_info_str();
+
     imageNum = common_tool_get_curr_dt_str();
-    QString main_fn = m_curr_fpd_model->img_file_pth
+    QString main_fn = sg_image_save_dir + m_curr_fpd_model->img_file_pth
                    + "/"
-                   + m_curr_fpd_model->mfg + "_" + imageNum;
+                   + m_curr_fpd_model->mfg + "_" + imageNum
+                   + "_" + exposure_info_str;
     QString fn = main_fn + m_curr_fpd_model->img_file_ext;
     QFile img_file(fn);
     if(!img_file.open(QIODevice::WriteOnly))

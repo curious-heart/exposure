@@ -11,6 +11,7 @@ static const char* INI_GRP_USER_SETTINGS = "UserSettings";
 static const char* INI_KEY_CURR_EXPOSURE_OPT = "currExposureOpt";
 static const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
 static const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
+static const char* INI_KEY_RTUSERIAL_EXPOSURE_TIME_IDX = "exposureTimeIndex";
 
 static const char* INI_GRP_FPD_HIS = "FpdHistorySettings";
 static const char* INI_KEY_TRIGGER_MODE = "trigger";
@@ -161,7 +162,7 @@ void SettingCfg::readSettingConfig(){
     systemSettingCfg.timeout = settings.value("timeout").isNull()?systemSettingCfg.timeout:settings.value("timeout").toInt();
     systemSettingCfg.numberOfRetries = settings.value("numberOfRetries").isNull()?systemSettingCfg.numberOfRetries:settings.value("numberOfRetries").toInt();
     systemSettingCfg.serverAddress = settings.value("serverAddress").isNull()?systemSettingCfg.serverAddress:settings.value("serverAddress").toInt();
-    systemSettingCfg.exposureTimeIndex= settings.value("exposureTimeIndex").isNull()?systemSettingCfg.exposureTimeIndex:settings.value("exposureTimeIndex").toInt();
+    systemSettingCfg.exposureTimeIndex= settings.value(INI_KEY_RTUSERIAL_EXPOSURE_TIME_IDX).isNull()?systemSettingCfg.exposureTimeIndex:settings.value(INI_KEY_RTUSERIAL_EXPOSURE_TIME_IDX).toInt();
     systemSettingCfg.tubeVol = settings.value(INI_KEY_RTUSERIAL_TUBE_VOL, DEF_TUBE_VOL).toInt();
     systemSettingCfg.tubeAmt = settings.value(INI_KEY_RTUSERIAL_TUBE_AMT , DEF_TUBE_AMT).toInt();
     systemSettingCfg.isAutoOff = settings.value("isAutoOff").isNull()?systemSettingCfg.isAutoOff:settings.value("isAutoOff").toInt();

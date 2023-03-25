@@ -140,6 +140,10 @@ private:
     void goto_user_input_dialog();
     void update_fpd_handler_on_new_model(fpd_model_info_t* new_model);
     void refresh_fpd_battery_display(int percentage);
+    QString get_image_save_pth_prefix();
+    void show_image_op_info_widgets(bool show = true);
+    void clear_preview_area();
+    static QString get_exposure_info_str();
 
 private:
     Ui::MainWindow *ui;
