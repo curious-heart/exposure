@@ -99,6 +99,7 @@ private slots:
 
     void on_pzm_fpd_comm_sig(int evt, int sn_id = -1, QString sn_str = "");
     void on_pzm_fpd_img_received_sig(char* img, int width, int height, int bit_dep);
+    void on_pzm_fpd_fpd_batt_level_sig(int bat_remain, int bat_full);
 
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
@@ -137,6 +138,7 @@ private:
     bool write_exposure_params_to_controller_or_cfg(ExpoParamSettingDialog::expo_params_collection_t params, bool write_cfg = true);
     void goto_user_input_dialog();
     void update_fpd_handler_on_new_model(fpd_model_info_t* new_model);
+    void refresh_fpd_battery_display(int percentage);
 
 private:
     Ui::MainWindow *ui;

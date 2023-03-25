@@ -2019,7 +2019,8 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                             this, &MainWindow::on_pzm_fpd_comm_sig, Qt::QueuedConnection);
                     connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_img_received_sig,
                             this, &MainWindow::on_pzm_fpd_img_received_sig, Qt::QueuedConnection);
-
+                    connect(pzm_fpd_handler, &CPZM_Fpd::pzm_fpd_batt_level_sig,
+                            this, &MainWindow::on_pzm_fpd_fpd_batt_level_sig, Qt::QueuedConnection);
                     if(!pzm_fpd_handler->pzm_ip_set_ok())
                     {
                         QMessageBox::information(nullptr,"",
@@ -2477,6 +2478,20 @@ void MainWindow::onWwwlChanged(int ww, int wl)
     wlVal->setText("WL:"+QString("%1").arg(wl));
 }
 
+void MainWindow::refresh_fpd_battery_display(int fpdbatteryVal)
+{
+    ui->fpdbatteryLevel->setText(QString("%1%").arg(fpdbatteryVal));
+    if(fpdbatteryVal<=100 && fpdbatteryVal>70)
+    {
+        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-green.png)");
+    }else if(fpdbatteryVal<=70 && fpdbatteryVal>20)
+    {
+        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-orange.png)");
+    }else// if(fpdbatteryVal<=20 && fpdbatteryVal>=0)
+    {
+        ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
+    }
+}
 /**
  * @brief MainWindow::onReadFpdBatteryLevelTimerOutTime 定时获取探测器电量
  */
@@ -2488,14 +2503,7 @@ void MainWindow::onReadFpdBatteryLevelTimerOutTime()
     if(FPD_SID_IRAY_STATIC == m_curr_fpd_model->sid)
     {
         int fpdbatteryVal=fpd->GetBatteryLevel();
-        ui->fpdbatteryLevel->setText(QString("%1%").arg(fpdbatteryVal));
-        if(fpdbatteryVal<=100 && fpdbatteryVal>70){
-            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-green.png)");
-        }else if(fpdbatteryVal<=70 && fpdbatteryVal>20){
-            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-orange.png)");
-        }else if(fpdbatteryVal<=20 && fpdbatteryVal>=0){
-            ui->fpdbatteryLevel->setStyleSheet("border-image: url(:/images/electric-red.png)");
-        }
+        refresh_fpd_battery_display(fpdbatteryVal);
     }
 }
 
@@ -2716,6 +2724,18 @@ void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
     default:
         ;
     }
+}
+
+void MainWindow::on_pzm_fpd_fpd_batt_level_sig(int bat_remain, int bat_full)
+{
+    int percentage = 0;
+    DIY_LOG(LOG_INFO,
+            QString("PZM: fpd battery remain: %1, full: %2").arg(bat_remain).arg(bat_full));
+    if((bat_remain <= bat_full) && (bat_full != 0))
+    {
+        percentage = (int)(100 * bat_remain / bat_full);
+    }
+    refresh_fpd_battery_display(percentage);
 }
 
 static void fpd_img_buf_cleanup_handler(void* ptr)

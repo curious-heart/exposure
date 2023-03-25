@@ -52,6 +52,7 @@ typedef CHAR (*Fnt_COM_LogPathSet)(CHAR* path);
 typedef CHAR (*Fnt_COM_ImgPathSet)(CHAR* path);
 typedef BOOL (*Fnt_COM_GetFPStatus)(TFPStat* ptFPStat);
 typedef BOOL (*Fnt_COM_GetFPStatusEx)(TFPStat* ptFPStat, CHAR* psn);
+typedef BOOL (*Fnt_COM_GetFPStatusP)(TFPStatex* ptFPStatex);
 
 class CPZM_Fpd: public QObject
 {
@@ -66,6 +67,7 @@ public:
     bool start_aed_acquiring();
     bool pzm_fpd_obj_init_ok();
     bool pzm_ip_set_ok();
+    bool pzm_get_fpd_batt(int *bat_remain, int* bat_full);
 
     /*Callback functions*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
@@ -95,6 +97,7 @@ signals:
     void fpdErrorOccurred(QString errorInfo);
     void pzm_fpd_comm_sig(int evt, int sn_id = -1, QString sn_str = "");
     void pzm_fpd_img_received_sig(CHAR* img, int width, int height, int bit_dep);
+    void pzm_fpd_batt_level_sig(int bat_remain, int bat_full);
 
 private:
     /*api function name str*/
@@ -122,6 +125,7 @@ private:
     static constexpr const char* m_hstr_COM_ImgPathSet= "COM_ImgPathSet";
     static constexpr const char* m_hstr_COM_GetFPStatus = "COM_GetFPStatus";
     static constexpr const char* m_hstr_COM_GetFPStatusEx = "COM_GetFPStatusEx";
+    static constexpr const char* m_hstr_COM_GetFPStatusP = "COM_GetFPStatusP";
 
     /*api function poiter*/
     Fnt_COM_Init m_hptr_COM_Init;
@@ -148,5 +152,6 @@ private:
     Fnt_COM_ImgPathSet m_hptr_COM_ImgPathSet;
     Fnt_COM_GetFPStatus m_hptr_COM_GetFPStatus;
     Fnt_COM_GetFPStatusEx m_hptr_COM_GetFPStatusEx;
+    Fnt_COM_GetFPStatusP m_hptr_COM_GetFPStatusP;
 };
 #endif // PZM_FPD_H

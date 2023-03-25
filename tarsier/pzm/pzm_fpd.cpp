@@ -171,6 +171,7 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_ImgPathSet, Fnt_COM_ImgPathSet, m_hstr_COM_ImgPathSet);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatus, Fnt_COM_GetFPStatus, m_hstr_COM_GetFPStatus);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatusEx, Fnt_COM_GetFPStatusEx, m_hstr_COM_GetFPStatusEx);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatusP, Fnt_COM_GetFPStatusP, m_hstr_COM_GetFPStatusP);
 
     return true;
 }
@@ -287,15 +288,27 @@ BOOL CPZM_Fpd::FuncBreakexCallBack(char npara)
 
 BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
 {/*EVENT_HEARTBEAT*/
-    static const int PZM_HB_INTERMAL = 5 * 2; //this cb is called every 500ms.
-    static int hb_int_cnt;
+     //from the doc, this cb is called every 500ms. But it seems not very accurate...
+    static const int PZM_HB_INTERMAL = 2 * 5 * 10;
+    static int hb_int_cnt = 0;
+    static bool first_beat = true;
 
-    if(hb_int_cnt < PZM_HB_INTERMAL)
+    /*on first beat, fresh fpd status, e.g. battery level.*/
+    if(first_beat)
     {
-        ++hb_int_cnt;
-        return TRUE;
+        DIY_LOG(LOG_INFO, "First heart beat!");
+        hb_int_cnt = 0;
+        first_beat = false;
     }
-    hb_int_cnt = 0;
+    else
+    {
+        if(hb_int_cnt < PZM_HB_INTERMAL)
+        {
+            ++hb_int_cnt;
+            return TRUE;
+        }
+        hb_int_cnt = 0;
+    }
 
     DIY_LOG(LOG_INFO, QString("PZM: FuncHeartBeatCallBack(%1)").arg((int)nEvent));
     if(sg_curr_pzm_fpd_obj)
@@ -314,6 +327,12 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
                 .arg((int)fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
 
         /*processing........*/
+        /*read battery and send to main to refresh ui.*/
+        DIY_LOG(LOG_INFO, "PZM: Get fpd battery level...");
+        int b_remain = 0, b_full = 0;
+        sg_curr_pzm_fpd_obj->pzm_get_fpd_batt(&b_remain, &b_full);
+        emit sg_curr_pzm_fpd_obj->pzm_fpd_batt_level_sig(b_remain, b_full);
+
         return TRUE;
     }
     PZM_HANDLER_NOT_EXIST();
@@ -486,6 +505,16 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
     {
         DIY_LOG(LOG_INFO, "PZM: SetCaliMode ok!");
     }
+
+    /* Battery level has not been properly initialized on connect until the firs heart beat.
+     * So the battery level values got here are invalid.
+    */
+    /*
+    int b_remain = 0, b_full = 0;
+    pzm_get_fpd_batt(&b_remain, &b_full);
+    emit pzm_fpd_batt_level_sig(b_remain, b_full);
+    */
+
     return true;
 }
 
@@ -545,4 +574,49 @@ bool CPZM_Fpd::start_aed_acquiring()
     }
 
     return ret;
+}
+
+bool CPZM_Fpd::pzm_get_fpd_batt(int *bat_remain, int* bat_full)
+{
+    if(!bat_remain && !bat_full)
+    {
+        return false;
+    }
+
+    TFPStatex fp_statex;
+    //TFPStat fp_status;
+    if(!m_hptr_COM_GetFPStatusP(&fp_statex))
+    //if(!m_hptr_COM_GetFPStatus(&fp_status))
+    {
+        DIY_LOG(LOG_ERROR, "PZM: get battery level fails.");
+        return false;
+    }
+    else
+    {
+        int b1_r, b1_f, b2_r, b2_f;
+        b1_r = fp_statex.tBatInfo1Ex.Remain;
+        b1_f = fp_statex.tBatInfo1Ex.full;
+        b2_r = fp_statex.tBatInfo2Ex.Remain;
+        b2_f = fp_statex.tBatInfo2Ex.full;
+        /*
+        b1_r = fp_status.tBatInfo1.Remain;
+        b1_f = fp_status.tBatInfo1.full;
+        b2_r = fp_status.tBatInfo2.Remain;
+        b2_f = fp_status.tBatInfo2.full;
+        */
+        DIY_LOG(LOG_INFO, "PZM: fpd battery level info:");
+        DIY_LOG(LOG_INFO,
+                QString("b1: remain %1, full %2, cycles %3, sn %4")
+                .arg(b1_r).arg(b1_f)
+                .arg(fp_statex.tBatInfo1Ex.cycles).arg(fp_statex.tBatInfo1Ex.serialNum));
+        DIY_LOG(LOG_INFO,
+                QString("b2: remain %1, full %2, cycles %3, sn %4")
+                .arg(b2_r).arg(b2_f)
+                .arg(fp_statex.tBatInfo2Ex.cycles).arg(fp_statex.tBatInfo2Ex.serialNum));
+
+        if(bat_remain) *bat_remain = b1_r + b2_r;
+        if(bat_full) *bat_full = b1_f + b2_f;
+
+        return true;
+    }
 }
