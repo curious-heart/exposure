@@ -71,6 +71,7 @@ enum Enm_Controller_Address
 
 static MyFPD *fpd=NULL; //iRay fpd;
 static CPZM_Fpd * pzm_fpd_handler  = nullptr; //PZM fpd
+static const int sg_pzm_fpd_connection_time = 30; //30s.
 static ImageOperation *imageOperation=NULL;
 static QString imagePath=NULL;
 static QDateTime T1;//The last connected time or acquisition time
@@ -166,6 +167,10 @@ MainWindow::MainWindow(QWidget *parent)
     tenMinutesTimer=new QTimer(this);
     startAcqWaitTimer = new QTimer(this);
     startAcqWaitTimer->setSingleShot(true);
+
+    m_pzm_conn_timer = new QTimer(this);
+    if(m_pzm_conn_timer) m_pzm_conn_timer->setSingleShot(true);
+
     chargeStateImg=new QImage();
     showImg=new QImage();
     //showImgTemp=new QImage();
@@ -221,6 +226,9 @@ MainWindow::~MainWindow()
     tenMinutesTimer=NULL;
     delete startAcqWaitTimer;
     startAcqWaitTimer = nullptr;
+
+    delete m_pzm_conn_timer;
+    m_pzm_conn_timer = nullptr;
 
     delete chargeStateImg;
     chargeStateImg=NULL;
@@ -388,6 +396,7 @@ void MainWindow::InitActions(){
     connect(readFpdBatteryLevelTimer, &QTimer::timeout, this, &MainWindow::onReadFpdBatteryLevelTimerOutTime);
     connect(tenMinutesTimer, &QTimer::timeout, this, &MainWindow::onTenMinutesTimerOutTime);
     connect(startAcqWaitTimer, &QTimer::timeout, this, &MainWindow::onStartAcqWaitTimerTimeOut);
+    connect(m_pzm_conn_timer, &QTimer::timeout, this, &MainWindow::on_pzm_conn_timer_timeout);
     //connect(imageOperation,&ImageOperation::imageSaveFinshed,this,&MainWindow::onImageSaveFinshed);
 
     connect(imageOperation,&ImageOperation::imageCreateFinshed,this,&MainWindow::onImageCreateFinshed);
@@ -672,6 +681,14 @@ int MainWindow::ConnectionFPD(){
             if(!api_ret)
             {
                 return Err_Unknown;
+            }
+            /* above function returning true just means local dll api is ready.
+             * to make sure connection is setup, the EVENT_LINKUP(EX) should be received
+             * so that fpdConnectState is on correct state.
+            */
+            if(m_pzm_conn_timer)
+            {
+                m_pzm_conn_timer->start(sg_pzm_fpd_connection_time * 1000);
             }
         }
         break;
@@ -2813,4 +2830,17 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
     q_img->save(img_fn);
     emit imageOperation->imageCreateFinshed(q_img,imageNum, ImageOperation::IMG_OP_NONE);
     /*It's the slot's responsbility to delete q_img.*/
+}
+
+void MainWindow::on_pzm_conn_timer_timeout()
+{
+    if(Enm_Connect_State::Connected != fpdConnectState)
+    {
+        DIY_LOG(LOG_ERROR, "PZM: connect fpd time out.");
+        if(pzm_fpd_handler)
+        {
+            pzm_fpd_handler->disconnect_from_fpd(m_curr_fpd_model);
+            onFpdConnectStateChanged(Enm_Connect_State::Disconnected);
+        }
+    }
 }

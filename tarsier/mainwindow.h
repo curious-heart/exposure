@@ -90,6 +90,7 @@ private slots:
     void onTenMinutesTimerStarted();
     void onTenMinutesTimerOutTime();
     void onStartAcqWaitTimerTimeOut();
+    void on_pzm_conn_timer_timeout();
 
     void on_exposureSelCombox_currentIndexChanged(int index);
     void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
@@ -158,6 +159,7 @@ private:
     QTimer * readBatteryLevelTimer;
     QTimer * readChargeStateTimer;
     QTimer * startAcqWaitTimer;
+    QTimer * m_pzm_conn_timer;
     QImage * chargeStateImg;
     QImage * showImg;
     //QImage * showImgTemp;
