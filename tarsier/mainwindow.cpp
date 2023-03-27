@@ -2751,6 +2751,9 @@ void MainWindow::on_exposureSelCombox_currentIndexChanged(int index)
     exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
     if(exposure_opt_type_manual == e_opts.value(curr_opt)->type)
     {
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        ssc.currExposureOpt = e_opts.value(curr_opt)->idx;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
         goto_user_input_dialog();
     }
     else
