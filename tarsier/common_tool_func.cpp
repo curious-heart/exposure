@@ -6,6 +6,7 @@
 #include <QNetworkAddressEntry>
 #include <QList>
 #include <QProcess>
+#include <QDir>
 
 #define SYSTEM_LIB_FUNC_RET_OK 0
 
@@ -446,4 +447,23 @@ QString common_tool_get_curr_dt_str()
     QDateTime curDateTime = QDateTime::currentDateTime();
     QString dtstr = curDateTime.toString("yyyyMMddhhmmss");
     return dtstr;
+}
+
+QString common_tool_get_curr_date_str()
+{
+    QDateTime curDateTime = QDateTime::currentDateTime();
+    QString datestr = curDateTime.toString("yyyyMMdd");
+    return datestr;
+}
+
+bool mkpth_if_not_exists(QString &pth_str)
+{
+    QDir data_dir(pth_str);
+    bool ret = true;
+    if(!data_dir.exists())
+    {
+        data_dir = QDir();
+        ret = data_dir.mkpath(pth_str);
+    }
+    return ret;
 }

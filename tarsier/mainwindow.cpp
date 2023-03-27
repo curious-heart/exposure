@@ -551,15 +551,31 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                 QString exposure_info_str = get_exposure_info_str();
                 QString day=curDateTime.toString("yyyyMMdd");
                 //QString dirPath="D:/"+day;
-                QString dirPath = sg_image_save_dir + day;
-                QDir qdir;
-                if(!qdir.exists(dirPath)){
-                    qdir.mkdir(dirPath);
+                QString dirPath = sg_image_save_dir + day, path;
+                if(!mkpth_if_not_exists(dirPath))
+                {
+                    DIY_LOG(LOG_ERROR, QString("Create folder: %1 error").arg(dirPath));
                 }
-                //QString path=dirPath+"/tiffImage"+imageNum+".tif";
-                QString path = dirPath + "/tiffImage" + imageNum  + "_" + exposure_info_str
-                                + sg_image_file_format_tif;
+                else
+                {
+                    path = dirPath + "/tiffImage" + imageNum  + "_" + exposure_info_str
+                                    + sg_image_file_format_tif;
+                    DIY_LOG(LOG_INFO, QString("Now save image as: %1").arg(path));
+                    img->save(path);
+                }
+                /*
+                QDir qdir;
+                if(!qdir.exists(dirPath))
+                {
+                    DIY_LOG(LOG_INFO, QString("Create folder: %1").arg(dirPath));
+                    if(!qdir.mkdir(dirPath))
+                    {
+                        DIY_LOG(LOG_ERROR, QString("Create folder: %1 error").arg(dirPath));
+                    }
+                }
+                QString path=dirPath+"/tiffImage"+imageNum+".tif";
                 img->save(path);
+                */
             }
             DIY_LOG(LOG_INFO, "Create image ok, now try to show it");
             emit imageOperation->imageCreateFinshed(img,imageNum, ImageOperation::IMG_OP_ROTATE_R_90);
@@ -2848,33 +2864,76 @@ QString MainWindow::get_exposure_info_str()
                                  .arg(exposureTimeList[ssc.exposureTimeIndex]);
 }
 
+QString MainWindow::get_common_file_save_appendix_str()
+{
+    imageNum = common_tool_get_curr_dt_str();
+    QString exposure_info_str = get_exposure_info_str();
+    return imageNum + "_" + exposure_info_str;
+}
+
 void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h, int bit_dep)
 {
     DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
 
-    QString exposure_info_str = get_exposure_info_str();
+    bool dir_created_ok = false;
+    QString main_fn = "";
+    QString f_appendix = get_common_file_save_appendix_str();
 
-    imageNum = common_tool_get_curr_dt_str();
-    QString main_fn = sg_image_save_dir + m_curr_fpd_model->img_file_pth
-                   + "/"
-                   + m_curr_fpd_model->mfg + "_" + imageNum
-                   + "_" + exposure_info_str;
-    QString fn = main_fn + m_curr_fpd_model->img_file_ext;
-    QFile img_file(fn);
-    if(!img_file.open(QIODevice::WriteOnly))
+    QString st_pth =  sg_image_save_dir + common_tool_get_curr_date_str();
+    if(!mkpth_if_not_exists(st_pth))
     {
-        DIY_LOG(LOG_ERROR, QString("PZM: open file %1 error").arg(fn));
+        DIY_LOG(LOG_ERROR, QString("PZM: create folder %1 error").arg(st_pth));
+        /*even write file error, we still try to show it.*/
+        /*
         delete []img_buf;
         return;
+        */
     }
-    int img_px_bytes = 2;
-    qint64 img_size = img_w * img_h * img_px_bytes;
-    qint64 written_size;
-    written_size = img_file.write(img_buf, img_size);
-    DIY_LOG(LOG_INFO,
-            QString("PZM: write file data. Image size: %1; written size:%2")
-            .arg(img_size).arg(written_size));
-    img_file.close();
+    else
+    {
+        dir_created_ok = true;
+    }
+
+    if(dir_created_ok)
+    {
+        main_fn = st_pth + "/"
+                  + m_curr_fpd_model->mfg + "_" + f_appendix;
+
+        QString pd_spec_dir =  m_curr_fpd_model->img_file_ext;
+        pd_spec_dir.remove('.');
+        pd_spec_dir = st_pth + "/" + pd_spec_dir;
+        if(!mkpth_if_not_exists(pd_spec_dir))
+        {
+            DIY_LOG(LOG_ERROR, QString("PZM: create folder %1 for fpd spec file error.").arg(pd_spec_dir));
+        }
+        else
+        {
+            QString fn = pd_spec_dir + "/"
+                  + m_curr_fpd_model->mfg + "_" + f_appendix + m_curr_fpd_model->img_file_ext;
+            QFile img_file(fn);
+            if(!img_file.open(QIODevice::WriteOnly))
+            {
+                /*even write file error, we still try to show it.*/
+                DIY_LOG(LOG_ERROR, QString("PZM: open file %1 error").arg(fn));
+                /*
+                delete []img_buf;
+                return;
+                */
+            }
+            else
+            {
+                int img_px_bytes = 2;
+                qint64 img_size = img_w * img_h * img_px_bytes;
+                qint64 written_size;
+                written_size = img_file.write(img_buf, img_size);
+                DIY_LOG(LOG_INFO,
+                        QString("PZM: write file data. Image size: %1; written size:%2")
+                        .arg(img_size).arg(written_size));
+                img_file.close();
+                DIY_LOG(LOG_INFO, QString("PZM: Now save image data as: %1").arg(fn));
+            }
+        }
+    }
 
     QImage::Format img_format;
     switch(bit_dep)
@@ -2910,8 +2969,14 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
         delete []img_buf;
         return;
     }
-    QString img_fn = main_fn + sg_image_file_format_tif;
-    q_img->save(img_fn);
+
+    if(dir_created_ok)
+    {
+        QString img_fn = main_fn + sg_image_file_format_tif;
+        DIY_LOG(LOG_INFO, QString("PZM: Now save image data as: %1").arg(img_fn));
+        q_img->save(img_fn);
+    }
+    DIY_LOG(LOG_INFO, "PZM: show image now.");
     emit imageOperation->imageCreateFinshed(q_img,imageNum, ImageOperation::IMG_OP_NONE);
     /*It's the slot's responsbility to delete q_img.*/
 }

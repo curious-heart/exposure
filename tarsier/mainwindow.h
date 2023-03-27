@@ -144,6 +144,7 @@ private:
     void show_image_op_info_widgets(bool show = true);
     void clear_preview_area();
     static QString get_exposure_info_str();
+    static QString get_common_file_save_appendix_str();
 
 private:
     Ui::MainWindow *ui;

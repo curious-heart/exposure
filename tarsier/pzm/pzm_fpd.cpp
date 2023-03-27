@@ -352,7 +352,7 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatexCallBack(char npara)
 
 BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 {/*EVENT_IMAGEVALID*/
-    DIY_LOG(LOG_INFO, QString("PZM: FuncImageCallBack(%1)").arg(nEvent));
+    DIY_LOG(LOG_INFO, QString("PZM: FuncImageCallBack(%1)").arg((int)nEvent));
     if(sg_curr_pzm_fpd_obj)
     {
         BOOL api_ret;
