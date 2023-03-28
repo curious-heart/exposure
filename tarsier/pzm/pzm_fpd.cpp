@@ -1,6 +1,5 @@
 #include "pzm_fpd.h"
 #include "logger.h"
-#include "common_tool_func.h"
 
 #include <QDir>
 #include <QDateTime>
@@ -22,7 +21,7 @@ static const char* sg_PZM_status_str_map[] =
 "STATUS_DST",//#define STATUS_DST		      (CHAR)0x09
 };
 
-CPZM_Fpd::CPZM_Fpd(QObject *parent, fpd_model_info_t* model)
+CPZM_Fpd::CPZM_Fpd(QObject *parent, fpd_model_info_t* model, ip_intf_type_t intf)
     : QObject(parent)
 {
     QString err_str;
@@ -39,7 +38,9 @@ CPZM_Fpd::CPZM_Fpd(QObject *parent, fpd_model_info_t* model)
     }
     if(m_model_info)
     {
-        m_ip_set_ok = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
+        m_fpd_used_if_idx = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, intf,
+                                                         m_model_info->host_ip);
+        m_ip_set_ok = (m_fpd_used_if_idx > 0);
         //m_ip_set_ok = set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
         if(!m_ip_set_ok)
         {
@@ -402,7 +403,7 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 
 /*----------------------------------------------------------------------------*/
 //exposed hanlers.
-bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
+bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
 {
     m_model_info = model;
     if(!m_model_info)
@@ -413,7 +414,9 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model)
 
     if(!m_ip_set_ok)
     {
-        m_ip_set_ok = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, m_model_info->host_ip);
+        m_fpd_used_if_idx = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_FIXED, intf,
+                                                         m_model_info->host_ip);
+        m_ip_set_ok = (m_fpd_used_if_idx > 0);
         if(!m_ip_set_ok)
         {
             DIY_LOG(LOG_ERROR, QString("Set host IP %1 error.").arg(m_model_info->host_ip));

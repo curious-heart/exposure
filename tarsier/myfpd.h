@@ -50,6 +50,7 @@ public:
     void MyCallback(int nDetectorID, int nEventID, int nEventLevel,
         const char* pszMsg, int nParam1, int nParam2, int nPtrParamLen, void* pParam);
     int GetBatteryLevel();
+    int get_fpd_used_if_idx() {return m_fpd_used_if_idx;}
 
 signals:
     /**
@@ -75,6 +76,7 @@ private:
     HANDLE waitAckEvent;
     int curCmdId;
     int lastError;
+    int m_fpd_used_if_idx;
 
 };
 

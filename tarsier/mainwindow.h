@@ -205,6 +205,8 @@ private:
     /*This var point to an item in m_fpd_models, so do not delete it manually.*/
     fpd_model_info_t* m_curr_fpd_model = nullptr;
 
+    int m_cur_if_idx = -1;
+
 };
 
 #endif // MAINWINDOW_H

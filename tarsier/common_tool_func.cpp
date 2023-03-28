@@ -1,5 +1,8 @@
+#include <windows.h>
+
 #include "common_tool_func.h"
 #include "logger.h"
+
 
 #include <QDateTime>
 #include <QHostAddress>
@@ -7,6 +10,54 @@
 #include <QList>
 #include <QProcess>
 #include <QDir>
+
+static bool exec_external_process(QString cmd, QString cmd_args, bool as_admin = false)
+{
+    DIY_LOG(LOG_INFO, QString("exec_external_process: %1 %2, as_admin: %3")
+                      .arg(cmd, cmd_args).arg((int)as_admin));
+    bool ret = false;
+    if(!cmd.isEmpty())
+    {
+        SHELLEXECUTEINFO shellInfo;
+        memset(&shellInfo, 0, sizeof(shellInfo));
+        shellInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+        shellInfo.hwnd = NULL;
+        std::wstring wlpstrstd_verb;
+        if(as_admin)
+        {
+            wlpstrstd_verb = QString("runas").toStdWString();
+        }
+        else
+        {
+            wlpstrstd_verb = QString("open").toStdWString();
+        }
+        shellInfo.lpVerb = wlpstrstd_verb.c_str();
+        std::wstring wlpstrstd_file = cmd.toStdWString();
+        shellInfo.lpFile = wlpstrstd_file.c_str();
+        std::wstring wlpstrstd_param = cmd_args.toStdWString();
+        shellInfo.lpParameters = wlpstrstd_param.c_str();
+        std::wstring wlpstrstd_currpth = QDir::currentPath().toStdWString();
+        shellInfo.lpDirectory = wlpstrstd_currpth.c_str();
+        shellInfo.nShow = SW_HIDE;
+        BOOL bRes = ::ShellExecuteEx(&shellInfo);
+        if(bRes)
+        {
+            ret = true;
+            DIY_LOG(LOG_INFO, "ShellExecuteEx ok.");
+        }
+        else
+        {
+            ret = false;
+            DWORD err = GetLastError();
+            DIY_LOG(LOG_ERROR, QString("ShellExecuteEx return false, error: %1").arg((quint64)err));
+        }
+    }
+    else
+    {
+        DIY_LOG(LOG_WARN, QString("ShellExecuteEx, cmd is empty!"));
+    }
+    return ret;
+}
 
 #define SYSTEM_LIB_FUNC_RET_OK 0
 
@@ -45,13 +96,13 @@ void set_dhcp_on_intf_with_spec_ip(QString fixed_ip)
     //netsh interface ip set address 19 dhcp
     QString cmd_str = "";
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    foreach (const QNetworkInterface &interface, interfaces)
+    foreach (const QNetworkInterface &intf, interfaces)
     {
-        foreach(const QNetworkAddressEntry &e, interface.addressEntries())
+        foreach(const QNetworkAddressEntry &e, intf.addressEntries())
         {
             if(e.ip().toString() == fixed_ip)
             {
-                int intf_idx = interface.index();
+                int intf_idx = intf.index();
                 cmd_str += QString("netsh interface ip set address %1 dhcp && ").arg(intf_idx);
                 break;
             }
@@ -72,6 +123,37 @@ void set_dhcp_on_intf_with_spec_ip(QString fixed_ip)
     }
 }
 
+QString get_ip_addr_by_if_idx(int if_idx)
+{
+    if(if_idx < 0)
+    {
+        DIY_LOG(LOG_ERROR, "Invalid if_idx: it should be > 0");
+        return "";
+    }
+    QNetworkInterface q_if = QNetworkInterface::interfaceFromIndex(if_idx);
+    QString s_ip_addr = "";
+    int i = 0;
+    foreach(const QNetworkAddressEntry &e, q_if.addressEntries())
+    {
+        if(e.ip().protocol() == QAbstractSocket::IPv4Protocol)
+        {
+            DIY_LOG(LOG_INFO, QString("The %1th IP address of if %2 is: %3").arg(i)
+                              .arg(if_idx).arg(e.ip().toString()));
+            ++i;
+
+            if(s_ip_addr.isEmpty())
+            {
+                s_ip_addr = e.ip().toString();
+            }
+        }
+    }
+    if(s_ip_addr.isEmpty())
+    {
+        DIY_LOG(LOG_ERROR, QString("Can't obtain an valid IPv4 address of if %1").arg(if_idx));
+    }
+    return s_ip_addr;
+}
+
 void get_q_network_intf_by_type(ip_intf_type_t targ_l_intf_t, QList<QNetworkInterface> * intf_l,
                                 bool is_up)
 {
@@ -80,26 +162,26 @@ void get_q_network_intf_by_type(ip_intf_type_t targ_l_intf_t, QList<QNetworkInte
         return;
     }
 
-    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    foreach (const QNetworkInterface &interface, interfaces)
+    QList<QNetworkInterface> intfs = QNetworkInterface::allInterfaces();
+    foreach(const QNetworkInterface &intf, intfs)
     {
-        int if_idx = interface.index();
-        QNetworkInterface::InterfaceFlags if_f = interface.flags();
-        QNetworkInterface::InterfaceType if_t = interface.type();
-        QString if_name = interface.name();
-        QString if_hr_name = interface.humanReadableName();
-        QString if_hd_addr = interface.hardwareAddress();
-        DIY_LOG(LOG_INFO, "interface + ==================================");
+        int if_idx = intf.index();
+        QNetworkInterface::InterfaceFlags if_f = intf.flags();
+        QNetworkInterface::InterfaceType if_t = intf.type();
+        QString if_name = intf.name();
+        QString if_hr_name = intf.humanReadableName();
+        QString if_hd_addr = intf.hardwareAddress();
+        DIY_LOG(LOG_INFO, "intf + ==================================");
         QString if_info_str
                 = QString("Interface id: %1, flags: %2, type: %3, name: %4, hr_name: %5, hd_addr: %6, ")
                 .arg(if_idx).arg(if_f).arg(if_t).arg(if_name, if_hr_name, if_hd_addr);
         if_info_str += "ip: ";
-        foreach(const QNetworkAddressEntry &e, interface.addressEntries())
+        foreach(const QNetworkAddressEntry &e, intf.addressEntries())
         {
             if_info_str += e.ip().toString() + ", ";
         }
         DIY_LOG(LOG_INFO, if_info_str);
-        DIY_LOG(LOG_INFO, "interface - ==================================");
+        DIY_LOG(LOG_INFO, "intf - ==================================");
 
         ip_intf_type_t cur_l_intf_t = qnintf_type_to_local_intf_type(if_t);
         // 过滤Loopback接口
@@ -110,7 +192,7 @@ void get_q_network_intf_by_type(ip_intf_type_t targ_l_intf_t, QList<QNetworkInte
         }
         if (cur_l_intf_t & targ_l_intf_t)
         {
-            intf_l->append(interface);
+            intf_l->append(intf);
         }
     }
 }
@@ -127,16 +209,26 @@ bool interface_has_this_ip(const QNetworkInterface &intf, QString ip_addr)
     return false;
 }
 
-/*set the first proper interface.*/
-bool set_host_wifi_or_eth_ip_addr(ip_set_type_t set_type, QString ip_addr, QString ip_mask, QString gw)
+/*if more than 1 interfaces are to be set to fixed ip, only the 1st is set.*/
+int set_host_wifi_or_eth_ip_addr(ip_set_type_t set_type, ip_intf_type_t intf_t,
+                                  QString ip_addr, QString ip_mask, QString gw)
 {
     QList<QNetworkInterface> q_intf_l;
-    bool ret = false;
+    int set_if_idx = -1;
+    //bool ret = false;
     QString info_str = QString("Set ip %1 (set_type)%2").arg(ip_addr).arg((int)set_type);
     q_intf_l.clear();
-    get_q_network_intf_by_type((ip_intf_type_t)(IP_INTF_WIFI | IP_INTF_ETHERNET), &q_intf_l);
+    //get_q_network_intf_by_type((ip_intf_type_t)(IP_INTF_WIFI | IP_INTF_ETHERNET), &q_intf_l);
+    get_q_network_intf_by_type(intf_t, &q_intf_l);
     if(q_intf_l.count() > 0)
     {
+        set_if_idx = q_intf_l[0].index();
+        /*
+         * fow now, we can't easily check if the interface has dhcp or dynamic ip setting.
+         * so we just clear fixe ip before we set fixed ip and assume it work ok;
+         * and for dhcp set call, just set it and assume it works ok.
+        */
+
         DIY_LOG(LOG_INFO, QString("Found %1 proper interfaces:").arg(q_intf_l.count()));
         QString l_str = "";
         for(int i = 0; i < q_intf_l.count(); ++i)
@@ -146,48 +238,71 @@ bool set_host_wifi_or_eth_ip_addr(ip_set_type_t set_type, QString ip_addr, QStri
                     .arg(q_intf_l[i].humanReadableName(), q_intf_l[i].hardwareAddress());
         }
         DIY_LOG(LOG_INFO, l_str);
-        if(q_intf_l.count() > 1)
-        {
-            DIY_LOG(LOG_INFO, "Now we try to set ip for the 1st interface of above.");
-        }
 
         if(IP_SET_TYPE_IPV4_FIXED == set_type)
         {
             if(interface_has_this_ip(q_intf_l[0], ip_addr))
             {
+                if(q_intf_l.count() > 1)
+                {
+                    DIY_LOG(LOG_INFO,
+                            QString("There are more than 1 interfaces to be set to fixed IP %1."
+                                    "We can set only the first interface.").arg(ip_addr));
+                }
                 DIY_LOG(LOG_INFO,
-                        QString("The 1st interface already has the specified IP %1."
-                                  "So we do not need to set it again.").arg(ip_addr));
+                        QString("This interface already has the specified IP %1, "
+                                "so we do not need to do anything.").arg(ip_addr));
                 q_intf_l.clear();
-                return true;
+                return set_if_idx;
             }
-            else
-            {
-                DIY_LOG(LOG_INFO,
-                        QString("Try to set fixed ip %1. We first check if there are any"
-                                  " interface has the same ip, and if so, we clear it "
-                                  "(set it to dhcp cfg).").arg(ip_addr));
-                set_dhcp_on_intf_with_spec_ip(ip_addr);
-            }
-        }
 
-        int intf_idx = q_intf_l[0].index();
-        set_host_ip_address(intf_idx, set_type, ip_addr, ip_mask, gw);
-        /*
-         * fow now, we can't easily check if the interface has dhcp or dynamic ip setting.
-         * so we just clear fixe ip before we set fixed ip and assume it work ok;
-         * and for dhcp set call, just set it and assume it works ok.
-        */
-        ret = true;
-        info_str += QString(" for (if_idx)%1: %2, %3")
-                    .arg(intf_idx).arg(q_intf_l[0].humanReadableName(), q_intf_l[0].hardwareAddress());
-        if(!ret)
-        {
-            DIY_LOG(LOG_ERROR, info_str + " fails!");
+            /*The first interface of type intf_t does not have the specified IP.*/
+            DIY_LOG(LOG_INFO, QString("Interface (if_idx)%1: %2, %3 is to be set to fixed ip %4.")
+                    .arg(set_if_idx)
+                    .arg(q_intf_l[0].humanReadableName(), q_intf_l[0].hardwareAddress(), ip_addr));
+            QList<QNetworkInterface> all_intfs = QNetworkInterface::allInterfaces();
+            if(all_intfs.count() > 1)
+            {
+                DIY_LOG(LOG_INFO, "There are more than 1 interfaces in system."
+                                  "Before set above interface to fixed ip, we'll firstly check and"
+                                  "clear (i.e. set to dhcp) other interface of the same ip.");
+                for(int i = 0; i < all_intfs.count(); i++)
+                {
+                    if(interface_has_this_ip(all_intfs[i], ip_addr))
+                    {
+                        int intf_i = all_intfs[i].index();
+                        DIY_LOG(LOG_INFO,
+                                QString("Set (if_idx)%1: %2, %3 to dhcp.")
+                                .arg(intf_i).arg(all_intfs[i].humanReadableName(),
+                                                 all_intfs[i].hardwareAddress()));
+                        set_host_ip_address(intf_i, IP_SET_TYPE_IPV4_DYNAMIC);
+                    }
+                }
+                DIY_LOG(LOG_INFO, QString("Check and clear over."));
+            }
+
+            DIY_LOG(LOG_INFO,
+                    QString("Now set (if_idx)%1: %2, %3 to fixed ip %4.")
+                    .arg(set_if_idx)
+                    .arg(q_intf_l[0].humanReadableName(), q_intf_l[0].hardwareAddress(), ip_addr));
+            //ret =
+            set_host_ip_address(set_if_idx, set_type, ip_addr, ip_mask, gw);
         }
         else
         {
-            DIY_LOG(LOG_INFO, info_str + " succeefully.");
+           //IP_SET_TYPE_IPV4_DYNAMIC
+            DIY_LOG(LOG_INFO, "Set all required interfaces to dhcp:");
+            for(int i = 0; i < q_intf_l.count(); i++)
+            {
+                int intf_i = q_intf_l[i].index();
+                DIY_LOG(LOG_INFO,
+                        QString("Set (if_idx)%1: %2, %3 to dhcp.")
+                        .arg(intf_i)
+                        .arg(q_intf_l[i].humanReadableName(), q_intf_l[i].hardwareAddress()));
+                DIY_LOG(LOG_INFO, QString("Set interface %1 to dhcp").arg(intf_i));
+                set_host_ip_address(q_intf_l[i].index(), set_type, ip_addr, ip_mask, gw);
+            }
+            //ret = true;
         }
     }
     else
@@ -197,96 +312,43 @@ bool set_host_wifi_or_eth_ip_addr(ip_set_type_t set_type, QString ip_addr, QStri
     }
     q_intf_l.clear();
 
-    return ret;
+    return set_if_idx;
 }
 
 bool set_host_ip_address(int if_idx, ip_set_type_t set_type, QString ip_addr, QString ip_mask,
                          QString gw)
 {
-    QString cmd_line, cmd_str = "netsh";
-    cmd_line = cmd_str + " interface" + " ip" + " set" + " address"
+    QString cmd_str = "netsh", cmd_args;
+    cmd_args= QString("interface") + " ip" + " set" + " address"
             + QString(" %1").arg(if_idx);
     if(IP_SET_TYPE_IPV4_DYNAMIC == set_type)
     {
-        cmd_line += " dhcp";
+        cmd_args += " dhcp";
     }
     else
     {
-        cmd_line += QString(" static") + " " + ip_addr + " " + ip_mask + " " + gw;
+        cmd_args += QString(" static") + " " + ip_addr + " " + ip_mask + " " + gw;
     }
-    int sys_call_ret = system(cmd_line.toUtf8());
-    DIY_LOG(LOG_INFO, QString("IP set cmd: %1").arg(cmd_line));
+    DIY_LOG(LOG_INFO, QString("IP set cmd: %1").arg(cmd_str + cmd_args));
+    bool exec_ret = exec_external_process(cmd_str, cmd_args, true);
+    if(exec_ret)
+    {
+        DIY_LOG(LOG_INFO, "Set host ip address ok.");
+    }
+    else
+    {
+        DIY_LOG(LOG_ERROR, "Set host ip address error!");
+    }
+    return exec_ret;
+
+    /*
+    int sys_call_ret = system((cmd_str + cmd_args).toUtf8());
     DIY_LOG(LOG_INFO, QString("set IP cmd ret: %1").arg(sys_call_ret));
     return (SYSTEM_LIB_FUNC_RET_OK == sys_call_ret);
+    */
 }
 
-bool set_host_ip_address(ip_intf_type_t intf, ip_set_type_t set_type, QString ip_addr,
-                         QString ip_mask, QString gw)
-{
-    bool ret = false;
-    QNetworkInterface::InterfaceType q_intf;
-    q_intf = local_intf_type_to_qnintf_type(intf);
-    if(QNetworkInterface::Unknown == q_intf)
-    {
-        DIY_LOG(LOG_ERROR, QString("Unknown interface type: %1").arg(intf));
-        return ret;
-    }
-
-    bool found = false;
-    // 获取本地网络接口列表
-    QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    // 遍历接口列表，查找需要设置IP地址的接口
-    foreach (QNetworkInterface interface, interfaces)
-    {
-        int if_idx = interface.index();
-        QNetworkInterface::InterfaceFlags if_f = interface.flags();
-        QNetworkInterface::InterfaceType if_t = interface.type();
-        QString if_name = interface.name();
-        QString if_hr_name = interface.humanReadableName();
-        QString if_hd_addr = interface.hardwareAddress();
-        DIY_LOG(LOG_INFO, "==================================");
-        QString if_info_str
-                = QString("Interface id: %1, flags: %2, type: %3, name: %4, hr_name: %5, hd_addr: %6, ")
-                .arg(if_idx).arg(if_f).arg(if_t).arg(if_name, if_hr_name, if_hd_addr);
-        if_info_str += "ip: ";
-        foreach(const QNetworkAddressEntry &e, interface.addressEntries())
-        {
-            if_info_str += e.ip().toString() + ", ";
-        }
-        DIY_LOG(LOG_INFO, if_info_str);
-        // 过滤非活动接口和Loopback接口
-        if (!(if_f & QNetworkInterface::IsUp)
-                || (if_f & QNetworkInterface::IsLoopBack)
-                || ((if_t != q_intf))
-                )
-        {
-            continue;
-        }
-        QString cmd_line, cmd_str = "netsh";
-        cmd_line = cmd_str + " interface" + " ip" + " set" + " address"
-                + QString(" %1").arg(if_idx);
-        if(IP_SET_TYPE_IPV4_DYNAMIC == set_type)
-        {
-            cmd_line += " dhcp";
-        }
-        else
-        {
-            cmd_line += QString(" static") + " " + ip_addr + " " + ip_mask + " " + gw;
-        }
-        int sys_call_ret = system(cmd_line.toUtf8());
-        DIY_LOG(LOG_INFO, QString("IP set cmd: %1").arg(cmd_line));
-        DIY_LOG(LOG_INFO, QString("set IP cmd ret: %1").arg(sys_call_ret));
-        ret = (SYSTEM_LIB_FUNC_RET_OK  == sys_call_ret);
-        found = true;
-        break;
-    }
-    if(!found)
-    {
-        DIY_LOG(LOG_WARN, "No proper interface found for setting.");
-    }
-    return ret;
-}
-
+/*not used now*/
 bool set_dynamic_ip()
 {
     bool f_ret = false, found = false;;
@@ -295,14 +357,14 @@ bool set_dynamic_ip()
     // 获取本地网络接口列表
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     // 遍历接口列表，查找需要设置IP地址的接口
-    foreach (QNetworkInterface interface, interfaces)
+    foreach (QNetworkInterface intf, interfaces)
     {
-        int if_idx = interface.index();
-        QNetworkInterface::InterfaceFlags if_f = interface.flags();
-        QNetworkInterface::InterfaceType if_t = interface.type();
-        QString if_name = interface.name();
-        QString if_hr_name = interface.humanReadableName();
-        QString if_hd_addr = interface.hardwareAddress();
+        int if_idx = intf.index();
+        QNetworkInterface::InterfaceFlags if_f = intf.flags();
+        QNetworkInterface::InterfaceType if_t = intf.type();
+        QString if_name = intf.name();
+        QString if_hr_name = intf.humanReadableName();
+        QString if_hd_addr = intf.hardwareAddress();
         DIY_LOG(LOG_INFO, "==================================");
         DIY_LOG(LOG_INFO,
                 QString("Interface id: %1, flags: %2, type: %3, name: %4, hr_name: %5, hd_addr: %6")
@@ -366,6 +428,7 @@ bool set_dynamic_ip()
     return f_ret;
 }
 
+/*not used now*/
 bool set_fixed_ip_address(QString ipaddr_str, QString addr_mask, QString gw)
 {
     bool f_ret = false, found = false;
@@ -373,14 +436,14 @@ bool set_fixed_ip_address(QString ipaddr_str, QString addr_mask, QString gw)
     // 获取本地网络接口列表
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     // 遍历接口列表，查找需要设置IP地址的接口
-    foreach (QNetworkInterface interface, interfaces)
+    foreach (QNetworkInterface intf, interfaces)
     {
-        int if_idx = interface.index();
-        QNetworkInterface::InterfaceFlags if_f = interface.flags();
-        QNetworkInterface::InterfaceType if_t = interface.type();
-        QString if_name = interface.name();
-        QString if_hr_name = interface.humanReadableName();
-        QString if_hd_addr = interface.hardwareAddress();
+        int if_idx = intf.index();
+        QNetworkInterface::InterfaceFlags if_f = intf.flags();
+        QNetworkInterface::InterfaceType if_t = intf.type();
+        QString if_name = intf.name();
+        QString if_hr_name = intf.humanReadableName();
+        QString if_hd_addr = intf.hardwareAddress();
         DIY_LOG(LOG_INFO, "==================================");
         DIY_LOG(LOG_INFO,
                 QString("Interface id: %1, flags: %2, type: %3, name: %4, hr_name: %5, hd_addr: %6")

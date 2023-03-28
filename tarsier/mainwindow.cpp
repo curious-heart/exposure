@@ -707,7 +707,8 @@ int MainWindow::ConnectionFPD(){
         case FPD_SID_PZM_STATIC:
         {
             bool api_ret;
-            api_ret = pzm_fpd_handler->connect_to_fpd(m_curr_fpd_model);
+            FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+            api_ret = pzm_fpd_handler->connect_to_fpd(m_curr_fpd_model, fsc.fpd_conn_media);
             if(!api_ret)
             {
                 return Err_Unknown;
@@ -1482,7 +1483,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             break;
         case Enm_Controller_Address::BatteryLevel://电池电量   使用下位计算的电量
         {
-
+            DIY_LOG(LOG_INFO, QString("DR battery level: %1").arg(iter.value()));
             ui->batteryLevel->setText(QString("%1%").arg(iter.value()));//上位计算
             if(iter.value()<=100 && iter.value()>70){
                 //ui->batteryLevel->setStyleSheet("QProgressBar::chunk{background:#90EE90}");
@@ -2043,6 +2044,7 @@ void MainWindow::on_systemSettingAccepted()
                 QString("Selected new FPD! mfg: %1; name: %2; sid: %3; apilib: %4.")
                 .arg(m_curr_fpd_model->mfg, SettingCfg::getInstance().getSystemSettingCfg().fpdName)
                 .arg(m_curr_fpd_model->sid).arg(m_curr_fpd_model->api_lib_pfn));
+        refresh_ip_addr();
     }
 }
 
@@ -2059,6 +2061,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
     switch(new_sid)
     {
         case FPD_SID_NONE:
+        {
             if(fpd)
             {
                 delete fpd;
@@ -2070,13 +2073,24 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                 pzm_fpd_handler = nullptr;
             }
             //set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
-            set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC);
+            FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+            m_cur_if_idx = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC, fsc.fpd_conn_media);
+        }
             break;
+
         case FPD_SID_IRAY_STATIC:
             if(!fpd)
             {
                 fpd = new MyFPD(this);
-                connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
+                if(fpd)
+                {
+                    connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
+                    m_cur_if_idx = fpd->get_fpd_used_if_idx();
+                }
+                else
+                {
+                    DIY_LOG(LOG_ERROR, "初始化iRay探测器对象失败！");
+                }
             }
             if(pzm_fpd_handler)
             {
@@ -2093,7 +2107,8 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
             }
             if(!pzm_fpd_handler)
             {
-                pzm_fpd_handler = new CPZM_Fpd(this, new_model);
+                FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+                pzm_fpd_handler = new CPZM_Fpd(this, new_model, fsc.fpd_conn_media);
                 if(pzm_fpd_handler && pzm_fpd_handler->pzm_fpd_obj_init_ok())
                 {
                     connect(pzm_fpd_handler, &CPZM_Fpd::fpdErrorOccurred,
@@ -2109,6 +2124,7 @@ void MainWindow::update_fpd_handler_on_new_model(fpd_model_info_t* new_model)
                         QMessageBox::information(nullptr,"",
                                                  "PZ探测器需要设置固定IP。固定IP设置失败，请检查是否连接上探测器Wi-Fi热点，或者有IP地址冲突。");
                     }
+                    m_cur_if_idx = pzm_fpd_handler->get_fpd_used_if_idx();
                 }
                 else
                 {
@@ -2658,6 +2674,9 @@ void MainWindow::onStartAcqWaitTimerTimeOut()
 
 void MainWindow::refresh_ip_addr()
 {
+    QString ip_of_cur_if = get_ip_addr_by_if_idx(m_cur_if_idx);
+    ui->IPaddr->setText("IP:" + ip_of_cur_if);
+    /*
     QString info = QHostInfo::localHostName();
     QHostInfo ip = QHostInfo::fromName(info);
     foreach(QHostAddress addr, ip.addresses())
@@ -2668,6 +2687,7 @@ void MainWindow::refresh_ip_addr()
             break;
         }
     }
+    */
 }
 
 
@@ -2824,6 +2844,11 @@ void MainWindow::on_pzm_fpd_comm_sig(int evt, int sn_i, QString sn_str)
     {
     case EVENT_LINKUP:
         onFpdConnectStateChanged(Enm_Connect_State::Connected);
+        if(m_pzm_conn_timer && m_pzm_conn_timer->isActive())
+        {
+            DIY_LOG(LOG_INFO, "PZM: conntion timer stopped");
+            m_pzm_conn_timer->stop();
+        }
         break;
     case EVENT_LINKUPEX:
         break;

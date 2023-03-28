@@ -1,6 +1,7 @@
 #ifndef PZM_FPD_H
 #define PZM_FPD_H
 
+#include "common_tool_func.h"
 #include "pzm/sdk_4.1.16/ComApi/NetCom.h"
 #include "../fpdmodels.h"
 #include <QObject>
@@ -59,15 +60,17 @@ class CPZM_Fpd: public QObject
     Q_OBJECT
 public:
     /*model can't be nullptr when constructing.*/
-    CPZM_Fpd(QObject *parent = nullptr, fpd_model_info_t* model = nullptr);
+    CPZM_Fpd(QObject *parent = nullptr, fpd_model_info_t* model = nullptr,
+             ip_intf_type_t intf = IP_INTF_WIFI);
     ~CPZM_Fpd();
     bool library_loaded() {return m_lib_loaded;}
-    bool connect_to_fpd(fpd_model_info_t* model);
+    bool connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf = IP_INTF_WIFI);
     bool disconnect_from_fpd(fpd_model_info_t* model);
     bool start_aed_acquiring();
     bool pzm_fpd_obj_init_ok();
     bool pzm_ip_set_ok();
     bool pzm_get_fpd_batt(int *bat_remain, int* bat_full);
+    int get_fpd_used_if_idx() {return m_fpd_used_if_idx;}
 
     /*Callback functions*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
@@ -86,6 +89,7 @@ private:
     QLibrary *m_api_lib = nullptr;
     bool m_lib_loaded = false;
     fpd_model_info_t* m_model_info = nullptr; //this var is set by parent, so do not delete it here.
+    int m_fpd_used_if_idx = -1;
 
 private:
     bool load_library();

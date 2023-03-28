@@ -17,7 +17,8 @@ MyFPD::MyFPD(QObject *parent) : QObject(parent){
     waitAckEvent = CreateEvent(NULL, false, false, NULL);
     qLib=new QLibrary();
     //set_host_ip_address(IP_INTF_WIFI, IP_SET_TYPE_IPV4_DYNAMIC);
-    set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC);
+    FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
+    m_fpd_used_if_idx = set_host_wifi_or_eth_ip_addr(IP_SET_TYPE_IPV4_DYNAMIC, fsc.fpd_conn_media);
 }
 
 

@@ -15,6 +15,9 @@ static const char* INI_KEY_RTUSERIAL_EXPOSURE_TIME_IDX = "exposureTimeIndex";
 
 static const char* INI_GRP_FPD_HIS = "FpdHistorySettings";
 static const char* INI_KEY_TRIGGER_MODE = "trigger";
+static const char* INI_KEY_CONNECT_MEDIA = "connectMedia";
+static const char* INI_KEY_CONNECT_MEDIA_V_WIFI = "Wi-Fi";
+static const char* INI_KEY_CONNECT_MEDIA_V_ETH = "Ethernet";
 
 static const char* TAG_STR_EXPOSURE_OPTS = "exposure_opts";
 static const char* TAG_STR_OPT = "opt";
@@ -180,6 +183,17 @@ void SettingCfg::readSettingConfig(){
             = settings.value("softwareTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.softwareTriggerWaitTimeBeforeAcqImg:settings.value("softwareTriggerWaitBeforeAcqImg").toInt();
     fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg
             = settings.value("innerTriggerWaitBeforeAcqImg").isNull()?fpdSettingCfg.innerTriggerWaitTimeBeforeAcqImg:settings.value("innerTriggerWaitBeforeAcqImg").toInt();
+    {
+        QString c_m = settings.value(INI_KEY_CONNECT_MEDIA, INI_KEY_CONNECT_MEDIA_V_WIFI).toString();
+        if(INI_KEY_CONNECT_MEDIA_V_WIFI == c_m)
+        {
+            fpdSettingCfg.fpd_conn_media  = IP_INTF_WIFI;
+        }
+        else
+        {
+            fpdSettingCfg.fpd_conn_media  = IP_INTF_ETHERNET;
+        }
+    }
     settings.endGroup();
 
     settings.beginGroup(INI_GRP_USER_SETTINGS);
