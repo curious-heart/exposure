@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>DR设备控制程序</Name>
+    <Version>0.1</Version>
+    <Title>欢迎使用</Title>
+    <Publisher></Publisher>
+    <StartMenuDir>DR设备</StartMenuDir>
+    <TargetDir>c:/tester</TargetDir>
+</Installer>

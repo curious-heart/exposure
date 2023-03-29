@@ -1,0 +1,1 @@
+C:\Qt\Qt5.14.2\5.14.2\mingw73_64\bin\windeployqt.exe   .\packages\com.tester.root\data
