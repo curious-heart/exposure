@@ -1,53 +1,0 @@
-A2021-05-07 21:03:26.651 219c Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 21:03:28.962 219c Share memory create finished.
-A2021-05-07 21:03:29.622 219c Create detector object succeed, detector ID = 1
-A2021-05-07 21:03:29.622 219c Heart beating.
-A2021-05-07 21:11:18.187 219c Destroy called, schedule to close service process
-D2021-05-07 21:11:18.187 219c Terminate begin
-D2021-05-07 21:11:18.187 219c Terminate end
-A2021-05-07 21:11:26.614 d3c Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 21:11:28.934 d3c Share memory create finished.
-A2021-05-07 21:11:29.284 d3c Create detector object succeed, detector ID = 1
-A2021-05-07 21:11:29.284 d3c Heart beating.
-A2021-05-07 21:19:27.408 d3c Destroy called, schedule to close service process
-D2021-05-07 21:19:27.408 d3c Terminate begin
-D2021-05-07 21:19:27.428 d3c Terminate end
-A2021-05-07 21:45:03.411 720 Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 21:45:05.715 720 Share memory create finished.
-A2021-05-07 21:45:06.099 720 Create detector object succeed, detector ID = 1
-A2021-05-07 21:45:06.100 720 Heart beating.
-A2021-05-07 21:45:23.048 720 Destroy called, schedule to close service process
-D2021-05-07 21:45:23.048 720 Terminate begin
-D2021-05-07 21:45:23.064 720 Terminate end
-A2021-05-07 21:53:50.737 123c Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 21:53:52.968 123c Share memory create finished.
-A2021-05-07 21:53:53.328 123c Create detector object succeed, detector ID = 1
-A2021-05-07 21:53:53.328 123c Heart beating.
-A2021-05-07 21:54:07.930 123c Destroy called, schedule to close service process
-D2021-05-07 21:54:07.930 123c Terminate begin
-D2021-05-07 21:54:07.931 123c Terminate end
-A2021-05-07 21:55:04.719 19e8 Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 21:55:07.071 19e8 Share memory create finished.
-A2021-05-07 21:55:07.451 19e8 Create detector object succeed, detector ID = 1
-A2021-05-07 21:55:07.451 19e8 Heart beating.
-A2021-05-07 21:58:55.019 19e8 Destroy called, schedule to close service process
-D2021-05-07 21:58:55.019 19e8 Terminate begin
-D2021-05-07 21:58:55.020 19e8 Terminate end
-A2021-05-07 22:20:33.410 1d8 Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 22:20:35.718 1d8 Share memory create finished.
-A2021-05-07 22:20:36.063 1d8 Create detector object succeed, detector ID = 1
-A2021-05-07 22:20:36.063 1d8 Heart beating.
-A2021-05-07 22:22:25.339 1d8 Destroy called, schedule to close service process
-D2021-05-07 22:22:25.339 1d8 Terminate begin
-D2021-05-07 22:22:25.355 1d8 Terminate end
-A2021-05-07 22:25:15.303 2dd8 Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 22:25:17.570 2dd8 Share memory create finished.
-A2021-05-07 22:25:17.931 2dd8 Create detector object succeed, detector ID = 1
-A2021-05-07 22:25:17.932 2dd8 Heart beating.
-A2021-05-07 22:28:45.569 2dd8 Destroy called, schedule to close service process
-D2021-05-07 22:28:45.569 2dd8 Terminate begin
-D2021-05-07 22:28:45.585 2dd8 Terminate end
-A2021-05-07 22:36:06.358 1a7c Start to create detector service, work_dir = F:\360ÅO»h}\DR\903-340-26_SMED_SDK_ReleasePackage_4.1.0.7391\Tools\iDetector\x64\work_dir\Mars1417V3\
-D2021-05-07 22:36:08.574 1a7c Share memory create finished.
-A2021-05-07 22:36:08.924 1a7c Create detector object succeed, detector ID = 1
-A2021-05-07 22:36:08.925 1a7c Heart beating.
