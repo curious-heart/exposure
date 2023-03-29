@@ -1,0 +1,91 @@
+
+ [10:59:08,937] COM_Init: SDK_Ver V4.1.16.
+
+ [10:59:08,937] COM_SetCalibMode 6
+
+ [10:59:08,938] SynBox unused
+
+ [10:59:13,337] ZM_COMPATIBLE_VER detected! IP:192,168,11,248
+
+ [10:59:13,338] local Ip:192.168.11.252
+
+ [10:59:13,651] socket for Broadcast initialized successfully
+
+ [10:59:13,651] socket for Broadcast ack initialized successfully
+
+ [10:59:13,652] socket for receiving information initialized successfully
+
+ [10:59:13,652] socket for acknowledging information initialized successfully
+
+ [10:59:13,652] Socket for sending command initialized successfully
+
+ [10:59:13,652] Socket for CmdAck command initialized successfully
+
+ [10:59:13,652] Image transmission Socket initialized successfully
+
+ [10:59:13,652] Image retransmission info Socket initialized successfully
+
+ [10:59:13,654] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [10:59:13,887] RecordFPSN sn: AGA25530A574, connect:04
+ [10:59:16,093] Target id: NONE.
+ [10:59:16,095] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [10:59:29,060] SDK GenOffsetTpl
+
+ [10:59:29,072] genGain failed!
+
+ [11:01:40,622] attachPsn:AGA25530A574
+ [11:01:40,746] COM_SetFPType: 4343
+
+ [11:01:40,746] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:01:40,749] LoadOffsetTpl C:\Users\43779\Documents\ÃΩ≤‚∆˜π‚≈Ã\SDK\V4.1.16\x64\Zmanager\raw\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [11:01:40,749] LoadGainTpl C:\Users\43779\Documents\ÃΩ≤‚∆˜π‚≈Ã\SDK\V4.1.16\x64\Zmanager\raw\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [11:01:40,750] COM_SetAedTOffsetTpl
+
+ [11:01:40,751] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [11:01:40,751] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:01:41,288] BatteryPowerMode=0x44
+
+ [11:02:51,817] SDK call aed mode enable
+ [11:02:57,488] aed2 int comes: 0228700
+ [11:04:49,975] SDK call stop
+ [11:13:17,534] SDK call aed mode enable
+ [11:13:21,926] expose int comes: 0853138
+ [11:13:21,932] expose end int comes: 0853145
+ [11:13:22,873] expose end int comes: 0854085
+ [11:13:24,537] aed2 int comes: 0855749
+ [11:13:24,761] exit funcImageValidCallBack:01 0855974
+ [11:20:07,907] SDK call GetFpInfo command
+ [11:20:07,909] SDK call GetFPConfig command
+ [11:24:20,449] SDK call Download command 
+
+ [11:24:23,411] SDK call Download command 
+
+ [11:24:59,849] SDK TplPathSet:raw
+
+ [11:24:59,852] SDK ImgPathSet:Test Pic
+
+ [11:24:59,855] SDK LogPathSet:log_tmp
+
+ [11:26:21,348] SDK TplPathSet:C:\Users\43779\Desktop\Tpl path
+
+ [11:26:21,351] SDK ImgPathSet:C:\Users\43779\Desktop\Img path
+
+ [11:26:21,353] SDK LogPathSet:log_tmp
+
+ [11:31:26,909] SDK call funcLinkDownCallBack Psn=AGA25530A574
+ [11:31:26,909] SDK call funcLinkDownExCallBack Psn=AGA25530A574
+ [11:33:42,046] attachPsn:AGA25530A574
+ [11:33:47,878] attachPsn:AGA25530A574
+ [11:33:57,404] attachPsn:AGA25530A574
+ [11:33:59,329] attachPsn:AGA25530A574
+ [11:34:24,694] expose int comes: 02115906
+ [14:59:47,348] register Event Callback:20
+
+ [14:59:47,348] SDK call COM_Close command
+
+ [14:59:47,348] SDK call detach

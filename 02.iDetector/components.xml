@@ -1,0 +1,16 @@
+<Packages>
+    <ApplicationName>DR设备控制程序</ApplicationName>
+    <ApplicationVersion>1.0.0</ApplicationVersion>
+    <Package>
+        <Name>com.tester.root</Name>
+        <Title>主程序</Title>
+        <Description>安装主程序</Description>
+        <SortingPriority>0</SortingPriority>
+        <TreeName moveChildren="false"></TreeName>
+        <Version>1.2.0-1</Version>
+        <LastUpdateDate></LastUpdateDate>
+        <InstallDate>2023-02-14</InstallDate>
+        <Size>140142851</Size>
+        <Checkable>true</Checkable>
+    </Package>
+</Packages>

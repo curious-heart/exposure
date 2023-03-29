@@ -1,0 +1,545 @@
+
+ [15:05:04,378] COM_Init: SDK_Ver V4.1.16.
+
+ [15:05:04,378] COM_SetCalibMode 6
+
+ [15:05:04,379] SynBox unused
+
+ [15:07:09,741] register Event Callback:20
+
+ [15:07:09,741] SDK call COM_Close command
+
+ [15:07:09,741] error: h_Socket is NULL
+
+ [15:07:09,741] Error in send FP command
+
+ [15:07:09,748]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:07:09,748] Send FP CMD Failed!
+
+ [15:19:58,438] register Event Callback:20
+
+ [15:19:58,438] SDK call COM_Close command
+
+ [15:19:58,438] error: h_Socket is NULL
+
+ [15:19:58,439] Error in send FP command
+
+ [15:19:58,439]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:19:58,439] Send FP CMD Failed!
+
+ [15:27:01,649] register Event Callback:20
+
+ [15:27:01,650] SDK call COM_Close command
+
+ [15:27:01,650] error: h_Socket is NULL
+
+ [15:27:01,650] Error in send FP command
+
+ [15:27:01,652]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:27:01,652] Send FP CMD Failed!
+
+ [15:28:58,851] SDK call COM_GetFPInfo command 
+
+ [15:28:58,851] error: h_Socket is NULL
+
+ [15:28:58,851] Error in send FP command
+
+ [15:28:58,851]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:28:58,851] Send FP CMD Failed!
+
+ [15:28:58,851] error: h_Socket is NULL
+
+ [15:28:58,851] Error in send FP command
+
+ [15:28:58,852]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:28:58,852] Send FP CMD Failed!
+
+ [15:28:58,852] SDK call COM_GetFPConf command 
+
+ [15:28:58,852] getFPConfig
+
+ [15:28:58,852] error: h_Socket is NULL
+
+ [15:28:58,852] Error in send FP command
+
+ [15:28:58,852]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:28:58,852] Send FP CMD Failed!
+
+ [15:28:59,044] COM_GetRecoverTime 
+
+ [15:28:59,044] error: h_Socket is NULL
+
+ [15:28:59,044] Error in send FP command
+
+ [15:28:59,044]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:28:59,044] Send FP CMD Failed!
+
+ [15:29:03,247] register Event Callback:20
+
+ [15:29:03,247] SDK call COM_Close command
+
+ [15:29:03,247] error: h_Socket is NULL
+
+ [15:29:03,247] Error in send FP command
+
+ [15:29:03,247]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:03,247] Send FP CMD Failed!
+
+ [15:29:26,760] SDK call COM_GetFPInfo command 
+
+ [15:29:26,762] error: h_Socket is NULL
+
+ [15:29:26,762] Error in send FP command
+
+ [15:29:26,763]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:26,763] Send FP CMD Failed!
+
+ [15:29:26,763] error: h_Socket is NULL
+
+ [15:29:26,763] Error in send FP command
+
+ [15:29:26,763]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:26,763] Send FP CMD Failed!
+
+ [15:29:26,763] SDK call COM_GetFPConf command 
+
+ [15:29:26,763] getFPConfig
+
+ [15:29:26,763] error: h_Socket is NULL
+
+ [15:29:26,763] Error in send FP command
+
+ [15:29:26,763]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:26,763] Send FP CMD Failed!
+
+ [15:29:26,889] COM_GetRecoverTime 
+
+ [15:29:26,889] error: h_Socket is NULL
+
+ [15:29:26,889] Error in send FP command
+
+ [15:29:26,890]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:26,890] Send FP CMD Failed!
+
+ [15:29:47,776] COM_SetFPType: 4343
+
+ [15:29:52,076] COM_SetCalibMode 0
+
+ [15:29:52,081] SDK call COM_SetFPConf command xwin = 0
+
+ [15:29:52,087] SDK call SetRBConf
+ [15:29:53,722] SDK SetWifiMode 01
+ [15:29:53,722] error: h_Socket is NULL
+
+ [15:29:53,722] Error in send FP command
+
+ [15:29:53,723]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:53,723] Send FP CMD Failed!
+
+ [15:29:56,750] SDK call SetApEssid:
+ [15:29:56,750] error: h_Socket is NULL
+
+ [15:29:56,750] Error in send FP command
+
+ [15:29:56,750]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:56,750] Send FP CMD Failed!
+
+ [15:29:58,761] SDK call SetWifiConf
+ [15:29:58,761] error: h_Socket is NULL
+
+ [15:29:58,761] Error in send FP command
+
+ [15:29:58,761]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:29:58,761] Send FP CMD Failed!
+
+ [15:31:49,669] error: h_Socket is NULL
+
+ [15:31:49,669] Error in send FP command
+
+ [15:31:49,669]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:31:49,669] Send FP CMD Failed!
+
+ [15:54:28,657] SDK call COM_GetFPInfo command 
+
+ [15:54:28,657] error: h_Socket is NULL
+
+ [15:54:28,657] Error in send FP command
+
+ [15:54:28,658]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:28,658] Send FP CMD Failed!
+
+ [15:54:28,658] error: h_Socket is NULL
+
+ [15:54:28,658] Error in send FP command
+
+ [15:54:28,658]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:28,658] Send FP CMD Failed!
+
+ [15:54:28,658] SDK call COM_GetFPConf command 
+
+ [15:54:28,658] getFPConfig
+
+ [15:54:28,658] error: h_Socket is NULL
+
+ [15:54:28,658] Error in send FP command
+
+ [15:54:28,658]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:28,658] Send FP CMD Failed!
+
+ [15:54:28,805] COM_GetRecoverTime 
+
+ [15:54:28,805] error: h_Socket is NULL
+
+ [15:54:28,805] Error in send FP command
+
+ [15:54:28,805]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:28,805] Send FP CMD Failed!
+
+ [15:54:32,926] SDK call SetApEssid:
+ [15:54:32,926] error: h_Socket is NULL
+
+ [15:54:32,926] Error in send FP command
+
+ [15:54:32,926]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:32,926] Send FP CMD Failed!
+
+ [15:54:34,930] SDK call SetWifiConf
+ [15:54:34,930] error: h_Socket is NULL
+
+ [15:54:34,930] Error in send FP command
+
+ [15:54:34,930]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:34,930] Send FP CMD Failed!
+
+ [15:54:38,830] SDK call COM_GetFPInfo command 
+
+ [15:54:38,831] error: h_Socket is NULL
+
+ [15:54:38,831] Error in send FP command
+
+ [15:54:38,831]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:38,831] Send FP CMD Failed!
+
+ [15:54:38,831] error: h_Socket is NULL
+
+ [15:54:38,831] Error in send FP command
+
+ [15:54:38,831]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:38,831] Send FP CMD Failed!
+
+ [15:54:38,831] SDK call COM_GetFPConf command 
+
+ [15:54:38,831] getFPConfig
+
+ [15:54:38,831] error: h_Socket is NULL
+
+ [15:54:38,831] Error in send FP command
+
+ [15:54:38,831]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:38,831] Send FP CMD Failed!
+
+ [15:54:38,951] COM_GetRecoverTime 
+
+ [15:54:38,951] error: h_Socket is NULL
+
+ [15:54:38,951] Error in send FP command
+
+ [15:54:38,951]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:38,951] Send FP CMD Failed!
+
+ [15:54:40,008] SDK SetWifiMode 01
+ [15:54:40,008] error: h_Socket is NULL
+
+ [15:54:40,008] Error in send FP command
+
+ [15:54:40,009]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:40,009] Send FP CMD Failed!
+
+ [15:54:40,716] SDK call SetApEssid:
+ [15:54:40,716] error: h_Socket is NULL
+
+ [15:54:40,716] Error in send FP command
+
+ [15:54:40,716]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:40,716] Send FP CMD Failed!
+
+ [15:54:42,724] SDK call SetWifiConf
+ [15:54:42,724] error: h_Socket is NULL
+
+ [15:54:42,724] Error in send FP command
+
+ [15:54:42,724]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:42,724] Send FP CMD Failed!
+
+ [15:54:47,289] SDK call SetApEssid:
+ [15:54:47,289] error: h_Socket is NULL
+
+ [15:54:47,289] Error in send FP command
+
+ [15:54:47,289]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:47,289] Send FP CMD Failed!
+
+ [15:54:49,302] SDK call SetWifiConf
+ [15:54:49,302] error: h_Socket is NULL
+
+ [15:54:49,302] Error in send FP command
+
+ [15:54:49,302]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:54:49,302] Send FP CMD Failed!
+
+ [15:57:35,165] register Event Callback:20
+
+ [15:57:35,165] SDK call COM_Close command
+
+ [15:57:35,165] error: h_Socket is NULL
+
+ [15:57:35,165] Error in send FP command
+
+ [15:57:35,165]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:57:35,165] Send FP CMD Failed!
+
+ [15:57:51,288] SynBox unused
+
+ [15:58:05,101] register Event Callback:20
+
+ [15:58:05,101] SDK call COM_Close command
+
+ [15:58:05,101] error: h_Socket is NULL
+
+ [15:58:05,101] Error in send FP command
+
+ [15:58:05,146]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:58:05,146] Send FP CMD Failed!
+
+ [15:58:44,270] SynBox unused
+
+ [16:00:01,871] register Event Callback:20
+
+ [16:00:01,871] SDK call COM_Close command
+
+ [16:00:01,871] error: h_Socket is NULL
+
+ [16:00:01,871] Error in send FP command
+
+ [16:00:01,872]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:00:01,872] Send FP CMD Failed!
+
+ [16:00:04,474] SynBox unused
+
+ [16:00:13,987] register Event Callback:20
+
+ [16:00:13,987] SDK call COM_Close command
+
+ [16:00:13,987] error: h_Socket is NULL
+
+ [16:00:13,987] Error in send FP command
+
+ [16:00:13,987]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:00:13,987] Send FP CMD Failed!
+
+ [16:01:54,648] COM_Init: SDK_Ver V4.1.16.
+
+ [16:01:54,648] COM_SetCalibMode 0
+
+ [16:01:54,652] SynBox unused
+
+ [16:02:04,072] SDK call COM_GetFPInfo command 
+
+ [16:02:04,072] error: h_Socket is NULL
+
+ [16:02:04,072] Error in send FP command
+
+ [16:02:04,072]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:02:04,072] Send FP CMD Failed!
+
+ [16:02:04,072] error: h_Socket is NULL
+
+ [16:02:04,072] Error in send FP command
+
+ [16:02:04,073]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:02:04,073] Send FP CMD Failed!
+
+ [16:02:04,073] SDK call COM_GetFPConf command 
+
+ [16:02:04,073] getFPConfig
+
+ [16:02:04,073] error: h_Socket is NULL
+
+ [16:02:04,073] Error in send FP command
+
+ [16:02:04,073]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:02:04,073] Send FP CMD Failed!
+
+ [16:02:04,373] COM_GetRecoverTime 
+
+ [16:02:04,373] error: h_Socket is NULL
+
+ [16:02:04,373] Error in send FP command
+
+ [16:02:04,373]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:02:04,373] Send FP CMD Failed!
+
+ [16:29:55,951] COM_Init: SDK_Ver V4.1.16.
+
+ [16:29:55,951] COM_SetCalibMode 0
+
+ [16:29:55,951] SynBox unused
+
+ [16:41:44,043] register Event Callback:20
+
+ [16:41:44,043] SDK call COM_Close command
+
+ [16:41:44,043] error: h_Socket is NULL
+
+ [16:41:44,043] Error in send FP command
+
+ [16:41:44,043]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:41:44,043] Send FP CMD Failed!
+
+ [16:41:46,773] COM_Init: SDK_Ver V4.1.16.
+
+ [16:41:46,773] COM_SetCalibMode 0
+
+ [16:41:46,773] SynBox unused
+
+ [16:41:51,003] register Event Callback:20
+
+ [16:41:51,003] SDK call COM_Close command
+
+ [16:41:51,003] error: h_Socket is NULL
+
+ [16:41:51,003] Error in send FP command
+
+ [16:41:51,003]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:41:51,003] Send FP CMD Failed!
+
+ [16:44:33,862] COM_Init: SDK_Ver V4.1.16.
+
+ [16:44:33,862] COM_SetCalibMode 0
+
+ [16:44:33,862] SynBox unused
+
+ [16:44:39,478] register Event Callback:20
+
+ [16:44:39,478] SDK call COM_Close command
+
+ [16:44:39,478] error: h_Socket is NULL
+
+ [16:44:39,478] Error in send FP command
+
+ [16:44:39,478]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:44:39,478] Send FP CMD Failed!
+
+ [16:46:33,764] COM_Init: SDK_Ver V4.1.16.
+
+ [16:46:33,764] COM_SetCalibMode 0
+
+ [16:46:33,764] SynBox unused
+
+ [16:46:36,390] register Event Callback:20
+
+ [16:46:36,390] SDK call COM_Close command
+
+ [16:46:36,390] error: h_Socket is NULL
+
+ [16:46:36,390] Error in send FP command
+
+ [16:46:36,390]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:46:36,390] Send FP CMD Failed!
+
+ [16:46:38,387] COM_Init: SDK_Ver V4.1.16.
+
+ [16:46:38,387] COM_SetCalibMode 0
+
+ [16:46:38,388] SynBox unused
+
+ [16:48:24,400] register Event Callback:20
+
+ [16:48:24,400] SDK call COM_Close command
+
+ [16:48:24,400] error: h_Socket is NULL
+
+ [16:48:24,400] Error in send FP command
+
+ [16:48:24,400]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:48:24,400] Send FP CMD Failed!
+
+ [16:48:27,382] COM_Init: SDK_Ver V4.1.16.
+
+ [16:48:27,382] COM_SetCalibMode 0
+
+ [16:48:27,382] SynBox unused
+
+ [16:48:33,870] register Event Callback:20
+
+ [16:48:33,870] SDK call COM_Close command
+
+ [16:48:33,870] error: h_Socket is NULL
+
+ [16:48:33,870] Error in send FP command
+
+ [16:48:33,870]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [16:48:33,870] Send FP CMD Failed!
+
+ [16:49:43,780] COM_Init: SDK_Ver V4.1.16.
+
+ [16:49:43,780] COM_SetCalibMode 0
+
+ [16:49:43,780] SynBox unused
+
+ [17:54:20,414] register Event Callback:20
+
+ [17:54:20,414] SDK call COM_Close command
+
+ [17:54:20,414] error: h_Socket is NULL
+
+ [17:54:20,414] Error in send FP command
+
+ [17:54:20,414]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [17:54:20,414] Send FP CMD Failed!

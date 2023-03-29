@@ -1,0 +1,89 @@
+
+ [19:59:38,354] COM_Init: SDK_Ver V4.1.16.
+
+ [19:59:38,354] COM_SetCalibMode 0
+
+ [19:59:38,356] SynBox unused
+
+ [19:59:38,562] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [20:00:17,267] register Event Callback:20
+
+ [20:00:17,267] SDK call COM_Close command
+
+ [20:00:17,267] SDK call detach
+ [20:00:20,028] COM_Init: SDK_Ver V4.1.16.
+
+ [20:00:20,028] COM_SetCalibMode 0
+
+ [20:00:20,029] SynBox unused
+
+ [20:00:20,362] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [20:00:38,128] register Event Callback:20
+
+ [20:00:38,128] SDK call COM_Close command
+
+ [20:00:38,128] SDK call detach
+ [20:00:40,657] COM_Init: SDK_Ver V4.1.16.
+
+ [20:00:40,657] COM_SetCalibMode 0
+
+ [20:00:40,658] SynBox unused
+
+ [20:00:40,712] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [20:02:07,638] local Ip:192.168.11.252
+
+ [20:02:07,941] socket for Broadcast initialized successfully
+
+ [20:02:07,941] socket for Broadcast ack initialized successfully
+
+ [20:02:07,941] socket for receiving information initialized successfully
+
+ [20:02:07,941] socket for acknowledging information initialized successfully
+
+ [20:02:07,941] Socket for sending command initialized successfully
+
+ [20:02:07,941] Socket for CmdAck command initialized successfully
+
+ [20:02:07,942] Image transmission Socket initialized successfully
+
+ [20:02:07,942] Image retransmission info Socket initialized successfully
+
+ [20:02:07,942] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [20:02:08,161] RecordFPSN sn: AGA25530A574, connect:04
+ [20:02:10,361] Target id: NONE.
+ [20:02:10,363] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [20:02:12,459] attachPsn:AGA25530A574
+ [20:02:12,575] COM_SetFPType: 4343
+
+ [20:02:12,575] SDK call ComApiPrepareRcvImgInfo command 
+
+ [20:02:12,580] LoadOffsetTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [20:02:12,580] LoadGainTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [20:02:12,583] COM_SetAedTOffsetTpl
+
+ [20:02:12,584] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [20:02:12,584] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [20:02:13,112] BatteryPowerMode=0x44
+
+ [20:02:28,887] SDK call aed mode enable
+ [20:02:34,645] aed2 int comes: 0114048
+ [20:02:37,098] expose int comes: 0116500
+ [20:02:38,021] expose end int comes: 0117423
+ [20:02:39,571] auto trigger pic: 556
+
+ [20:02:39,673] exit funcImageValidCallBack:04 0119075
+ [20:02:56,289] SDK call COM_Close command
+
+ [20:02:56,289] SDK call detach
+ [20:02:58,111] register Event Callback:20
+
+ [20:02:58,111] SDK call COM_Close command
+
+ [20:02:58,111] SDK call detach

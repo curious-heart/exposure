@@ -1,0 +1,2 @@
+,Pluto0001X_1,192.168.8.188,Pluto0001X,.\work_dir\Pluto0001X
+,Mars1417V3_1,192.168.8.188,Mars1417V3,.\work_dir\Mars1417V3

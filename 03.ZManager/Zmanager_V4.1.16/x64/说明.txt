@@ -1,0 +1,4 @@
+如下库文件不是ZManager发布时自带的，但是运行必需。建议向客户发布时一并带上。
+mfc140.dll
+vcruntime140.dll
+vcruntime140_1.dll

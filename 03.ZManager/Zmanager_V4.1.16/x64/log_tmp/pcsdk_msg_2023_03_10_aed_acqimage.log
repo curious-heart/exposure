@@ -1,0 +1,76 @@
+
+ [14:27:44,276] COM_Init: SDK_Ver V4.1.16.
+
+ [14:27:44,277] COM_SetCalibMode 0
+
+ [14:27:44,278] SynBox unused
+
+ [14:27:44,460] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [14:27:44,461] local Ip:192.168.11.252
+
+ [14:27:44,769] socket for Broadcast initialized successfully
+
+ [14:27:44,769] socket for Broadcast ack initialized successfully
+
+ [14:27:44,770] socket for receiving information initialized successfully
+
+ [14:27:44,770] socket for acknowledging information initialized successfully
+
+ [14:27:44,771] Socket for sending command initialized successfully
+
+ [14:27:44,771] Socket for CmdAck command initialized successfully
+
+ [14:27:44,772] Image transmission Socket initialized successfully
+
+ [14:27:44,772] Image retransmission info Socket initialized successfully
+
+ [14:27:44,774] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [14:27:45,176] RecordFPSN sn: AGA25530A574, connect:04
+ [14:27:47,841] Target id: NONE.
+ [14:27:47,842] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [14:27:49,592] attachPsn:AGA25530A574
+ [14:27:49,956] COM_SetFPType: 4343
+
+ [14:27:49,956] SDK call ComApiPrepareRcvImgInfo command 
+
+ [14:27:49,965] LoadOffsetTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [14:27:49,965] LoadGainTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [14:27:49,965] COM_SetAedTOffsetTpl
+
+ [14:27:49,968] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [14:27:49,969] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [14:27:50,507] BatteryPowerMode=0x55
+
+ [14:27:57,557] SDK call aed mode enable
+ [14:28:03,294] aed2 int comes: 019080
+ [14:28:19,483] expose int comes: 035270
+ [14:28:19,688] expose end int comes: 035475
+ [14:28:19,709] expose end int comes: 035496
+ [14:28:22,112] exit funcImageValidCallBack:01 037899
+ [14:28:45,958] SDK call stop
+ [14:30:07,560] SDK call aed mode enable
+ [14:30:13,354] aed2 int comes: 0149141
+ [14:30:28,406] expose int comes: 0164193
+ [14:30:29,123] expose end int comes: 0164909
+ [14:30:30,818] auto trigger pic: 16384
+
+ [14:30:30,897] exit funcImageValidCallBack:02 0166684
+ [14:31:28,976] expose int comes: 0224763
+ [14:31:29,846] expose end int comes: 0225633
+ [14:31:31,425] auto trigger pic: 16384
+
+ [14:31:31,506] exit funcImageValidCallBack:03 0227292
+ [14:31:47,583] SDK call stop
+ [14:31:53,651] SDK call COM_Close command
+
+ [14:31:53,651] SDK call detach
+ [14:31:55,458] register Event Callback:20
+
+ [14:31:55,458] SDK call COM_Close command
+
+ [14:31:55,459] SDK call detach

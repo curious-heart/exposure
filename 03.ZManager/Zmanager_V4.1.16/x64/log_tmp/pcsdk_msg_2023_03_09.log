@@ -1,0 +1,763 @@
+
+ [10:44:09,214] COM_Init: SDK_Ver V4.1.16.
+
+ [10:44:09,215] COM_SetCalibMode 0
+
+ [10:44:09,217] SynBox unused
+
+ [10:44:11,735] register Event Callback:20
+
+ [10:44:11,735] SDK call COM_Close command
+
+ [10:44:11,735] error: h_Socket is NULL
+
+ [10:44:11,735] Error in send FP command
+
+ [10:44:11,736]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [10:44:11,736] Send FP CMD Failed!
+
+ [10:48:23,643] COM_Init: SDK_Ver V4.1.16.
+
+ [10:48:23,644] COM_SetCalibMode 0
+
+ [10:48:23,646] SynBox unused
+
+ [10:56:10,995] ZM_COMPATIBLE_VER detected! IP:192,168,11,248
+
+ [10:57:50,220] register Event Callback:20
+
+ [10:57:50,220] SDK call COM_Close command
+
+ [10:57:50,223] SDK call detach
+ [10:58:01,246] COM_Init: SDK_Ver V4.1.16.
+
+ [10:58:01,246] COM_SetCalibMode 0
+
+ [10:58:01,248] SynBox unused
+
+ [10:58:01,467] ZM_COMPATIBLE_VER detected! IP:192,168,11,248
+
+ [11:00:02,794] local Ip:192.168.11.252
+
+ [11:00:03,107] socket for Broadcast initialized successfully
+
+ [11:00:03,108] socket for Broadcast ack initialized successfully
+
+ [11:00:03,110] socket for receiving information initialized successfully
+
+ [11:00:03,110] socket for acknowledging information initialized successfully
+
+ [11:00:03,110] Socket for sending command initialized successfully
+
+ [11:00:03,111] Socket for CmdAck command initialized successfully
+
+ [11:00:03,112] Image transmission Socket initialized successfully
+
+ [11:00:03,113] Image retransmission info Socket initialized successfully
+
+ [11:00:03,122] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:00:03,565] RecordFPSN sn: AGA25530A574, connect:04
+ [11:00:06,320] Target id: NONE.
+ [11:00:06,321] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:01:25,247] register Event Callback:20
+
+ [11:01:25,247] SDK call COM_Close command
+
+ [11:01:25,247] SDK call detach
+ [11:01:30,090] COM_Init: SDK_Ver V4.1.16.
+
+ [11:01:30,090] COM_SetCalibMode 0
+
+ [11:01:30,092] SynBox unused
+
+ [11:01:33,215] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:01:33,216] local Ip:192.168.11.252
+
+ [11:01:33,522] socket for Broadcast initialized successfully
+
+ [11:01:33,522] socket for Broadcast ack initialized successfully
+
+ [11:01:33,522] socket for receiving information initialized successfully
+
+ [11:01:33,523] socket for acknowledging information initialized successfully
+
+ [11:01:33,523] Socket for sending command initialized successfully
+
+ [11:01:33,524] Socket for CmdAck command initialized successfully
+
+ [11:01:33,524] Image transmission Socket initialized successfully
+
+ [11:01:33,525] Image retransmission info Socket initialized successfully
+
+ [11:01:33,528] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:01:33,764] RecordFPSN sn: AGA25530A574, connect:03
+ [11:01:35,965] Target id: NONE.
+ [11:01:35,965] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:05:48,406] register Event Callback:20
+
+ [11:05:48,406] SDK call COM_Close command
+
+ [11:05:48,406] SDK call detach
+ [11:06:05,210] COM_Init: SDK_Ver V4.1.16.
+
+ [11:06:05,210] COM_SetCalibMode 0
+
+ [11:06:05,212] SynBox unused
+
+ [11:06:05,461] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:06:05,462] local Ip:192.168.11.252
+
+ [11:06:05,767] socket for Broadcast initialized successfully
+
+ [11:06:05,767] socket for Broadcast ack initialized successfully
+
+ [11:06:05,767] socket for receiving information initialized successfully
+
+ [11:06:05,768] socket for acknowledging information initialized successfully
+
+ [11:06:05,768] Socket for sending command initialized successfully
+
+ [11:06:05,768] Socket for CmdAck command initialized successfully
+
+ [11:06:05,768] Image transmission Socket initialized successfully
+
+ [11:06:05,769] Image retransmission info Socket initialized successfully
+
+ [11:06:05,770] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:06:06,010] RecordFPSN sn: AGA25530A574, connect:03
+ [11:06:08,211] Target id: NONE.
+ [11:06:08,212] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:06:13,045] register Event Callback:20
+
+ [11:06:13,045] SDK call COM_Close command
+
+ [11:06:13,045] SDK call detach
+ [11:08:03,978] COM_Init: SDK_Ver V4.1.16.
+
+ [11:08:03,978] COM_SetCalibMode 0
+
+ [11:08:03,981] SynBox unused
+
+ [11:08:04,259] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:08:04,260] local Ip:192.168.11.252
+
+ [11:08:04,563] socket for Broadcast initialized successfully
+
+ [11:08:04,563] socket for Broadcast ack initialized successfully
+
+ [11:08:04,563] socket for receiving information initialized successfully
+
+ [11:08:04,563] socket for acknowledging information initialized successfully
+
+ [11:08:04,563] Socket for sending command initialized successfully
+
+ [11:08:04,564] Socket for CmdAck command initialized successfully
+
+ [11:08:04,564] Image transmission Socket initialized successfully
+
+ [11:08:04,564] Image retransmission info Socket initialized successfully
+
+ [11:08:04,565] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:08:04,809] RecordFPSN sn: AGA25530A574, connect:03
+ [11:08:07,011] Target id: NONE.
+ [11:08:07,011] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:08:11,854] register Event Callback:20
+
+ [11:08:11,854] SDK call COM_Close command
+
+ [11:08:11,854] SDK call detach
+ [11:09:47,128] COM_Init: SDK_Ver V4.1.16.
+
+ [11:09:47,129] COM_SetCalibMode 0
+
+ [11:09:47,129] SynBox unused
+
+ [11:09:47,657] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:09:47,657] local Ip:192.168.11.252
+
+ [11:09:47,960] socket for Broadcast initialized successfully
+
+ [11:09:47,960] socket for Broadcast ack initialized successfully
+
+ [11:09:47,960] socket for receiving information initialized successfully
+
+ [11:09:47,960] socket for acknowledging information initialized successfully
+
+ [11:09:47,960] Socket for sending command initialized successfully
+
+ [11:09:47,961] Socket for CmdAck command initialized successfully
+
+ [11:09:47,961] Image transmission Socket initialized successfully
+
+ [11:09:47,961] Image retransmission info Socket initialized successfully
+
+ [11:09:47,961] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:09:48,208] RecordFPSN sn: AGA25530A574, connect:03
+ [11:09:50,408] Target id: NONE.
+ [11:09:50,408] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:10:15,728] register Event Callback:20
+
+ [11:10:15,728] SDK call COM_Close command
+
+ [11:10:15,728] SDK call detach
+ [11:11:16,541] COM_Init: SDK_Ver V4.1.16.
+
+ [11:11:16,541] COM_SetCalibMode 0
+
+ [11:11:16,541] SynBox unused
+
+ [11:11:16,756] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:11:16,757] local Ip:192.168.11.252
+
+ [11:11:17,058] socket for Broadcast initialized successfully
+
+ [11:11:17,058] socket for Broadcast ack initialized successfully
+
+ [11:11:17,058] socket for receiving information initialized successfully
+
+ [11:11:17,058] socket for acknowledging information initialized successfully
+
+ [11:11:17,059] Socket for sending command initialized successfully
+
+ [11:11:17,059] Socket for CmdAck command initialized successfully
+
+ [11:11:17,059] Image transmission Socket initialized successfully
+
+ [11:11:17,059] Image retransmission info Socket initialized successfully
+
+ [11:11:17,059] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:11:17,307] RecordFPSN sn: AGA25530A574, connect:03
+ [11:11:19,508] Target id: NONE.
+ [11:11:19,508] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:12:22,509] attachPsn:AGA25530A574
+ [11:12:22,774] COM_SetFPType: 4343
+
+ [11:12:22,774] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:12:22,778] LoadOffsetTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [11:12:22,778] LoadGainTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [11:12:22,778] COM_SetAedTOffsetTpl
+
+ [11:12:22,780] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [11:12:22,781] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:12:23,307] BatteryPowerMode=0x55
+
+ [11:12:27,976] SDK call COM_Close command
+
+ [11:12:27,976] SDK call detach
+ [11:12:46,763] attachPsn:AGA25530A574
+ [11:12:46,975] COM_SetFPType: 4343
+
+ [11:12:46,975] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:12:46,980] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:12:50,499] SDK call COM_Close command
+
+ [11:12:50,499] SDK call detach
+ [11:12:52,005] register Event Callback:20
+
+ [11:12:52,005] SDK call COM_Close command
+
+ [11:12:52,005] SDK call detach
+ [11:13:10,335] COM_Init: SDK_Ver V4.1.16.
+
+ [11:13:10,336] COM_SetCalibMode 0
+
+ [11:13:10,338] SynBox unused
+
+ [11:13:16,654] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:13:16,655] local Ip:192.168.11.252
+
+ [11:13:16,957] socket for Broadcast initialized successfully
+
+ [11:13:16,957] socket for Broadcast ack initialized successfully
+
+ [11:13:16,957] socket for receiving information initialized successfully
+
+ [11:13:16,958] socket for acknowledging information initialized successfully
+
+ [11:13:16,959] Socket for sending command initialized successfully
+
+ [11:13:16,959] Socket for CmdAck command initialized successfully
+
+ [11:13:16,959] Image transmission Socket initialized successfully
+
+ [11:13:16,959] Image retransmission info Socket initialized successfully
+
+ [11:13:16,961] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:13:17,206] RecordFPSN sn: AGA25530A574, connect:03
+ [11:13:19,406] Target id: NONE.
+ [11:13:19,406] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:13:20,476] attachPsn:AGA25530A574
+ [11:13:20,519] COM_SetFPType: 4343
+
+ [11:13:20,519] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:13:20,524] LoadOffsetTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [11:13:20,524] LoadGainTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [11:13:20,524] COM_SetAedTOffsetTpl
+
+ [11:13:20,525] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [11:13:20,526] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:13:21,056] BatteryPowerMode=0x55
+
+ [11:14:28,641] SDK call aed mode enable
+ [11:14:34,312] aed2 int comes: 084046
+ [11:17:18,131] expose int comes: 0247865
+ [11:17:19,402] expose end int comes: 0249135
+ [11:17:20,607] auto trigger pic: 17918
+
+ [11:17:20,686] Some errors occurred while saving the image,errNo:3.C:\Users\43779\Desktop\Img path\Fppic_00000001_2023y03m09d11h17m19s_SNAGA25530A574.aof contains an incorrect path.
+
+ [11:17:20,687] exit funcImageValidCallBack:01 0250421
+ [11:17:56,129] SDK call GetFpInfo command
+ [11:17:56,131] SDK call GetFPConfig command
+ [11:18:51,391] SDK call GetFpInfo command
+ [11:18:51,393] SDK call GetFPConfig command
+ [11:19:26,235] SDK SetWifiMode 0
+ [11:19:28,237] SDK SetWifiMode 01
+ [11:21:17,684] SDK call SetWifiConfEx
+ [11:21:45,890] SDK call funcLinkDownCallBack Psn=AGA25530A574
+ [11:21:45,890] SDK call funcLinkDownExCallBack Psn=AGA25530A574
+ [11:22:15,474] attachPsn:AGA25530A574
+ [11:22:19,038] attachPsn:AGA25530A574
+ [11:22:19,304] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:22:19,329] COM_SetFPType: 4343
+
+ [11:22:19,329] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:22:19,335] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:22:21,718] SDK call GetFpInfo command
+ [11:22:21,719] SDK call GetFPConfig command
+ [11:22:29,724] SDK call SetWifiConfEx
+ [11:23:41,692] COM_SetPreCalibMode 1
+
+ [11:23:41,694] COM_SetCalibMode 0
+
+ [11:23:41,695] SDK call SetFPFullConf command
+ [11:23:41,698] SDK call SetRBConf
+ [11:23:50,150] SDK call SetWifiConfEx
+ [11:23:52,010] SDK call SetWifiConfEx
+ [11:24:08,692] SDK call SetWifiConfEx
+ [11:24:33,645] SDK call funcLinkDownCallBack Psn=AGA25530A574
+ [11:24:33,645] SDK call funcLinkDownExCallBack Psn=AGA25530A574
+ [11:25:09,795] attachPsn:AGA25530A574
+ [11:25:25,695] attachPsn:AGA25530A574
+ [11:25:38,565] register Event Callback:20
+
+ [11:25:38,565] SDK call COM_Close command
+
+ [11:25:38,565] SDK call detach
+ [11:25:46,461] COM_Init: SDK_Ver V4.1.16.
+
+ [11:25:46,462] COM_SetCalibMode 0
+
+ [11:25:46,463] SynBox unused
+
+ [11:25:46,845] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [11:27:34,613] local Ip:192.168.11.252
+
+ [11:27:34,916] socket for Broadcast initialized successfully
+
+ [11:27:34,916] socket for Broadcast ack initialized successfully
+
+ [11:27:34,917] socket for receiving information initialized successfully
+
+ [11:27:34,917] socket for acknowledging information initialized successfully
+
+ [11:27:34,917] Socket for sending command initialized successfully
+
+ [11:27:34,917] Socket for CmdAck command initialized successfully
+
+ [11:27:34,917] Image transmission Socket initialized successfully
+
+ [11:27:34,918] Image retransmission info Socket initialized successfully
+
+ [11:27:34,921] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [11:27:35,194] RecordFPSN sn: AGA25530A574, connect:04
+ [11:27:37,393] Target id: NONE.
+ [11:27:37,394] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [11:27:38,320] attachPsn:AGA25530A574
+ [11:27:38,510] COM_SetFPType: 4343
+
+ [11:27:38,510] SDK call ComApiPrepareRcvImgInfo command 
+
+ [11:27:38,515] LoadOffsetTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [11:27:38,515] LoadGainTpl C:\Users\43779\Desktop\Tpl path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [11:27:38,515] COM_SetAedTOffsetTpl
+
+ [11:27:38,517] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [11:27:38,518] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [11:27:39,044] BatteryPowerMode=0x55
+
+ [11:27:53,366] SDK call aed mode enable
+ [11:28:26,259] expose int comes: 0159857
+ [11:28:27,538] expose end int comes: 0161136
+ [11:28:28,756] auto trigger pic: 16384
+
+ [11:28:28,833] Some errors occurred while saving the image,errNo:3.C:\Users\43779\Desktop\Img path\Fppic_00000002_2023y03m09d11h28m27s_SNAGA25530A574.aof contains an incorrect path.
+
+ [11:28:28,861] exit funcImageValidCallBack:02 0162458
+ [11:31:07,135] SDK call HST command
+
+ [11:31:12,948] SDK call aed mode enable
+ [11:31:17,246] SDK call HST command
+
+ [11:31:20,282] SDK call aed mode enable
+ [11:31:31,617] SDK call GetFPConfig command
+ [11:31:45,155] SDK call COM_Close command
+
+ [11:31:45,155] SDK call detach
+ [11:34:52,245] SDK call funcLinkDownExCallBack Psn=AGA25530A574
+ [12:44:47,482] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:48,084] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:48,689] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:49,127] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:49,731] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:50,789] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:51,393] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:51,876] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:52,530] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:52,977] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:53,582] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:54,186] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:54,681] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:55,177] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:55,796] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:56,400] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:57,004] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:57,445] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:58,050] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:58,654] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:59,083] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:44:59,689] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:00,127] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:00,730] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:01,337] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:01,941] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:02,344] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:02,948] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:03,427] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:04,030] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:04,527] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:05,131] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:05,735] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:06,176] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:06,781] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:07,385] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:07,826] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:08,429] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:09,034] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:09,477] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:10,081] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:10,577] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:11,181] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:11,676] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:12,294] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:12,898] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:13,502] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:13,932] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:14,537] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:15,570] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:16,175] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:16,779] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:17,209] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:17,823] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:18,428] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:18,847] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:19,462] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:20,065] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:20,670] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:21,099] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:21,578] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:22,226] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:22,831] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:23,250] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:23,864] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:24,470] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:24,889] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:25,503] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:26,107] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:26,711] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:27,114] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:27,718] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:28,323] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:28,780] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:29,384] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:29,989] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:30,418] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:31,032] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:31,636] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:32,057] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:32,671] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:33,276] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:33,695] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:34,309] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:34,914] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:35,518] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:35,949] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:36,553] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:37,158] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:37,587] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:38,190] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:38,795] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:39,225] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:39,839] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:40,443] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:40,863] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:41,477] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:42,082] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:42,501] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:43,116] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:43,721] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:44,140] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:44,754] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:45,359] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:45,963] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:46,393] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:46,996] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:47,599] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:48,030] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:48,635] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:49,239] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:49,669] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:50,284] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:50,887] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:51,307] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:51,922] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:52,526] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:52,946] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:53,561] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:54,165] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:54,770] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:55,199] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:55,804] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:56,407] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:56,838] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:57,442] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:58,047] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:58,475] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:59,081] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:45:59,685] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:00,114] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:00,729] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:01,332] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:01,753] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:02,367] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:02,972] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:03,391] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:04,005] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:04,610] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:05,214] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:05,644] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:06,249] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:06,868] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:07,282] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:07,886] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:08,490] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:08,921] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:09,541] SendInfo WSASendTo WSAGetOverlappedResult failed with error: 010049
+
+ [12:46:12,813] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [12:46:17,888] attachPsn:AGA25530A574
+ [12:46:18,251] COM_SetFPType: 4343
+
+ [12:46:18,251] SDK call ComApiPrepareRcvImgInfo command 
+
+ [12:46:18,260] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [12:46:27,428] SDK call stop
+ [12:46:32,019] SDK call HST command
+
+ [12:46:34,959] SDK call aed mode enable
+ [12:46:40,103] SDK call aed mode enable
+ [12:46:45,781] SDK call stop
+ [12:46:48,324] SDK call aed mode enable
+ [12:46:54,085] aed2 int comes: 04875431
+ [15:57:30,184] SDK call funcLinkDownCallBack Psn=AGA25530A574
+ [15:57:30,185] SDK call funcLinkDownExCallBack Psn=AGA25530A574
+ [15:57:33,180] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [15:57:33,609] COM_SetFPType: 4343
+
+ [15:57:33,609] SDK call ComApiPrepareRcvImgInfo command 
+
+ [15:57:33,657] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [16:01:40,106] SDK call COM_Close command
+
+ [16:01:40,106] SDK call detach
+ [16:01:41,530] register Event Callback:20
+
+ [16:01:41,530] SDK call COM_Close command
+
+ [16:01:41,530] SDK call detach

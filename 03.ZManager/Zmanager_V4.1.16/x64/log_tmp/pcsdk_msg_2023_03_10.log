@@ -1,0 +1,54 @@
+
+ [14:33:00,484] COM_Init: SDK_Ver V4.1.16.
+
+ [14:33:00,484] COM_SetCalibMode 0
+
+ [14:33:00,486] SynBox unused
+
+ [14:33:00,777] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [14:33:00,778] local Ip:192.168.11.252
+
+ [14:33:01,085] socket for Broadcast initialized successfully
+
+ [14:33:01,086] socket for Broadcast ack initialized successfully
+
+ [14:33:01,087] socket for receiving information initialized successfully
+
+ [14:33:01,087] socket for acknowledging information initialized successfully
+
+ [14:33:01,088] Socket for sending command initialized successfully
+
+ [14:33:01,088] Socket for CmdAck command initialized successfully
+
+ [14:33:01,090] Image transmission Socket initialized successfully
+
+ [14:33:01,094] Image retransmission info Socket initialized successfully
+
+ [14:33:01,096] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [14:33:01,296] RecordFPSN sn: AGA25530A574, connect:04
+ [14:33:04,055] Target id: NONE.
+ [14:33:04,057] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [14:33:49,415] register Event Callback:20
+
+ [14:33:49,415] SDK call COM_Close command
+
+ [14:33:49,415] SDK call detach
+ [15:05:40,141] COM_Init: SDK_Ver V4.1.16.
+
+ [15:05:40,141] COM_SetCalibMode 0
+
+ [15:05:40,143] SynBox unused
+
+ [15:08:31,404] register Event Callback:20
+
+ [15:08:31,405] SDK call COM_Close command
+
+ [15:08:31,405] error: h_Socket is NULL
+
+ [15:08:31,405] Error in send FP command
+
+ [15:08:31,406]  -> Error WSAENOTCONN: 由于套接字没有连接并且(当使用一个 sendto 调用发送数据报套接字时)没有提供地址，发送或接收数据的请求没有被接受。
+
+ [15:08:31,406] Send FP CMD Failed!

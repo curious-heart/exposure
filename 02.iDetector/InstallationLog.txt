@@ -1,0 +1,148 @@
+************************************* Invoked: 周二 2月 14 09:53:19 2023
+[0] Arguments: E:\Setup20221227.exe
+[41] Operations sanity check succeeded.
+[58] Using metadata cache from "C:/Users/DR-7/AppData/Local/cache\\qt-installer-framework\\9d35c8e9-49b0-3a15-a267-02139552b1ad"
+[58] Found 0 cached items.
+[58] Language: zh-CN
+[3729] 正在获取最新更新信息……
+[3779] 正在加载组件脚本……
+[12955] 无依赖项的所选组件：
+com.tester.root
+[12962] Installation space required: "147.02 MB" Temporary space required: "0.00 字节" Local repository size: "0.00 字节"
+[12972] Cache and install directories are on the same volume. Volume mount point: "C:\\" Free space available: "6.21 GB"
+[16328] backup  operation: Mkdir
+[16328] 	- arguments: C:/tester
+[16329] Done
+[16329] perform  operation: Mkdir
+[16329] 	- arguments: C:/tester
+[16331] Done
+[16333] 正在准备安装…
+[16333] Install size: 1 components
+[16423] 正在准备解压组件......
+[16431] backup com.tester.root concurrent operation: Extract
+[16431] 	- arguments: installer://com.tester.root/1.2.0-1bearer.7z, C:/tester
+[16431] Started
+[16431] backup com.tester.root concurrent operation: Extract
+[16431] 	- arguments: installer://com.tester.root/1.2.0-1content.7z, C:/tester
+[16431] Started
+[16439] backup com.tester.root concurrent operation: Extract
+[16439] 	- arguments: installer://com.tester.root/1.2.0-1canbus.7z, C:/tester
+[16439] Started
+[16439] backup com.tester.root concurrent operation: Extract
+[16439] 	- arguments: installer://com.tester.root/1.2.0-1data.7z, C:/tester
+[16440] Started
+[16449] backup com.tester.root concurrent operation: Extract
+[16449] 	- arguments: installer://com.tester.root/1.2.0-1iconengines.7z, C:/tester
+[16449] Started
+[16501] backup com.tester.root concurrent operation: Extract
+[16501] 	- arguments: installer://com.tester.root/1.2.0-1imageformats.7z, C:/tester
+[16501] Started
+[16501] backup com.tester.root concurrent operation: Extract
+[16501] 	- arguments: installer://com.tester.root/1.2.0-1nginx-1.18.0.7z, C:/tester
+[16501] Started
+[16501] backup com.tester.root concurrent operation: Extract
+[16501] 	- arguments: installer://com.tester.root/1.2.0-1otafile.7z, C:/tester
+[16501] Started
+[16501] backup com.tester.root concurrent operation: Extract
+[16502] 	- arguments: installer://com.tester.root/1.2.0-1platforms.7z, C:/tester
+[16502] Started
+[16504] backup com.tester.root concurrent operation: Extract
+[16504] 	- arguments: installer://com.tester.root/1.2.0-1plugin.7z, C:/tester
+[16504] Started
+[16504] backup com.tester.root concurrent operation: Extract
+[16504] 	- arguments: installer://com.tester.root/1.2.0-1res.7z, C:/tester
+[16504] Started
+[16504] backup com.tester.root concurrent operation: Extract
+[16504] 	- arguments: installer://com.tester.root/1.2.0-1styles.7z, C:/tester
+[16504] Started
+[16505] backup com.tester.root concurrent operation: Extract
+[16505] 	- arguments: installer://com.tester.root/1.2.0-1translations.7z, C:/tester
+[16505] Started
+[16505] backup com.tester.root concurrent operation: Extract
+[16505] 	- arguments: installer://com.tester.root/1.2.0-1work_dir.7z, C:/tester
+[16505] Started
+[16512] backup com.tester.root concurrent operation: Extract
+[16512] 	- arguments: installer://com.tester.root/1.2.0-1work_dir_templates.7z, C:/tester
+[16512] Started
+[16541] 正在解压组件......
+[16543] perform com.tester.root concurrent operation: Extract
+[16543] 	- arguments: installer://com.tester.root/1.2.0-1content.7z, C:/tester
+[16543] Started
+[16543] perform com.tester.root concurrent operation: Extract
+[16543] 	- arguments: installer://com.tester.root/1.2.0-1work_dir.7z, C:/tester
+[16543] Started
+[16543] perform com.tester.root concurrent operation: Extract
+[16543] 	- arguments: installer://com.tester.root/1.2.0-1nginx-1.18.0.7z, C:/tester
+[16543] Started
+[16567] perform com.tester.root concurrent operation: Extract
+[16567] 	- arguments: installer://com.tester.root/1.2.0-1platforms.7z, C:/tester
+[16567] Started
+[16773] perform com.tester.root concurrent operation: Extract
+[16773] 	- arguments: installer://com.tester.root/1.2.0-1imageformats.7z, C:/tester
+[16773] Started
+[17046] perform com.tester.root concurrent operation: Extract
+[17046] 	- arguments: installer://com.tester.root/1.2.0-1translations.7z, C:/tester
+[17046] Started
+[17091] perform com.tester.root concurrent operation: Extract
+[17091] 	- arguments: installer://com.tester.root/1.2.0-1data.7z, C:/tester
+[17091] Started
+[17182] perform com.tester.root concurrent operation: Extract
+[17182] 	- arguments: installer://com.tester.root/1.2.0-1canbus.7z, C:/tester
+[17182] Started
+[17379] perform com.tester.root concurrent operation: Extract
+[17379] 	- arguments: installer://com.tester.root/1.2.0-1styles.7z, C:/tester
+[17379] Started
+[17401] perform com.tester.root concurrent operation: Extract
+[17401] 	- arguments: installer://com.tester.root/1.2.0-1otafile.7z, C:/tester
+[17401] Started
+[17520] perform com.tester.root concurrent operation: Extract
+[17520] 	- arguments: installer://com.tester.root/1.2.0-1bearer.7z, C:/tester
+[17520] Started
+[17526] perform com.tester.root concurrent operation: Extract
+[17526] 	- arguments: installer://com.tester.root/1.2.0-1iconengines.7z, C:/tester
+[17526] Started
+[17598] perform com.tester.root concurrent operation: Extract
+[17598] 	- arguments: installer://com.tester.root/1.2.0-1work_dir_templates.7z, C:/tester
+[17598] Started
+[17604] perform com.tester.root concurrent operation: Extract
+[17604] 	- arguments: installer://com.tester.root/1.2.0-1plugin.7z, C:/tester
+[17604] Started
+[17730] perform com.tester.root concurrent operation: Extract
+[17730] 	- arguments: installer://com.tester.root/1.2.0-1res.7z, C:/tester
+[17730] Started
+[22394] 正在安装组件 主程序
+[22396] backup com.tester.root operation: CreateShortcut
+[22396] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\DR设备/DR设备控制程序.lnk
+[22399] Done
+[22399] perform com.tester.root operation: CreateShortcut
+[22399] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\DR设备/DR设备控制程序.lnk
+[22712] Done
+[22714] backup com.tester.root operation: CreateShortcut
+[22714] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\Desktop/DR设备控制程序.lnk
+[22714] Done
+[22715] perform com.tester.root operation: CreateShortcut
+[22715] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\Desktop/DR设备控制程序.lnk
+[22745] Done
+[22746] backup com.tester.root operation: CreateShortcut
+[22746] 	- arguments: C:/tester/nginx-1.18.0/nginx.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs/startup/nginx.lnk
+[22746] Done
+[22747] perform com.tester.root operation: CreateShortcut
+[22747] 	- arguments: C:/tester/nginx-1.18.0/nginx.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs/startup/nginx.lnk
+[24818] Done
+[24819] backup com.tester.root operation: CreateShortcut
+[24819] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs/startup/DR设备控制程序.lnk
+[24819] Done
+[24821] perform com.tester.root operation: CreateShortcut
+[24821] 	- arguments: C:/tester/tarsier.exe, C:\Users\DR-7\AppData\Roaming\Microsoft\Windows\Start Menu\Programs/startup/DR设备控制程序.lnk
+[24851] Done
+[24854] backup com.tester.root operation: License
+[24854] 	- arguments:
+[24854] Done
+[24855] perform com.tester.root operation: License
+[24855] 	- arguments:
+[24861] Done
+[24995] Writing maintenance tool: "C:/tester/maintenancetool.exe.new"
+[24997] 编写维护工具。
+[28590] Wrote permissions for maintenance tool.
+[28849] Maintenance tool hard restart: false.
+[28857] 安装已完成!

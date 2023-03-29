@@ -1,0 +1,56 @@
+
+ [17:49:53,635] COM_Init: SDK_Ver V4.1.16.
+
+ [17:49:53,635] COM_SetCalibMode 0
+
+ [17:49:53,641] SynBox unused
+
+ [17:49:53,999] ZM_COMPATIBLE_VER detected! IP:192,168,11,2
+
+ [17:49:54,001] local Ip:192.168.11.252
+
+ [17:49:54,308] socket for Broadcast initialized successfully
+
+ [17:49:54,308] socket for Broadcast ack initialized successfully
+
+ [17:49:54,309] socket for receiving information initialized successfully
+
+ [17:49:54,309] socket for acknowledging information initialized successfully
+
+ [17:49:54,309] Socket for sending command initialized successfully
+
+ [17:49:54,310] Socket for CmdAck command initialized successfully
+
+ [17:49:54,310] Image transmission Socket initialized successfully
+
+ [17:49:54,310] Image retransmission info Socket initialized successfully
+
+ [17:49:54,311] fun:RcvImgPacketEvents Listening for incoming datagrams 
+
+ [17:49:54,548] RecordFPSN sn: AGA25530A574, connect:04
+ [17:49:56,750] Target id: NONE.
+ [17:49:56,751] SDK call funcLinkUpExCallBack Psn=AGA25530A574
+ [17:50:01,915] attachPsn:AGA25530A574
+ [17:50:02,266] COM_SetFPType: 4343
+
+ [17:50:02,266] SDK call ComApiPrepareRcvImgInfo command 
+
+ [17:50:02,271] LoadOffsetTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\offset.tpl failed, file do not exist!
+
+ [17:50:02,272] LoadGainTpl D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\03.ZManager\Zmanager_V4.1.16\x64\tpl_path\AGA25530A574\gain.tpl failed, file do not exist!
+
+ [17:50:02,272] COM_SetAedTOffsetTpl
+
+ [17:50:02,274] FP:AGA25530A574 COM_SetAllTpl Fail!
+
+ [17:50:02,277] SDK call funcLinkUpCallBack Psn=AGA25530A574
+ [17:50:02,799] BatteryPowerMode=0x44
+
+ [17:50:07,710] SDK call COM_Close command
+
+ [17:50:07,710] SDK call detach
+ [17:50:09,690] register Event Callback:20
+
+ [17:50:09,690] SDK call COM_Close command
+
+ [17:50:09,690] SDK call detach
