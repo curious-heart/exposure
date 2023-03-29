@@ -548,7 +548,7 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
             imageNum=curDateTime.toString("yyyyMMddhhmmss");
             //if(dDriveState) //之前的实现中，如果D盘存在，自动保存图片到D盘. 不再判断，直接保存。
             {
-                QString exposure_info_str = get_exposure_info_str();
+                //QString exposure_info_str = get_exposure_info_str();
                 QString day=curDateTime.toString("yyyyMMdd");
                 //QString dirPath="D:/"+day;
                 QString dirPath = sg_image_save_dir + day, path;
@@ -558,8 +558,14 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                 }
                 else
                 {
+
+                    path = dirPath + "/"
+                            + get_common_file_save_str() + "_" + "iRay"
+                            + sg_image_file_format_tif;
+                    /*
                     path = dirPath + "/tiffImage" + imageNum  + "_" + exposure_info_str
                                     + sg_image_file_format_tif;
+                                    */
                     DIY_LOG(LOG_INFO, QString("Now save image as: %1").arg(path));
                     img->save(path);
                 }
@@ -1227,7 +1233,6 @@ FPDRESULT MainWindow::disconnect_works(bool part_disconn)
 void MainWindow::on_connect_clicked(){
     FPD_HANDLER_CHECK();
 
-    refresh_ip_addr();
     if(m_curr_fpd_model->sid != FPD_SID_NONE){
         if(fpdConnectState==Enm_Connect_State::Disconnected){
             DIY_LOG(LOG_INFO, "on_connect_clicked: now is disconnected, begin to connect...");
@@ -1500,6 +1505,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
 
         case Enm_Controller_Address::BatteryVoltmeter://电池电压   可上位计算电量
         {
+            DIY_LOG(LOG_INFO, QString("BatteryVoltmeter: %1").arg(iter.value()));
             //int batteryLevel=0;
             int i=0;
             int index=-1;
@@ -2676,6 +2682,7 @@ void MainWindow::refresh_ip_addr()
 {
     QString ip_of_cur_if = get_ip_addr_by_if_idx(m_cur_if_idx);
     ui->IPaddr->setText("IP:" + ip_of_cur_if);
+    DIY_LOG(LOG_INFO, QString("IP refreshed: %1").arg(ip_of_cur_if));
     /*
     QString info = QHostInfo::localHostName();
     QHostInfo ip = QHostInfo::fromName(info);
@@ -2892,7 +2899,7 @@ QString MainWindow::get_exposure_info_str()
                                  .arg(exposureTimeList[ssc.exposureTimeIndex]);
 }
 
-QString MainWindow::get_common_file_save_appendix_str()
+QString MainWindow::get_common_file_save_str()
 {
     imageNum = common_tool_get_curr_dt_str();
     QString exposure_info_str = get_exposure_info_str();
@@ -2905,7 +2912,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
 
     bool dir_created_ok = false;
     QString main_fn = "";
-    QString f_appendix = get_common_file_save_appendix_str();
+    QString f_common_str = get_common_file_save_str();
 
     QString st_pth =  sg_image_save_dir + common_tool_get_curr_date_str();
     if(!mkpth_if_not_exists(st_pth))
@@ -2925,7 +2932,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
     if(dir_created_ok)
     {
         main_fn = st_pth + "/"
-                  + m_curr_fpd_model->mfg + "_" + f_appendix;
+                  + f_common_str + "_" + m_curr_fpd_model->mfg;
 
         QString pd_spec_dir =  m_curr_fpd_model->img_file_ext;
         pd_spec_dir.remove('.');
@@ -2937,7 +2944,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
         else
         {
             QString fn = pd_spec_dir + "/"
-                  + m_curr_fpd_model->mfg + "_" + f_appendix + m_curr_fpd_model->img_file_ext;
+                  + f_common_str + "_" + m_curr_fpd_model->mfg + m_curr_fpd_model->img_file_ext;
             QFile img_file(fn);
             if(!img_file.open(QIODevice::WriteOnly))
             {
@@ -3021,3 +3028,10 @@ void MainWindow::on_pzm_conn_timer_timeout()
         }
     }
 }
+
+void MainWindow::on_connect_pressed()
+{
+    DIY_LOG(LOG_INFO, "Pressed..............");
+    refresh_ip_addr();
+}
+

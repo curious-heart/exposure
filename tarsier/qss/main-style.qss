@@ -83,7 +83,8 @@
 }
 #exposureSelCombox::drop-down
 {
-    border-image: url(:/images/more.png);
+    /*border-image: url(:/images/more.png);*/
+    border-image: url(:/images/input.png);
 }
 
 #voltmeter{

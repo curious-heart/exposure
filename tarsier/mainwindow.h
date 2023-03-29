@@ -102,6 +102,8 @@ private slots:
     void on_pzm_fpd_img_received_sig(char* img, int width, int height, int bit_dep);
     void on_pzm_fpd_fpd_batt_level_sig(int bat_remain, int bat_full);
 
+    void on_connect_pressed();
+
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
 
@@ -144,7 +146,7 @@ private:
     void show_image_op_info_widgets(bool show = true);
     void clear_preview_area();
     static QString get_exposure_info_str();
-    static QString get_common_file_save_appendix_str();
+    static QString get_common_file_save_str();
 
 private:
     Ui::MainWindow *ui;
