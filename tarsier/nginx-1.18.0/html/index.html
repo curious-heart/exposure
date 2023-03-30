@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<meta charset="UTF-8"/>
+		<title>网页操作界面</title>
+	</head>
+	<style> 
+		body{ text-align:center}
+	</style> 
+
+	<body>
+		<div>
+			<font>DR远程曝光</font>
+		</div>
+		</p>
+		<div>
+			<input type="button" id="btnConnection" value="连接" />
+			<input type="button" id="btnClose" hidden="hidden" value="关闭" />
+			<input type="button" id="btnSend" hidden="hidden" value="曝光" />
+			<input type="button" id="btnClear" value="清空"/>
+		</div>
+		</p>
+		<div>
+			<textarea id="rt" rows="20" cols="50" readonly="readonly"></textarea>
+		</div>
+		<script src="js/jquery-1.11.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(function() {
+				var socket;
+				if(typeof(WebSocket) == "undefined") {
+					alert("您的浏览器不支持WebSocket");
+					return;
+				}
+
+				$("#btnConnection").click(function() {
+					//实现化WebSocket对象，指定要连接的服务器地址与端口
+					var urlPath = window.document.location.href;
+					var docPath = window.document.location.pathname;
+					var index = urlPath.lastIndexOf(docPath);
+					var ip = urlPath.substring(7, index);
+					if(ip==""){
+						$("#ip").focus();
+						return;
+					}
+					socket = new WebSocket("ws://"+ip+":65432/");
+					var rtVal;
+					var myDate;
+					//打开事件
+					socket.onopen = function() {
+						myDate = new Date();
+						rtVal=$("#rt").val();
+						$("#rt").val(rtVal+"\n "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds()+" Socket 已打开");
+						$("#btnConnection").hide();
+						$("#btnClose").show();
+						$("#btnSend").show();
+					};
+					//获得消息事件
+					socket.onmessage = function(msg) {
+						myDate = new Date();
+						rtVal=$("#rt").val();
+						$("#rt").val(rtVal+"\n "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds()+" "+msg.data);
+					};
+					//关闭事件
+					socket.onclose = function() {
+						myDate = new Date();
+						rtVal=$("#rt").val();
+						$("#rt").val(rtVal+"\n "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds()+" Socket已关闭");
+						$("#btnConnection").show();
+						$("#btnClose").hide();
+						$("#btnSend").hide();
+					};
+					//发生了错误事件
+					socket.onerror = function(error) {
+						myDate = new Date();
+						rtVal=$("#rt").val();
+						$("#rt").val(rtVal+"\n "+myDate.getHours()+":"+myDate.getMinutes()+":"+myDate.getSeconds()+" Socket发生错误");
+					}
+				});
+
+				$("#btnSend").click(function() {
+					var data='{"exposure":1}';
+					socket.send(data);
+				});
+
+				$("#btnClose").click(function() {
+					socket.close();
+				});
+				$("#btnClear").click(function() {
+					$("#rt").val("");
+				});
+			});
+		</script>
+	</body>
+
+</html>
