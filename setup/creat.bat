@@ -1,1 +1,0 @@
-C:\Qt\QtIFW-3.2.2\bin\binarycreator.exe -c config\config.xml -p packages Setup.exe

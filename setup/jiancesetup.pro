@@ -5,7 +5,7 @@ INSTALLER = Setup
 INPUT = $$PWD/config/config.xml $$PWD/packages
 example.input = INPUT
 example.output = $$INSTALLER
-example.commands = C:/Qt/QtIFW-3.0.6/bin/binarycreator -c $$PWD/config/config.xml -p $$PWD/packages ${QMAKE_FILE_OUT}
+example.commands = D:/01.Prog/Qt5.15/Tools/QtInstallerFramework/4.4/bin/binarycreator -c $$PWD/config/config.xml -p $$PWD/packages ${QMAKE_FILE_OUT}
 example.CONFIG += target_predeps no_link combine
 
 QMAKE_EXTRA_COMPILERS += example
