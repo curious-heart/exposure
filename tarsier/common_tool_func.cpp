@@ -530,3 +530,16 @@ bool mkpth_if_not_exists(QString &pth_str)
     }
     return ret;
 }
+
+QString shutdown_system(QString reason_str,int wait_time)
+{
+    QString s_c = "shutdown";
+    QStringList ps_a;
+    QProcess ps;
+    ps.setProgram(s_c);
+    ps_a << "/s" << "/t" << QString("%1").arg(wait_time);
+    ps_a << "/d" << "u:4:1" << "/c" << reason_str;
+    ps.setArguments(ps_a);
+    ps.startDetached();
+    return s_c + " " + ps_a.join(QChar(' '));
+}

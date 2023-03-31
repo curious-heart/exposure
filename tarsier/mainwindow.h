@@ -40,6 +40,12 @@ class MaskWidget;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+public:
+    typedef enum
+    {
+        MAIN_WINDOWN_NORMAL_CLOSE = 0,
+        MAIN_WINDOWN_NORMAL_CLOSE_AND_SHUTDOWN_SYS = 1,
+    }main_window_close_type_t;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -103,6 +109,7 @@ private slots:
     void on_pzm_fpd_fpd_batt_level_sig(int bat_remain, int bat_full);
 
     void on_connect_pressed();
+    void on_shutdown_system();
 
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);

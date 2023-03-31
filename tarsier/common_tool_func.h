@@ -36,4 +36,8 @@ int set_host_wifi_or_eth_ip_addr(ip_set_type_t set_type, ip_intf_type_t intf_t =
 
 bool mkpth_if_not_exists(QString &pth_str);
 
+#define DEF_SHUTDOWN_WAIT_TIME 5
+/*return the shutdown command line.*/
+QString shutdown_system(QString reason_str = "", int wait_time = DEF_SHUTDOWN_WAIT_TIME);
+
 #endif // COMMON_TOOL_FUNC_H

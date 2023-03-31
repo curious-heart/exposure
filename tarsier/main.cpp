@@ -5,6 +5,7 @@
 
 #include "thirdpart/qtsingleapplication.h"
 #include "logger.h"
+#include "common_tool_func.h"
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +33,17 @@ int main(int argc, char *argv[])
     //w.connect( &a, &GlobalApplication::keyOrMouseEventOccurred, &w, &MainWindow::onKeyOrMouseEventOccurred);
     w.connect( &a, &QtSingleApplication::keyOrMouseEventOccurred, &w, &MainWindow::onKeyOrMouseEventOccurred);
     ret = a.exec();
+
+    if(MainWindow::MAIN_WINDOWN_NORMAL_CLOSE_AND_SHUTDOWN_SYS == ret)
+    {
+        DIY_LOG(LOG_INFO, "Now exit the program.");
+
+        QString exit_comment_str
+                = QString("%1 正常退出，系统即将关闭。").arg(a.applicationName());
+        QString s_c = shutdown_system(exit_comment_str);
+        DIY_LOG(LOG_INFO, QString("The shutdown command line is: %1").arg(s_c));
+    }
+
     end_log_thread(th);
     return ret;
 }

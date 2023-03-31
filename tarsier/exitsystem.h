@@ -20,6 +20,7 @@ signals:
      * @brief maskWidgetClosed 关闭
      */
     void maskWidgetClosed();
+    void shutdown_system();
 
 private slots:
     void on_exitOk_clicked();

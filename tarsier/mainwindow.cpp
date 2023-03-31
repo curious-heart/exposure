@@ -384,6 +384,7 @@ void MainWindow::InitActions(){
 
     connect(fpdSetting, &FpdSetting::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(exitSystem, &ExitSystem::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
+    connect(exitSystem, &ExitSystem::shutdown_system, this,&MainWindow::on_shutdown_system);
     connect(expo_param_setting, &ExpoParamSettingDialog::maskWidgetClosed, this,&MainWindow::onQDialogClosed);
     connect(expo_param_setting, &ExpoParamSettingDialog::userInputDone,
             this, &MainWindow::on_exposureUserInputDone);
@@ -3040,3 +3041,9 @@ void MainWindow::on_connect_pressed()
     refresh_ip_addr();
 }
 
+void MainWindow::on_shutdown_system()
+{
+    DIY_LOG(LOG_INFO, "Receive shutdown signal.");
+    this->close();
+    QCoreApplication::instance()->exit(MAIN_WINDOWN_NORMAL_CLOSE_AND_SHUTDOWN_SYS);
+}

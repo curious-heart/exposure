@@ -34,7 +34,8 @@ void ExitSystem::on_exitCancel_clicked()
 
 void ExitSystem::on_exitShutdown_clicked()
 {
-    system("shutdown -s -t 00");
+    //system("shutdown -s -t 00");
     this->close();
-    p->close();
+    //p->close();
+    emit shutdown_system();
 }

@@ -6,6 +6,7 @@
 #include <QString>
 
 #include "logger.h"
+#include "version_def.h"
 
 LogSigEmitter *g_LogSigEmitter = nullptr;
 static Logger * g_LogWorker = nullptr;
@@ -57,7 +58,7 @@ void Logger::writeLog(QString level_str, QString loc_str, QString msg)
         return;
     QTextStream in(&file);
     QString str1, str2;
-    str1 = "\t" + loc_str + "\n";
+    str1 = "\t" + loc_str + "\t@" + APP_VER_STR + "\n";
     str2 = date + " " + time + " " + level_str + " " + msg + "\n";
     in << str1 << str2;
     file.flush();
