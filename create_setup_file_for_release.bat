@@ -63,7 +63,7 @@ xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\qmldir %temp_cp_dest_dir%\
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\qtquickvirtualkeyboardplugin.dll %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\ /I /Y
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Settings\plugins.qmltypes %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Settings\ /I /Y
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Settings\qmldir %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Settings\ /I /Y
-%QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Settings\qtquickvirtualkeyboardsettingsplugin.dll %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Settings\ /I /Y
+xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Settings\qtquickvirtualkeyboardsettingsplugin.dll %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Settings\ /I /Y
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Styles\plugins.qmltypes %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Styles\ /I /Y
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Styles\qmldir %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Styles\ /I /Y
 xcopy %QT_INSTALL_PREFIX%\qml\QtQuick\VirtualKeyboard\Styles\qtquickvirtualkeyboardstylesplugin.dll %temp_cp_dest_dir%\qml\QtQuick\VirtualKeyboard\Styles\ /I /Y

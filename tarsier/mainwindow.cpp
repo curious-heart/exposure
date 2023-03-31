@@ -2729,6 +2729,7 @@ void MainWindow::update_controller_or_cfg_on_exposure_combox()
 
 void MainWindow::setup_exposure_options_combox()
 {
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
     exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
     exposure_opts_t::iterator it = e_opts.begin();
     ui->exposureSelCombox->blockSignals(true);
@@ -2742,6 +2743,8 @@ void MainWindow::setup_exposure_options_combox()
     if(curr_opt >= ui->exposureSelCombox->count())
     {
         curr_opt = 0;
+        ssc.currExposureOpt = curr_opt;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
     ui->exposureSelCombox->setCurrentIndex(curr_opt);
 
@@ -2793,23 +2796,25 @@ bool MainWindow::write_exposure_params_to_controller_or_cfg(ExpoParamSettingDial
 {
     /* We add the variable ret and judgeemnts to minimize the cfg-file-writtings.
      * We try to write cfg file only once.
+     *
+     * write cfg file is independent to write controller.
     */
     bool c_ret, ret = false;
     SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
 
     c_ret = writeExposurekV(params.vol, false);
-    if(c_ret && write_cfg) ssc.tubeVol = params.vol;
+    if(/*c_ret &&*/ write_cfg) ssc.tubeVol = params.vol;
     ret = ret || c_ret;
 
     c_ret = writeExposuremA(params.amt, false);
-    if(c_ret && write_cfg) ssc.tubeAmt = params.amt;
+    if(/*c_ret &&*/ write_cfg) ssc.tubeAmt = params.amt;
     ret = ret || c_ret;
 
     c_ret = writeExposureTime(params.dura_idx, false);
-    if(c_ret && write_cfg) exposureTimeIndex = ssc.exposureTimeIndex = params.dura_idx;
+    if(/*c_ret &&*/ write_cfg) exposureTimeIndex = ssc.exposureTimeIndex = params.dura_idx;
     ret = ret || c_ret;
 
-    if(ret && write_cfg)
+    if(/*ret &&*/ write_cfg)
     {
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }

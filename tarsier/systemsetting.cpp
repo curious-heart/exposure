@@ -3,6 +3,7 @@
 #include "settingcfg.h"
 #include "version_def.h"
 #include "fpdmodels.h"
+#include "logger.h"
 
 #include <QtSerialPort/QSerialPortInfo>
 
@@ -15,9 +16,36 @@ SystemSetting::SystemSetting(QWidget *parent, CFpdModels * fpd_models) :
     this->setFixedSize(860, 370);
     ui->sysOk->setText(NULL);
     ui->sysCancel->setText(NULL);
+    QString s_port_in_cfg_file = SettingCfg::getInstance().getSystemSettingCfg().serialPortName;
+    bool s_port_match = false;
+    QString first_com_on_machine = "";
     //添加串口
     foreach (QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
+        if(first_com_on_machine.isEmpty())
+        {
+            first_com_on_machine = info.portName();
+        }
         ui->serialPort->addItem(info.portName());
+        if(info.portName() == s_port_in_cfg_file)
+        {
+            s_port_match = true;
+        }
+    }
+    if(first_com_on_machine.isEmpty())
+    {
+        DIY_LOG(LOG_ERROR, "There is no available serial ports on this machine,"
+                           "so the device can't work.");
+    }
+    else if(!s_port_match)
+    {
+        DIY_LOG(LOG_WARN, QString("Serial port in cfg file is %1,"
+                                  " but there is no such port on current machine."
+                                  "So we update the cfg file to the 1st port on machine: %2.")
+                            .arg(s_port_in_cfg_file, first_com_on_machine));
+
+        SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+        ssc.serialPortName = first_com_on_machine;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
     //添加探测器列表
     ui->fpdName->addItem(FPD_NAME_NONE_UI_STR, "");
