@@ -84,6 +84,10 @@ xcopy .\%src_code_dir%\StephenConfig.ini %temp_cp_dest_dir%\ /I /Y
 REM copy files for debug.
 xcopy .\%src_code_dir%\initTool.exe %temp_cp_dest_dir%\ /I /Y
 xcopy .\%src_code_dir%\串口调试.mbp %temp_cp_dest_dir%\ /I /Y
+REM copy vnc
+xcopy .\90.UltraVnc_132 %temp_cp_dest_dir%\UltraVnc_132 /I /E /Y
+xcopy .\91.下位机串口驱动 %temp_cp_dest_dir%\下位机串口驱动 /I /E /Y
+REM serial port driver
 
 REM deploy qt dependencies
 set qt_deploy_cmd=deploy.bat
