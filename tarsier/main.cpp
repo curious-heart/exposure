@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
     if(MainWindow::MAIN_WINDOWN_NORMAL_CLOSE_AND_SHUTDOWN_SYS == ret)
     {
-        DIY_LOG(LOG_INFO, "Now exit the program.");
+        DIY_LOG(LOG_INFO, "Now exit the program...........\n..............................\n\n");
 
         QString exit_comment_str
                 = QString("%1 正常退出，系统即将关闭。").arg(a.applicationName());

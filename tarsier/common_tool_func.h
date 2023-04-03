@@ -40,4 +40,5 @@ bool mkpth_if_not_exists(QString &pth_str);
 /*return the shutdown command line.*/
 QString shutdown_system(QString reason_str = "", int wait_time = DEF_SHUTDOWN_WAIT_TIME);
 
+#define ROUNDUP_UINT16_TO_10(x) ((quint16)(((quint16)(((x) + 5) / 10)) * 10))
 #endif // COMMON_TOOL_FUNC_H

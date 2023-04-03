@@ -373,6 +373,7 @@ void MainWindow::InitActions(){
     ui->fpdbatteryLevel->setText(QString("%1%").arg(100));
     ui->voltmeter->setText(QString("%1").arg(0));
     ui->ammeter->setText(QString("%1").arg(0));
+    ui->exposureTimeRead->setText(QString("%1").arg(0));
     //onFpdConnectStateChanged(Enm_Connect_State::Connected);//调试用
     //onControllerConnectStateChanged(Enm_Connect_State::Connected);//调试用
     //connect(ui->systemSetting, &QPushButton::clicked, systemSetting, &QPushButton::show);
@@ -762,14 +763,17 @@ int MainWindow::DisconnectionFPD(){
             ret=fpd->SyncInvoke(Cmd_Disconnect,30000);
             if (ret!=Err_OK){
                 fpd->GetErrorInfo(ret);
-                return ret;
+                //return ret;
+                DIY_LOG(LOG_ERROR, QString("FPD disconnect error: %1").arg(ret));
             }
             ret=fpd->Destroy();
             if(ret!=Err_OK){
                 fpd->GetErrorInfo(ret);
-                return ret;
+                DIY_LOG(LOG_ERROR, QString("FPD destory error: %1").arg(ret));
+                //return ret;
             }
             ret=fpd->FreeIRayLibrary();
+            DIY_LOG(LOG_INFO, QString("FPD free library: %1").arg(ret));
 
             fpdCreateState=false;
             return ret;
@@ -1164,7 +1168,7 @@ int MainWindow::SetCalibrationOptions(){
  * @param k
  */
 void MainWindow::keyPressEvent(QKeyEvent * k){
-    qDebug()<<"键盘事件："<<k->key();
+    DIY_LOG(LOG_INFO, QString("按键事件:%1").arg(k->key()));
     if(k->key()==Qt::Key_Pause && fpdConnectState==Enm_Connect_State::Connected){//暂停键
         on_exposure_clicked();
     }else if(k->key()==Qt::Key_VolumeUp && controllerConnectState==Enm_Connect_State::Connected){//音量+
@@ -1371,6 +1375,7 @@ void MainWindow::onControllerConnectStateChanged(int state){
 void MainWindow::onErrorOccurred(QString errorInfo){
     statusBar()->clearMessage();
     statusBar()->showMessage(errorInfo, 5000);
+    DIY_LOG(LOG_ERROR, QString("onErrorOccurred: %1.").arg(errorInfo));
 }
 
 
@@ -1402,23 +1407,57 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
         case Enm_Controller_Address::ExposureTime://曝光时间低位
         {
             exposureTime=iter.value();
+            quint16 roundup_value = ROUNDUP_UINT16_TO_10(exposureTime);
+            DIY_LOG(LOG_INFO,
+                    QString("ExposureTime read from controller: %1,"
+                            " rounded up to %2.").arg(exposureTime).arg(roundup_value));
             int loop = 0;
-            for(;loop<40; loop++)
+            //for(;loop<40; loop++)
+            for(;loop < MAX_EXPOSURE_DURA_STEP; loop++)
             {
-                if((exposureTimeList[loop] * 1000) == exposureTime)
+                if((exposureTimeList[loop] * 1000) == roundup_value /*exposureTime*/)
                     break;
             }
-            if(exposureTimeIndex != loop)
-                exposureTimeIndex = loop;
+            if(loop >= MAX_EXPOSURE_DURA_STEP)
+            {
+                DIY_LOG(LOG_WARN, "Undefined exposure time read...");
+            }
+            else if(exposureTimeIndex != loop)
+            {
+                DIY_LOG(LOG_INFO,
+                        QString("Read exposure time %1 is diffrent from "
+                                          "that of set: %2.")
+                        .arg(exposureTime).arg(exposureTimeList[loop]*1000));
+
+                /* Since exposureTime may be adjust by +/- key on device, so if the read
+                 * value is valid and different from what we set, we update the cfg file
+                 * and display.
+                */
+                SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+                ExpoParamSettingDialog::expo_params_collection_t params;
+                params.vol = ssc.tubeVol;
+                params.amt = ssc.tubeAmt;
+                params.dura_idx = loop;
+                on_exposureUserInputDone(params);
+                update_exposureSelCombox_to_manual();
+
+                //exposureTimeIndex = loop;
+            }
+
+            ui->exposureTimeRead->setText(QString("%1").arg(exposureTime));
         }
             break;
         case Enm_Controller_Address::Voltmeter://管电压
         {
+            int v = (int)iter.value();
+            DIY_LOG(LOG_INFO, QString("Voltmeter read from controller: %1").arg(v));
             ui->voltmeter->setText(QString("%1").arg(iter.value()));
         }
             break;
         case Enm_Controller_Address::Ammeter://管电流
         {
+            int v = (int)iter.value();
+            DIY_LOG(LOG_INFO, QString("Ammeter read from controller: %1").arg(v));
             ui->ammeter->setText(QString("%1").arg(iter.value()));
         }
             break;
@@ -1891,6 +1930,7 @@ void MainWindow::onReadRangeStatusTimerOutTime(){
 void MainWindow::onReadVoltmeterAndAmmeterTimerOutTime(){
     int serverAddress=SettingCfg::getInstance().getSystemSettingCfg().serverAddress;
     controller->readData(Enm_Controller_Address::Voltmeter,2,serverAddress);//读取电流电压
+    controller->readData(Enm_Controller_Address::ExposureTime,1,serverAddress);//读取曝光时间
 }
 
 
@@ -2726,6 +2766,45 @@ void MainWindow::update_controller_or_cfg_on_exposure_combox()
     SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
 
     update_exposure_parameters_display_on_main();
+}
+
+bool MainWindow::update_exposureSelCombox_to_manual()
+{
+    SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
+    const exposure_opts_t& e_opts = SettingCfg::getInstance().getExposureOptsCfg();
+    bool ret = false;
+
+    ui->exposureSelCombox->blockSignals(true);
+
+    exposure_opts_t::const_iterator it = e_opts.begin();
+    int combox_idx = -1;
+    while(it != e_opts.end())
+    {
+        if(it.value()->type == exposure_opt_type_manual)
+        {
+            combox_idx = it.value()->idx;
+            break;
+        }
+        ++it;
+    }
+    if(combox_idx >=0 && combox_idx < ui->exposureSelCombox->count())
+    {
+        ui->exposureSelCombox->setCurrentIndex(combox_idx);
+        ssc.currExposureOpt = combox_idx;
+        SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
+
+        DIY_LOG(LOG_INFO, "Exposure option is updated to manual-set.");
+        ret = true;
+    }
+    else
+    {
+        DIY_LOG(LOG_ERROR, QString("Can't find a valid combox index of exposure "
+                                   "option when try to set it to manual-set: %1")
+                .arg(combox_idx));
+    }
+
+    ui->exposureSelCombox->blockSignals(false);
+    return ret;
 }
 
 void MainWindow::setup_exposure_options_combox()

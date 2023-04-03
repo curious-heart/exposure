@@ -99,7 +99,12 @@
     qproperty-alignment:AlignHCenter;
     border-image: url(:/images/meter.png);
 }
-
+#exposureTimeRead{
+    height:32px;
+    width:60px;
+    qproperty-alignment:AlignHCenter;
+    border-image: url(:/images/meter.png);
+}
 #volSet{
     height:32px;
     width:60px;

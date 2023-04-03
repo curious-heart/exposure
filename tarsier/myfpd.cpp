@@ -571,7 +571,8 @@ void MyFPD::MyCallback(int nDetectorID, int nEventID, int nEventLevel, const cha
             break;
         case Evt_TaskResult_Failed://任务失败
             DIY_LOG(LOG_INFO,
-                    QString("Evt_TaskResult_Failed, curCmdID:%1, err code:%2.").arg(cmdid_for_dbg, nParam2));
+                    QString("Evt_TaskResult_Failed, curCmdID:%1, err code:%2.")
+                    .arg(cmdid_for_dbg).arg(nParam2));
             lastError = nParam2;//任务失败时，nParam2返回错误码
             if(nParam1==curCmdId){//判断返回的命令与调用的命令是否一致
                 SetEvent(waitAckEvent);//设置事件为有信号

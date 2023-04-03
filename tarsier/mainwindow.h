@@ -98,6 +98,7 @@ private slots:
     void onStartAcqWaitTimerTimeOut();
     void on_pzm_conn_timer_timeout();
 
+    bool update_exposureSelCombox_to_manual();
     void on_exposureSelCombox_currentIndexChanged(int index);
     void on_exposureUserInputDone(ExpoParamSettingDialog::expo_params_collection_t params);
 

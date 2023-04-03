@@ -98,7 +98,8 @@ void MyController::readData(int address, quint16 size, int serverAddress){
             delete reply;//广播回复立即返回
         }
     }else{
-        printf("读取数据错误\n");
+        //printf("读取数据错误\n");
+        DIY_LOG(LOG_ERROR, "读取数据错误\n");
     }
 }
 
