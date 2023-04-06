@@ -73,7 +73,7 @@ static MyFPD *fpd=NULL; //iRay fpd;
 static CPZM_Fpd * pzm_fpd_handler  = nullptr; //PZM fpd
 static const int sg_pzm_fpd_connection_time = 30; //30s.
 static ImageOperation *imageOperation=NULL;
-static QString imagePath=NULL;
+//static QString imagePath=NULL;
 static QDateTime T1;//The last connected time or acquisition time
 static bool subsetSpecified=false;
 //static float exposureTimeList[30]={0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.25, 0.30,
@@ -86,10 +86,13 @@ static int exposureTimeIndex=DEF_EXPOSURE_DURA_IDX/*3*/;
 static int exposureStatus=0;//未启动曝光
 //static int rangeStatus=0;//范围指示未启动
 //static bool dDriveState;//D盘是否存在
-static QString sg_image_save_dir = "./";
+static QString sg_image_save_dir;
 //static QImage *img=NULL;
-static QString imageNum="";
+static QString imageNum;
 static const char* sg_image_file_format_tif = ".tif";
+
+static const char* sg_img_save_fail_err_msg_1 = "图片文件保存失败！";
+static const char* sg_img_save_fail_err_msg_2 = "自动保存图片失败，请手动保存。";
 
 #define FPD_MODEL_PTR_CHECK(ret) \
 {\
@@ -247,6 +250,16 @@ MainWindow::~MainWindow()
     delete imageOperation;
     imageOperation=NULL;
 
+    delete wwVal; wwVal = nullptr;
+    delete wlVal; wlVal = nullptr;
+    delete wwwlButton; wwwlButton = nullptr;
+    delete zoomButton; zoomButton = nullptr;
+    delete translationButton; translationButton = nullptr;
+    delete rotateButton; rotateButton = nullptr;
+    delete antiColorButton; antiColorButton = nullptr;
+    delete resetButton; resetButton = nullptr;
+    delete px_info_lbl; px_info_lbl = nullptr;
+    delete img_info_lbl; img_info_lbl = nullptr;
     //delete m_inp_md;
 }
 
@@ -270,47 +283,55 @@ void MainWindow::InitActions(){
     wlVal->setText("WL:");
     wlVal->setGeometry(700,30,80,20);
     wlVal->setStyleSheet("color:rgb(1,91,206);");
+
     wwwlButton = new QPushButton(ui->preview);
     //wwwlButton->setText("窗宽窗位");
     wwwlButton->setCheckable(true);
-    wwwlButton->setGeometry(700,60,58,59);
+    wwwlButton->setGeometry(700,50,58,59);
     wwwlButton->setFlat(true);
     wwwlButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/wwwl.png)");
     connect(wwwlButton, &QPushButton::clicked, this,&MainWindow::onWWWLButtonClicked);
     zoomButton = new QPushButton(ui->preview);
     //zoomButton->setText("缩放");
     zoomButton->setCheckable(true);
-    zoomButton->setGeometry(700,120,58,59);
+    zoomButton->setGeometry(700,110,58,59);
     zoomButton->setFlat(true);
     zoomButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/zoom.png)");
     connect(zoomButton, &QPushButton::clicked, this,&MainWindow::onZoomButtonClicked);
     translationButton = new QPushButton(ui->preview);
     //translationButton->setText("平移");
     translationButton->setCheckable(true);
-    translationButton->setGeometry(700,180,58,59);
+    translationButton->setGeometry(700,170,58,59);
     translationButton->setFlat(true);
     translationButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/translation.png)");
     connect(translationButton, &QPushButton::clicked, this,&MainWindow::onTranslationButtonClicked);
     rotateButton = new QPushButton(ui->preview);
     //rotateButton->setText("旋转");
-    rotateButton->setGeometry(700,240,58,59);
+    rotateButton->setGeometry(700,230,58,59);
     rotateButton->setFlat(true);
     rotateButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/rotate.png)");
     connect(rotateButton, &QPushButton::clicked, this,&MainWindow::onRotateButtonClicked);
     antiColorButton = new QPushButton(ui->preview);
     //antiColorButton->setText("反色");
     antiColorButton->setCheckable(true);
-    antiColorButton->setGeometry(700,300,58,59);
+    antiColorButton->setGeometry(700,290,58,59);
     antiColorButton->setFlat(true);
     antiColorButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/invert.png)");
     connect(antiColorButton, &QPushButton::clicked, this,&MainWindow::onAntiColorButtonClicked);
     resetButton = new QPushButton(ui->preview);
     //resetButton->setText("重置");
-    resetButton->setGeometry(700,360,58,59);
+    resetButton->setGeometry(700,350,58,59);
     resetButton->setFlat(true);
     resetButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/reset.png)");
     connect(resetButton, &QPushButton::clicked, this,&MainWindow::onRestButtonClicked);
 
+    px_info_lbl = new QLabel(ui->preview);
+    px_info_lbl->setStyleSheet("color:rgb(1,91,206);");
+    px_info_lbl->setGeometry(670, 410, 100, 30);
+
+    img_info_lbl = new QLabel(ui->preview);
+    img_info_lbl->setStyleSheet("color:rgb(1,91,206);");
+    img_info_lbl->setGeometry(660, 440, 100, 30);
     /*
     wwVal->hide();
     wlVal->hide();
@@ -413,6 +434,9 @@ void MainWindow::InitActions(){
 
     connect(ui->preview,&ImageLabel::imageLoaded,this,&MainWindow::onImageLoaded);
     connect(ui->preview,&ImageLabel::wwwlChanged,this,&MainWindow::onWwwlChanged);
+    connect(ui->preview,&ImageLabel::pxInfoUpdate,this,&MainWindow::onPxInfoUpdate);
+    connect(ui->preview,&ImageLabel::imgInfoDisplay,this,&MainWindow::onImgInfoDisplay);
+
 
     /*setup exposure user options combox.*/
     setup_exposure_options_combox();
@@ -545,9 +569,11 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
         //            SaveFile(pImageData, nImageSize);
 
         img=new QImage((uchar*)pImageData, nImageWidth, nImageHeight, QImage::Format_Grayscale16);
-        if(!img->isNull()){
+        if(!img->isNull())
+        {
             QDateTime curDateTime=QDateTime::currentDateTime();
             imageNum=curDateTime.toString("yyyyMMddhhmmss");
+            bool save_img_ok = false;
             //if(dDriveState) //之前的实现中，如果D盘存在，自动保存图片到D盘. 不再判断，直接保存。
             {
                 //QString exposure_info_str = get_exposure_info_str();
@@ -556,7 +582,8 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                 QString dirPath = sg_image_save_dir + day, path;
                 if(!mkpth_if_not_exists(dirPath))
                 {
-                    DIY_LOG(LOG_ERROR, QString("Create folder: %1 error").arg(dirPath));
+                    DIY_LOG(LOG_ERROR, QString("Create image folder %1 error").arg(dirPath));
+                    emit imageOperation->imageOperationErrorOccurred(sg_img_save_fail_err_msg_2);
                 }
                 else
                 {
@@ -569,7 +596,7 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                                     + sg_image_file_format_tif;
                                     */
                     DIY_LOG(LOG_INFO, QString("Now save image as: %1").arg(path));
-                    img->save(path);
+                    save_img_ok = img->save(path);
                 }
                 /*
                 QDir qdir;
@@ -585,8 +612,21 @@ void MainWindow::MyCallbackHandler(int nDetectorID, int nEventID, int nEventLeve
                 img->save(path);
                 */
             }
-            DIY_LOG(LOG_INFO, "Create image ok, now try to show it");
             emit imageOperation->imageCreateFinshed(img,imageNum, ImageOperation::IMG_OP_ROTATE_R_90);
+            if(save_img_ok)
+            {
+                DIY_LOG(LOG_INFO, "Save image ok.");
+            }
+            else
+            {
+                DIY_LOG(LOG_ERROR, "Save image fails.");
+                emit imageOperation->imageOperationErrorOccurred(sg_img_save_fail_err_msg_2);
+            }
+        }
+        else
+        {
+            DIY_LOG(LOG_ERROR, "New QImage error when received image data.");
+            emit imageOperation->imageOperationErrorOccurred(sg_img_save_fail_err_msg_1);
         }
         //        QDateTime curDateTime=QDateTime::currentDateTime();
         //        QString path=QDir::currentPath() + "/image/tiffImage"+curDateTime.toString("yyyyMMddhhmmss")+".tif";
@@ -655,7 +695,7 @@ int MainWindow::ConnectionFPD(){
                 fpd->GetErrorInfo(ret);
                 return ret;
             }
-            DIY_LOG(LOG_ERROR, QString("SetAttr(Cfg_HostIP %1) ok.").arg(str));
+            DIY_LOG(LOG_INFO, QString("SetAttr(Cfg_HostIP %1) ok.").arg(str));
 
             ret=fpd->SyncInvoke(Cmd_Connect,30000);
             if (ret!=Err_OK){
@@ -2626,13 +2666,16 @@ void MainWindow::show_image_op_info_widgets(bool show)
     zoomButton->setVisible(show);
     translationButton->setVisible(show);
     resetButton->setVisible(show);
+
+    px_info_lbl->setVisible(show);
+    img_info_lbl->setVisible(show);
 }
 
 void MainWindow::clear_preview_area()
 {
     QImage clear_image(1, 1, QImage::Format_ARGB32);
     clear_image.fill(QColor(0, 0, 0, 0));
-    ui->preview->loadImage(clear_image);
+    ui->preview->loadImage(clear_image, true);
     show_image_op_info_widgets(false);
     imageShowState = false;
 }
@@ -2646,6 +2689,16 @@ void MainWindow::onWwwlChanged(int ww, int wl)
 {
     wwVal->setText("WW:"+QString("%1").arg(ww));
     wlVal->setText("WL:"+QString("%1").arg(wl));
+}
+
+void MainWindow::onPxInfoUpdate(QString info_str)
+{
+    px_info_lbl->setText(info_str);
+}
+
+void MainWindow::onImgInfoDisplay(QString info_str, QString img_sn)
+{
+    img_info_lbl->setText(info_str);
 }
 
 void MainWindow::refresh_fpd_battery_display(int fpdbatteryVal)
@@ -2996,6 +3049,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
     DIY_LOG(LOG_INFO, QString("Received PZM \"image received\" event. Image info"));
 
     bool dir_created_ok = false;
+    bool image_save_ok = false;
     QString main_fn = "";
     QString f_common_str = get_common_file_save_str();
 
@@ -3078,6 +3132,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
                 .arg(img_w).arg(img_h).arg(bit_dep));
 
         delete []img_buf;
+        statusBar()->showMessage(sg_img_save_fail_err_msg_1, 5000);
         return;
     }
     else if(q_img->isNull())
@@ -3087,6 +3142,7 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
                 .arg(img_w).arg(img_h).arg(bit_dep));
 
         delete []img_buf;
+        statusBar()->showMessage(sg_img_save_fail_err_msg_1, 5000);
         return;
     }
 
@@ -3094,11 +3150,16 @@ void MainWindow::on_pzm_fpd_img_received_sig(char* img_buf, int img_w, int img_h
     {
         QString img_fn = main_fn + sg_image_file_format_tif;
         DIY_LOG(LOG_INFO, QString("PZM: Now save image data as: %1").arg(img_fn));
-        q_img->save(img_fn);
+        image_save_ok = q_img->save(img_fn);
     }
     DIY_LOG(LOG_INFO, "PZM: show image now.");
     emit imageOperation->imageCreateFinshed(q_img,imageNum, ImageOperation::IMG_OP_NONE);
     /*It's the slot's responsbility to delete q_img.*/
+
+    if(!image_save_ok)
+    {
+        statusBar()->showMessage(sg_img_save_fail_err_msg_2, 5000);
+    }
 }
 
 void MainWindow::on_pzm_conn_timer_timeout()

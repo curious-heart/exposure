@@ -19,6 +19,7 @@ class ImageLabel : public QLabel
     Q_OBJECT
 public:
     explicit ImageLabel(QWidget *parent = 0);
+    ~ImageLabel();
 
 protected:
     bool event(QEvent *e) override;                             //事件
@@ -33,7 +34,7 @@ protected:
 
 public slots:
     void OnSelectImage();                   //选择打开图片
-    void loadImage(QImage img);             //载入图片
+    void loadImage(QImage img, bool clear_img = false);             //载入图片
     void OnZoomInImage();                   //图片放大
     void OnZoomOutImage();                  //图片缩小
     void OnPresetImage();                   //图片还原
@@ -50,14 +51,19 @@ public slots:
     void resetImage();                      //重置图片
 
 private:
-    void getImagePixelsMaxMin(QImage Img,int &max,int &min);//获得图片最大值和最小值
+    void getImagePixelsMaxMin(QImage Img,quint32 &max, quint32 &min,
+                              quint32 max_thr = 65535, quint32 min_thr = 0);//获得图片最大值和最小值
     QImage get8BitImage(QImage Img,int max,int min);//通过最大最小值转换图片为8位图
     QImage getWWWLImage(QImage Img,int ww,int wl);//获得窗宽窗位图
     QImage AdjustContrastAndBrightness(QImage Img, float iContrastCoefficient, float iBrightCoefficient);//调整亮度和对比度
+    void update_px_info_lbl(int mouse_x, int mouse_y);
+    void display_img_info();
 
 signals:
     void imageLoaded();     //图片载入完成
     void wwwlChanged(int ww,int wl);     //WWWL改变
+    void pxInfoUpdate(QString info_str);
+    void imgInfoDisplay(QString info_str, QString img_sn);
 
 private:
     QImage PrimImage;       //未修改的图片
@@ -77,6 +83,12 @@ private:
     int WW=65447;               //窗宽
     int WL=32810;               //窗位
     Enm_OperateType operateType;//操作类型
+
+    //QLabel m_px_info_lbl;
+    bool m_img_loaded = false;
+    QRect m_img_rect, m_img_ori_rect;
+    QTransform m_img_trans;
+    float m_display_scale_x, m_display_scale_y;
 };
 
 #endif // IMAGELABEL_H

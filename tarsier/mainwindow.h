@@ -97,6 +97,8 @@ private slots:
     void onTenMinutesTimerOutTime();
     void onStartAcqWaitTimerTimeOut();
     void on_pzm_conn_timer_timeout();
+    void onPxInfoUpdate(QString info_str);
+    void onImgInfoDisplay(QString info_str, QString img_sn);
 
     bool update_exposureSelCombox_to_manual();
     void on_exposureSelCombox_currentIndexChanged(int index);
@@ -190,8 +192,10 @@ private:
     QPushButton *zoomButton;
     QPushButton *translationButton;
     QPushButton *resetButton;
-    QLabel *wwVal;
-    QLabel *wlVal;
+    QLabel *wwVal = nullptr;
+    QLabel *wlVal = nullptr;
+    QLabel *px_info_lbl = nullptr;
+    QLabel *img_info_lbl = nullptr;
 
     QPushButton *brightAdd;
     QLabel *brightLabel;

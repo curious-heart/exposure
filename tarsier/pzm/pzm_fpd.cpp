@@ -524,13 +524,18 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
 bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* /*model*/)
 {
     BOOL api_ret;
+    bool ret = true;
     api_ret = m_hptr_COM_Close();
     if(!api_ret)
     {
         DIY_LOG(LOG_ERROR, "PZM: Close failes");
-        return false;
+        //return false;
+        ret = false;
     }
-    DIY_LOG(LOG_INFO, "PZM: Closed.");
+    else
+    {
+        DIY_LOG(LOG_INFO, "PZM: Closed.");
+    }
 
     m_com_opened = false;
 
@@ -538,11 +543,16 @@ bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* /*model*/)
     if(!api_ret)
     {
         DIY_LOG(LOG_ERROR, "PZM: Uninit failes");
-        return false;
+        //return false;
+        ret = false;
     }
-    DIY_LOG(LOG_INFO, "PZM: Uninited.");
+    else
+    {
+        DIY_LOG(LOG_INFO, "PZM: Uninited.");
+    }
 
-    return unload_library();
+    unload_library();
+    return ret;
 }
 
 bool CPZM_Fpd::start_aed_acquiring()

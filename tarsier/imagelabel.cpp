@@ -7,12 +7,23 @@
 #include <QGestureEvent>
 #include <QList>
 #include <QtMath>
+#include "logger.h"
 
 ImageLabel::ImageLabel(QWidget *parent):QLabel(parent)
 {
     grabGesture(Qt::PanGesture);
     grabGesture(Qt::PinchGesture);
     grabGesture(Qt::SwipeGesture);
+
+    /*
+    m_px_info_lbl.setParent(this);
+    m_px_info_lbl.setFrameShape(QFrame::NoFrame);
+    */
+}
+
+ImageLabel::~ImageLabel()
+{
+    //m_px_info_lbl.hide();
 }
 
 /**
@@ -66,26 +77,54 @@ bool ImageLabel::gestureEvent(QGestureEvent *event){
 void ImageLabel::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    QPainter painter(this);
+    if(m_img_loaded)
+    {
+        QPainter painter(this);
 
-    // 根据窗口计算应该显示的图片的大小
-    int width = qMin(Image.width(), this->width());
-    int height = width * 1.0 / (Image.width() * 1.0 / Image.height());
-    height = qMin(height, this->height());
-    width = height * 1.0 * (Image.width() * 1.0 / Image.height());
+        /* This part of coordinates-transform MUST be coordinated with that in
+         * update_px_info_lbl function.
+         */
+        int img_w = Image.width(), img_h = Image.height();
+        int width = qMin(img_w, this->width());
+        int height = width * 1.0 / (img_w * 1.0 / img_h);
+        height = qMin(height, this->height());
+        width = height * 1.0 * (img_w * 1.0 / img_h);
+        m_display_scale_x = 1.0 * width / img_w;
+        m_display_scale_y = 1.0 * height / img_h ;
 
-    // 平移
-    painter.translate(this->width() / 2 + XPtInterval, this->height() / 2 + YPtInterval);
 
-    // 缩放
-    painter.scale(ZoomValue, ZoomValue);
+        m_img_trans.reset();
+        m_img_trans.translate(this->width() / 2 + XPtInterval, this->height() / 2 + YPtInterval);
+        m_img_trans.scale(ZoomValue, ZoomValue);
+        m_img_trans.rotate(AngleValue);
+        painter.setTransform(m_img_trans);
 
-    // 旋转
-    painter.rotate(AngleValue);
+        // 根据窗口计算应该显示的图片的大小
+        /*
+        int width = qMin(Image.width(), this->width());
+        int height = width * 1.0 / (Image.width() * 1.0 / Image.height());
+        height = qMin(height, this->height());
+        width = height * 1.0 * (Image.width() * 1.0 / Image.height());
 
-    // 绘制图像
-    QRect picRect(-width / 2, -height / 2, width, height);
-    painter.drawImage(picRect, Image);
+        // 平移
+        painter.translate(this->width() / 2 + XPtInterval, this->height() / 2 + YPtInterval);
+
+        // 缩放
+        painter.scale(ZoomValue, ZoomValue);
+
+        // 旋转
+        painter.rotate(AngleValue);
+        */
+
+        // 绘制图像
+        QRect picRect(-width / 2, -height / 2, width, height);
+        painter.drawImage(picRect, Image);
+
+        int area_w = this->width(), area_h = this->height();
+        //m_img_rect.setRect(area_w/2 + picRect.x(), area_h/2 + picRect.y(), width, height);
+        m_img_ori_rect = picRect;
+        m_img_rect = m_img_trans.mapRect(picRect);
+    }
 }
 //鼠标滚轮滚动
 void ImageLabel::wheelEvent(QWheelEvent *event)
@@ -104,14 +143,18 @@ void ImageLabel::mousePressEvent(QMouseEvent *event)
     OldPos = event->pos();
     Pressed = true;
 }
-//鼠标松开
+//鼠标移动
 void ImageLabel::mouseMoveEvent(QMouseEvent *event)
 {
+    QPoint pos = event->pos();
+    int pos_x = pos.x(), pos_y = pos.y();
+    QString px_info_str = QString("%1,%2").arg(pos_x).arg(pos_y);
+    update_px_info_lbl(pos_x, pos_y);
+
     if (!Pressed)
         return QWidget::mouseMoveEvent(event);
 
     this->setCursor(Qt::SizeAllCursor);
-    QPoint pos = event->pos();
     int xPtInterval = pos.x() - OldPos.x();
     int yPtInterval = pos.y() - OldPos.y();
 
@@ -183,7 +226,8 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
         //            }
         //        }
         Image=PrimImage.copy();
-        Image=getWWWLImage(Image,WW,WL).convertToFormat(QImage::Format_Grayscale8);
+        //Image=getWWWLImage(Image,WW,WL).convertToFormat(QImage::Format_Grayscale8);
+        Image=getWWWLImage(Image,WW,WL);
         emit wwwlChanged(WW,WL);
     }else if(operateType==Enm_OperateType::Enm_Zoom_Operat){
         if(yPtInterval>0){
@@ -198,7 +242,7 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
     OldPos = pos;
     update();
 }
-//鼠标发射事件
+//鼠标松开事件
 void ImageLabel::mouseReleaseEvent(QMouseEvent */*event*/)
 {
     Pressed = false;
@@ -216,6 +260,76 @@ void ImageLabel::mouseDoubleClickEvent(QMouseEvent *event)
     OnPresetImage();
 }
 
+void ImageLabel::update_px_info_lbl(int mouse_x, int mouse_y)
+{
+    if(m_img_loaded)
+    {
+        QString info_s;
+        bool inverted;
+        QTransform inverted_trans = m_img_trans.inverted(&inverted);
+        if(!inverted)
+        {
+            DIY_LOG(LOG_ERROR, "Image transform is singular...");
+            return;
+        }
+        /* This part of coordinates-transform MUST be coordinated with that in
+         * paintEvent function.
+         */
+        int ori_x, ori_y;
+        inverted_trans.map(mouse_x, mouse_y, &ori_x, &ori_y);
+        int img_x, img_y;
+        img_x = ori_x + m_img_ori_rect.width()/2;
+        img_y = ori_y + m_img_ori_rect.height()/2;
+        int img_data_x, img_data_y;
+        img_data_x = (int)(1.0 * img_x / m_display_scale_x);
+        img_data_y = (int)(1.0 * img_y / m_display_scale_y);
+
+        if(m_img_rect.contains(mouse_x, mouse_y))
+        {
+            if(PrimImage.valid(img_data_x, img_data_y))
+            {
+                info_s = QString("x=%1,y=%2\n") .arg(img_data_x).arg(img_data_y);
+                const quint16* px_ptr = (const quint16*)PrimImage.constBits();
+                quint64 px_idx = quint64(img_data_y * PrimImage.width() + img_data_x);
+                quint16 px_value = *(px_ptr + px_idx);
+                info_s += QString("value:%1").arg(px_value);
+            }
+            else
+            {
+                info_s = "";
+                DIY_LOG(LOG_ERROR, QString("Image size: %1, %2; pixel (%3, %4) is invalid "
+                                           "in this image").arg(PrimImage.width())
+                        .arg(PrimImage.height()).arg(img_data_x).arg(img_data_y));
+            }
+        }
+        else
+        {
+            info_s = "";
+        }
+        emit pxInfoUpdate(info_s);
+    }
+    /*
+    const int offset_x = 10, offset_y = 0;
+    m_px_info_lbl.setText(txt);
+    m_px_info_lbl.adjustSize();
+    m_px_info_lbl.move(x + offset_x, y + offset_y);
+    m_px_info_lbl.show();
+    */
+}
+
+void ImageLabel::display_img_info()
+{
+    QString info_s;
+    if(m_img_loaded)
+    {
+        quint32 min_val, max_val;
+        getImagePixelsMaxMin(PrimImage, max_val, min_val);
+        info_s = QString("w:%1,h:%2\nmin:%3,max:%4")
+                .arg(PrimImage.width()).arg(PrimImage.height())
+                .arg(min_val).arg(max_val);
+        emit imgInfoDisplay(info_s, "");
+    }
+}
 
 //选择打开图片
 void ImageLabel::OnSelectImage()
@@ -239,9 +353,13 @@ void ImageLabel::OnSelectImage()
 
     update();
     emit imageLoaded();
+
+    m_img_loaded = true;
+    setMouseTracking(true);
+    display_img_info();
 }
 
-void ImageLabel::loadImage(QImage img)
+void ImageLabel::loadImage(QImage img, bool clear_img)
 {
     PrimImage=img;
 
@@ -258,6 +376,16 @@ void ImageLabel::loadImage(QImage img)
 
     update();
     emit imageLoaded();
+    m_img_loaded = !clear_img;
+    if(clear_img)
+    {
+        setMouseTracking(false);
+    }
+    else
+    {
+        setMouseTracking(true);
+        display_img_info();
+    }
 }
 //图片放大
 void ImageLabel::OnZoomInImage()
@@ -416,30 +544,26 @@ void ImageLabel::resetImage()
  * @param max 最大值
  * @param min 最小值
  */
-void ImageLabel::getImagePixelsMaxMin(QImage Img,int &max, int &min)
+void ImageLabel::getImagePixelsMaxMin(QImage Img,quint32 &max, quint32 &min,
+                                      quint32 max_thr, quint32 min_thr)
 {
     int pixels = Img.width() * Img.height();
-    if(Img.format()==QImage::Format_Grayscale8){
+    if(Img.format()==QImage::Format_Grayscale8)
+    {
+        max = 0; min = 255;
         uchar *data = Img.bits();
-        for(int i = 0; i < pixels; i++){
-            if(i==0){
-                max=*(data+i);
-                min=*(data+i);
-            }else{
-                max=max<*(data+i)?*(data+i):max;
-                min=min>*(data+i)?*(data+i):min;
-            }
+        for(int i = 0; i < pixels; i++)
+        {
+            max = ((max<*(data+i)) && (*(data+i) <= max_thr)) ? * (data+i) : max;
+            min = ((min>*(data+i)) && (*(data+i) >= min_thr)) ? * (data+i) : min;
         }
     }else if(Img.format()==QImage::Format_Grayscale16){
+        max = 0; min = 65535;
         unsigned short int * data = (unsigned short int *)Img.bits();
-        for(int i = 0; i < pixels; i++){
-            if(i==0){
-                max=*(data+i);
-                min=*(data+i);
-            }else{
-                max=max<*(data+i)?*(data+i):max;
-                min=min>*(data+i)?*(data+i):min;
-            }
+        for(int i = 0; i < pixels; i++)
+        {
+            max = ((max<*(data+i)) && (*(data+i) <= max_thr)) ? * (data+i) : max;
+            min = ((min>*(data+i)) && (*(data+i) >= min_thr)) ? * (data+i) : min;
         }
     }
 }
