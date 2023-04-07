@@ -327,7 +327,7 @@ void ImageLabel::display_img_info()
         info_s = QString("w:%1,h:%2\nmin:%3,max:%4")
                 .arg(PrimImage.width()).arg(PrimImage.height())
                 .arg(min_val).arg(max_val);
-        emit imgInfoDisplay(info_s, "");
+        emit imgInfoDisplay(info_s, m_selected_img_fn);
     }
 }
 
@@ -350,6 +350,8 @@ void ImageLabel::OnSelectImage()
     YPtInterval = 0;
     contrastRatio = 0;
     brightRatio = 0;
+
+    m_selected_img_fn = QFileInfo(LocalFileName).baseName();
 
     update();
     emit imageLoaded();
@@ -380,6 +382,7 @@ void ImageLabel::loadImage(QImage img, bool clear_img)
     if(clear_img)
     {
         setMouseTracking(false);
+        m_selected_img_fn = "";
     }
     else
     {

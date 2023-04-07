@@ -89,6 +89,7 @@ private:
     QRect m_img_rect, m_img_ori_rect;
     QTransform m_img_trans;
     float m_display_scale_x, m_display_scale_y;
+    QString m_selected_img_fn;
 };
 
 #endif // IMAGELABEL_H

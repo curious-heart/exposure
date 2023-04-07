@@ -326,12 +326,14 @@ void MainWindow::InitActions(){
     connect(resetButton, &QPushButton::clicked, this,&MainWindow::onRestButtonClicked);
 
     px_info_lbl = new QLabel(ui->preview);
+    px_info_lbl->setAlignment(Qt::AlignRight);
     px_info_lbl->setStyleSheet("color:rgb(1,91,206);");
-    px_info_lbl->setGeometry(670, 410, 100, 30);
+    px_info_lbl->setGeometry(660, 410, 120, 30);
 
     img_info_lbl = new QLabel(ui->preview);
+    img_info_lbl->setAlignment(Qt::AlignRight);
     img_info_lbl->setStyleSheet("color:rgb(1,91,206);");
-    img_info_lbl->setGeometry(660, 440, 100, 30);
+    img_info_lbl->setGeometry(660, 440, 120, 30);
     /*
     wwVal->hide();
     wlVal->hide();
@@ -2699,6 +2701,7 @@ void MainWindow::onPxInfoUpdate(QString info_str)
 void MainWindow::onImgInfoDisplay(QString info_str, QString img_sn)
 {
     img_info_lbl->setText(info_str);
+    ui->ImageNum->setText(img_sn);
 }
 
 void MainWindow::refresh_fpd_battery_display(int fpdbatteryVal)
