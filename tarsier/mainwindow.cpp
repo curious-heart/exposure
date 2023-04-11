@@ -2075,10 +2075,10 @@ void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, Ima
     }
 
     *showImg = showImg->transformed(matrix, Qt::FastTransformation);
-    ui->preview->loadImage(*showImg);
+    ui->preview->loadImage(*showImg, imageNum);
     // brightSlider->setValue(0);
     // contrastSlider->setValue(0);
-    ui->ImageNum->setText("SN:" + imageNum);
+    //ui->ImageNum->setText("SN:" + imageNum);
 }
 
 void MainWindow::onKeyOrMouseEventOccurred(){
@@ -2677,7 +2677,7 @@ void MainWindow::clear_preview_area()
 {
     QImage clear_image(1, 1, QImage::Format_ARGB32);
     clear_image.fill(QColor(0, 0, 0, 0));
-    ui->preview->loadImage(clear_image, true);
+    ui->preview->loadImage(clear_image, "", true);
     show_image_op_info_widgets(false);
     imageShowState = false;
 }

@@ -34,7 +34,7 @@ protected:
 
 public slots:
     void OnSelectImage();                   //选择打开图片
-    void loadImage(QImage img, bool clear_img = false);             //载入图片
+    void loadImage(QImage img, QString img_sn = "", bool clear_img = false);             //载入图片
     void OnZoomInImage();                   //图片放大
     void OnZoomOutImage();                  //图片缩小
     void OnPresetImage();                   //图片还原
@@ -89,7 +89,7 @@ private:
     QRect m_img_rect, m_img_ori_rect;
     QTransform m_img_trans;
     float m_display_scale_x, m_display_scale_y;
-    QString m_selected_img_fn;
+    QString m_img_sn;
 };
 
 #endif // IMAGELABEL_H

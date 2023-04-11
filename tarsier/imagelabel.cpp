@@ -289,10 +289,19 @@ void ImageLabel::update_px_info_lbl(int mouse_x, int mouse_y)
             if(PrimImage.valid(img_data_x, img_data_y))
             {
                 info_s = QString("x=%1,y=%2\n") .arg(img_data_x).arg(img_data_y);
-                const quint16* px_ptr = (const quint16*)PrimImage.constBits();
                 quint64 px_idx = quint64(img_data_y * PrimImage.width() + img_data_x);
-                quint16 px_value = *(px_ptr + px_idx);
-                info_s += QString("value:%1").arg(px_value);
+                if(PrimImage.format() == QImage::Format_Grayscale16)
+                {
+                    const quint16* px_ptr = (const quint16*)PrimImage.constBits();
+                    quint16 px_value = *(px_ptr + px_idx);
+                    info_s += QString("value:%1").arg(px_value);
+                }
+                else
+                {//assuming 8 bit.
+                    const quint8* px_ptr = (const quint8*)PrimImage.constBits();
+                    quint8 px_value = *(px_ptr + px_idx);
+                    info_s += QString("value:%1").arg(px_value);
+                }
             }
             else
             {
@@ -322,12 +331,19 @@ void ImageLabel::display_img_info()
     QString info_s;
     if(m_img_loaded)
     {
-        quint32 min_val, max_val;
-        getImagePixelsMaxMin(PrimImage, max_val, min_val);
-        info_s = QString("w:%1,h:%2\nmin:%3,max:%4")
-                .arg(PrimImage.width()).arg(PrimImage.height())
-                .arg(min_val).arg(max_val);
-        emit imgInfoDisplay(info_s, m_selected_img_fn);
+        if(m_img_sn.isEmpty())
+        {
+            info_s = "";
+        }
+        else
+        {
+            quint32 min_val, max_val;
+            getImagePixelsMaxMin(PrimImage, max_val, min_val);
+            info_s = QString("w:%1,h:%2\nmin:%3,max:%4")
+                    .arg(PrimImage.width()).arg(PrimImage.height())
+                    .arg(min_val).arg(max_val);
+        }
+        emit imgInfoDisplay(info_s, m_img_sn);
     }
 }
 
@@ -351,7 +367,7 @@ void ImageLabel::OnSelectImage()
     contrastRatio = 0;
     brightRatio = 0;
 
-    m_selected_img_fn = QFileInfo(LocalFileName).baseName();
+    m_img_sn = QFileInfo(LocalFileName).baseName();
 
     update();
     emit imageLoaded();
@@ -361,7 +377,7 @@ void ImageLabel::OnSelectImage()
     display_img_info();
 }
 
-void ImageLabel::loadImage(QImage img, bool clear_img)
+void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
 {
     PrimImage=img;
 
@@ -382,13 +398,13 @@ void ImageLabel::loadImage(QImage img, bool clear_img)
     if(clear_img)
     {
         setMouseTracking(false);
-        m_selected_img_fn = "";
     }
     else
     {
         setMouseTracking(true);
-        display_img_info();
     }
+    m_img_sn = img_sn;
+    display_img_info();
 }
 //图片放大
 void ImageLabel::OnZoomInImage()
@@ -551,18 +567,19 @@ void ImageLabel::getImagePixelsMaxMin(QImage Img,quint32 &max, quint32 &min,
                                       quint32 max_thr, quint32 min_thr)
 {
     int pixels = Img.width() * Img.height();
-    if(Img.format()==QImage::Format_Grayscale8)
-    {
-        max = 0; min = 255;
-        uchar *data = Img.bits();
+    if(Img.format()==QImage::Format_Grayscale16){
+        max = 0; min = 65535;
+        unsigned short int * data = (unsigned short int *)Img.bits();
         for(int i = 0; i < pixels; i++)
         {
             max = ((max<*(data+i)) && (*(data+i) <= max_thr)) ? * (data+i) : max;
             min = ((min>*(data+i)) && (*(data+i) >= min_thr)) ? * (data+i) : min;
         }
-    }else if(Img.format()==QImage::Format_Grayscale16){
-        max = 0; min = 65535;
-        unsigned short int * data = (unsigned short int *)Img.bits();
+    }
+    else
+    {//assuming 8 bit
+        max = 0; min = 255;
+        uchar *data = Img.bits();
         for(int i = 0; i < pixels; i++)
         {
             max = ((max<*(data+i)) && (*(data+i) <= max_thr)) ? * (data+i) : max;
