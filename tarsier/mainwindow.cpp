@@ -122,6 +122,16 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    {
+        QString clear_log_f = "clear.log";
+        system(QString("taskkill /F /IM detectorservice.exe /T > %1").arg(clear_log_f).toUtf8());
+        QFile log_file(clear_log_f);
+        QTextStream in(&log_file);
+        QString log_str;
+        in >> log_str;
+        DIY_LOG(LOG_INFO, log_str);
+    }
+
     ui->setupUi(this);
     m_fpd_models = new CFpdModels();
     m_fpd_models->fill_host_ip_info_from_cfg(SettingCfg::getInstance().getFpdBaseCfg().fpdHostIp);
