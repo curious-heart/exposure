@@ -369,6 +369,8 @@ void ImageLabel::OnSelectImage()
 
     m_img_sn = QFileInfo(LocalFileName).baseName();
 
+    set_def_WWWL();
+
     update();
     emit imageLoaded();
 
@@ -391,6 +393,7 @@ void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
     YPtInterval = 0;
     contrastRatio = 0;
     brightRatio = 0;
+    set_def_WWWL();
 
     update();
     emit imageLoaded();
@@ -748,4 +751,20 @@ void ImageLabel::contextMenuEvent(QContextMenuEvent *event)
     connect(loadImage, &QAction::triggered, this, &ImageLabel::OnSelectImage);
     menu->addAction(loadImage);
     menu->exec(pos);
+}
+
+void ImageLabel::set_def_WWWL()
+{
+    DIY_LOG(LOG_INFO, QString("ori WW, WL: %1, %2").arg(WW).arg(WL));
+    //calculate ww and wl.
+    quint32 min_val, max_val;
+    getImagePixelsMaxMin(PrimImage, max_val, min_val);
+    WW = max_val - min_val;
+    WL = (max_val + min_val) / 2;
+
+    DIY_LOG(LOG_INFO, QString("updated WW, WL: %1, %2").arg(WW).arg(WL));
+
+        Image=PrimImage.copy();
+        //Image=getWWWLImage(Image,WW,WL).convertToFormat(QImage::Format_Grayscale8);
+        Image=getWWWLImage(Image,WW,WL);
 }

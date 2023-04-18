@@ -58,6 +58,7 @@ private:
     QImage AdjustContrastAndBrightness(QImage Img, float iContrastCoefficient, float iBrightCoefficient);//调整亮度和对比度
     void update_px_info_lbl(int mouse_x, int mouse_y);
     void display_img_info();
+    void set_def_WWWL();
 
 signals:
     void imageLoaded();     //图片载入完成
