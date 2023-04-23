@@ -360,23 +360,26 @@ void ImageLabel::OnSelectImage()
     // getImagePixelsMaxMin(PrimImage,max,min);
     // PrimImage=get8BitImage(PrimImage,max,min);
 
+    m_img_loaded = true;
+    m_img_sn = QFileInfo(LocalFileName).baseName();
+    setMouseTracking(true);
+    display_img_info();
+
+    /*
     Image=PrimImage.copy();
     ZoomValue = 1.0;
     XPtInterval = 0;
     YPtInterval = 0;
     contrastRatio = 0;
     brightRatio = 0;
-
-    m_img_sn = QFileInfo(LocalFileName).baseName();
-
     set_def_WWWL();
-
     update();
+    */
+    invertState = false;
+    resetImage();
+
     emit imageLoaded();
 
-    m_img_loaded = true;
-    setMouseTracking(true);
-    display_img_info();
 }
 
 void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
@@ -387,6 +390,7 @@ void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
     //  getImagePixelsMaxMin(PrimImage,max,min);
     //  PrimImage=get8BitImage(PrimImage,max,min);
 
+    /*
     Image=PrimImage.copy();
     ZoomValue = 1.0;
     XPtInterval = 0;
@@ -394,9 +398,7 @@ void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
     contrastRatio = 0;
     brightRatio = 0;
     set_def_WWWL();
-
-    update();
-    emit imageLoaded();
+    */
     m_img_loaded = !clear_img;
     if(clear_img)
     {
@@ -408,6 +410,12 @@ void ImageLabel::loadImage(QImage img, QString img_sn, bool clear_img)
     }
     m_img_sn = img_sn;
     display_img_info();
+
+    invertState = false;
+    resetImage();
+
+    //update();
+    emit imageLoaded();
 }
 //图片放大
 void ImageLabel::OnZoomInImage()
@@ -520,6 +528,7 @@ void ImageLabel::antiColorImage(bool state)
     invertState=state;
     PrimImage.invertPixels();
     Image=PrimImage.copy();
+    set_def_WWWL();
     update();
 }
 
@@ -544,13 +553,19 @@ void ImageLabel::operateImage(Enm_OperateType operate)
  */
 void ImageLabel::resetImage()
 {
-    if(invertState){
-        invertState=false;
+    //if(invertState)
+    if(!invertState)
+    {
+        //invertState=false;
+        invertState=true;
         PrimImage.invertPixels();
     }
     Image=PrimImage.copy();
+    /*
     WW=65447;
     WL=32810;
+    */
+    set_def_WWWL();
     ZoomValue = 1.0;
     XPtInterval = 0;
     YPtInterval = 0;
@@ -758,13 +773,12 @@ void ImageLabel::set_def_WWWL()
     DIY_LOG(LOG_INFO, QString("ori WW, WL: %1, %2").arg(WW).arg(WL));
     //calculate ww and wl.
     quint32 min_val, max_val;
-    getImagePixelsMaxMin(PrimImage, max_val, min_val);
+    getImagePixelsMaxMin(Image, max_val, min_val);
     WW = max_val - min_val;
     WL = (max_val + min_val) / 2;
 
     DIY_LOG(LOG_INFO, QString("updated WW, WL: %1, %2").arg(WW).arg(WL));
 
-        Image=PrimImage.copy();
-        //Image=getWWWLImage(Image,WW,WL).convertToFormat(QImage::Format_Grayscale8);
-        Image=getWWWLImage(Image,WW,WL);
+    Image=getWWWLImage(Image,WW,WL);
+    emit wwwlChanged(WW,WL);
 }

@@ -169,6 +169,7 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_Stop, Fnt_COM_Stop, m_hstr_COM_Stop);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_ExposeReq, Fnt_COM_ExposeReq, m_hstr_COM_ExposeReq);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_LogPathSet, Fnt_COM_LogPathSet, m_hstr_COM_LogPathSet);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_TplPathSet, Fnt_COM_TplPathSet, m_hstr_COM_TplPathSet);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_ImgPathSet, Fnt_COM_ImgPathSet, m_hstr_COM_ImgPathSet);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatus, Fnt_COM_GetFPStatus, m_hstr_COM_GetFPStatus);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatusEx, Fnt_COM_GetFPStatusEx, m_hstr_COM_GetFPStatusEx);
@@ -402,6 +403,19 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 #undef PZM_HANDLER_NOT_EXIST
 
 /*----------------------------------------------------------------------------*/
+bool CPZM_Fpd::set_cali_mode_and_tpl()
+{
+    BOOL api_ret;
+    api_ret = m_hptr_COM_SetCalibMode(IMG_CALIB_OFFSET | IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_WARN, "PZM: SetCaliMode error!");
+        return false;
+    }
+    DIY_LOG(LOG_INFO, "PZM: SetCaliMode ok!");
+    return true;
+}
+/*----------------------------------------------------------------------------*/
 //exposed hanlers.
 bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
 {
@@ -472,7 +486,21 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
     {
         DIY_LOG(LOG_WARN, QString("PZM: Set log file path error: %1").arg(m_model_info->log_file_pth));
     }
-    DIY_LOG(LOG_INFO, QString("PZM: Set image file path: %1").arg(QString(pth)));
+    DIY_LOG(LOG_INFO, QString("PZM: Set log file path: %1").arg(QString(pth)));
+
+    file_abs_pth = curr_app_abs_pth + "/" + m_model_info->tpl_file_pth;
+    ba = file_abs_pth.toUtf8();
+    pth = ba.data();
+    api_ret = m_hptr_COM_TplPathSet(pth);
+    if(!api_ret)
+    {
+        DIY_LOG(LOG_WARN, QString("PZM: Set tpl file path error: %1").arg(m_model_info->tpl_file_pth));
+    }
+    else
+    {
+        DIY_LOG(LOG_INFO, QString("PZM: Set tpl file path: %1").arg(QString(pth)));
+    }
+
 
     file_abs_pth = curr_app_abs_pth + "/" + m_model_info->img_file_pth;
     ba = file_abs_pth.toUtf8();
@@ -499,14 +527,14 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
     DIY_LOG(LOG_INFO, "PZM: fpd opened.");
     m_com_opened = true;
 
-    api_ret = m_hptr_COM_SetCalibMode(IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
+    api_ret = set_cali_mode_and_tpl();
     if(!api_ret)
     {
-        DIY_LOG(LOG_WARN, "PZM: SetCaliMode error!");
+        DIY_LOG(LOG_WARN, "PZM: set_cali_mode_and_tpl!");
     }
     else
     {
-        DIY_LOG(LOG_INFO, "PZM: SetCaliMode ok!");
+        DIY_LOG(LOG_INFO, "PZM: set_cali_mode_and_tpl ok!");
     }
 
     /* Battery level has not been properly initialized on connect until the firs heart beat.

@@ -326,7 +326,9 @@ void MainWindow::InitActions(){
     antiColorButton->setCheckable(true);
     antiColorButton->setGeometry(700,290,58,59);
     antiColorButton->setFlat(true);
-    antiColorButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/invert.png)");
+    antiColorButton->setChecked(true);
+    antiColorButton->setStyleSheet("border-image: url(:/images/invert_checked.png)");
+    //antiColorButton->setStyleSheet("width:58px;height:59px;border-image: url(:/images/invert.png)");
     connect(antiColorButton, &QPushButton::clicked, this,&MainWindow::onAntiColorButtonClicked);
     resetButton = new QPushButton(ui->preview);
     //resetButton->setText("重置");
@@ -1460,9 +1462,11 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
         {
             exposureTime=iter.value();
             quint16 roundup_value = ROUNDUP_UINT16_TO_10(exposureTime);
+            /*
             DIY_LOG(LOG_INFO,
                     QString("ExposureTime read from controller: %1,"
                             " rounded up to %2.").arg(exposureTime).arg(roundup_value));
+                            */
             int loop = 0;
             //for(;loop<40; loop++)
             for(;loop < MAX_EXPOSURE_DURA_STEP; loop++)
@@ -1502,14 +1506,14 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
         case Enm_Controller_Address::Voltmeter://管电压
         {
             int v = (int)iter.value();
-            DIY_LOG(LOG_INFO, QString("Voltmeter read from controller: %1").arg(v));
+            //DIY_LOG(LOG_INFO, QString("Voltmeter read from controller: %1").arg(v));
             ui->voltmeter->setText(QString("%1").arg(iter.value()));
         }
             break;
         case Enm_Controller_Address::Ammeter://管电流
         {
             int v = (int)iter.value();
-            DIY_LOG(LOG_INFO, QString("Ammeter read from controller: %1").arg(v));
+            //DIY_LOG(LOG_INFO, QString("Ammeter read from controller: %1").arg(v));
             ui->ammeter->setText(QString("%1").arg(iter.value()));
         }
             break;
@@ -2508,8 +2512,11 @@ void MainWindow::onRestButtonClicked()
 {
     wwwlButton->setChecked(false);
     wwwlButton->setStyleSheet("border-image: url(:/images/wwwl.png)");
-    antiColorButton->setChecked(false);
-    antiColorButton->setStyleSheet("border-image: url(:/images/invert.png)");
+    //antiColorButton->setChecked(false);
+    //antiColorButton->setStyleSheet("border-image: url(:/images/invert.png)");
+    antiColorButton->setChecked(true);
+    antiColorButton->setStyleSheet("width:58px;height:59px;border-image:"
+                                   " url(:/images/invert_checked.png)");
     zoomButton->setChecked(false);
     zoomButton->setStyleSheet("border-image: url(:/images/zoom.png)");
     translationButton->setChecked(false);

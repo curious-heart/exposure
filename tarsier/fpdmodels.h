@@ -41,7 +41,7 @@ typedef struct
     int def_trigger_mdde;
     QMap<QString, int> trigger_mode_list; //key: trigger mode name; value: enum or macro value.
     QString api_lib_pfn;
-    QString cfg_file_pth, log_file_pth;
+    QString cfg_file_pth, log_file_pth, tpl_file_pth;
     QString img_file_pth, img_file_ext;
     QString host_ip;
 }fpd_model_info_t;

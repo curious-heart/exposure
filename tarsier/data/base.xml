@@ -7,8 +7,19 @@
 	    <fpdtriggermode>Inner/Software/PREP/FreeSync</fpdtriggermode>
         </fpd>
 	<fpd>
+	    <fpdname>Mars1717V3</fpdname> 
+	    <fpdworkdir>work_dir/Mars1717V3</fpdworkdir> 
+	    <fpdtriggermode>Inner/Software/PREP/FreeSync</fpdtriggermode>
+        </fpd>
+	<fpd>
 	    <fpdname>PZM4343Z</fpdname> 
 	    <fpdworkdir>work_dir/PZM4343Z</fpdworkdir> 
+	    <fpdtriggermode>AED</fpdtriggermode>
+	    <host_ip>192.168.11.252</host_ip>
+        </fpd>
+	<fpd>
+	    <fpdname>PZM3543Z</fpdname> 
+	    <fpdworkdir>work_dir/PZM3543Z</fpdworkdir> 
 	    <fpdtriggermode>AED</fpdtriggermode>
 	    <host_ip>192.168.11.252</host_ip>
         </fpd>

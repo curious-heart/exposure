@@ -49,8 +49,11 @@ typedef BOOL (*Fnt_COM_GetFPsn)(CHAR* psn);
 typedef BOOL (*Fnt_COM_GetFPsnEx)(CHAR index, CHAR* psn);
 typedef CHAR (*Fnt_COM_GetFPCurStatus)();
 typedef CHAR (*Fnt_COM_GetFPCurStatusEx)(CHAR* psn);
+
 typedef CHAR (*Fnt_COM_LogPathSet)(CHAR* path);
+typedef BOOL (*Fnt_COM_TplPathSet)(CHAR* path);
 typedef CHAR (*Fnt_COM_ImgPathSet)(CHAR* path);
+
 typedef BOOL (*Fnt_COM_GetFPStatus)(TFPStat* ptFPStat);
 typedef BOOL (*Fnt_COM_GetFPStatusEx)(TFPStat* ptFPStat, CHAR* psn);
 typedef BOOL (*Fnt_COM_GetFPStatusP)(TFPStatex* ptFPStatex);
@@ -91,11 +94,14 @@ private:
     fpd_model_info_t* m_model_info = nullptr; //this var is set by parent, so do not delete it here.
     int m_fpd_used_if_idx = -1;
 
+    QString m_cur_fpd_sn;
+
 private:
     bool load_library();
     bool unload_library();
     bool resolve_lib_functions();
     bool reg_pzm_callbacks();
+    bool set_cali_mode_and_tpl();
 
 signals:
     void fpdErrorOccurred(QString errorInfo);
@@ -126,6 +132,7 @@ private:
     static constexpr const char* m_hstr_COM_Stop = "COM_Stop";
     static constexpr const char* m_hstr_COM_ExposeReq = "COM_ExposeReq";
     static constexpr const char* m_hstr_COM_LogPathSet = "COM_LogPathSet";
+    static constexpr const char* m_hstr_COM_TplPathSet = "COM_TplPathSet";
     static constexpr const char* m_hstr_COM_ImgPathSet= "COM_ImgPathSet";
     static constexpr const char* m_hstr_COM_GetFPStatus = "COM_GetFPStatus";
     static constexpr const char* m_hstr_COM_GetFPStatusEx = "COM_GetFPStatusEx";
@@ -153,6 +160,7 @@ private:
     Fnt_COM_Stop m_hptr_COM_Stop;
     Fnt_COM_ExposeReq m_hptr_COM_ExposeReq;
     Fnt_COM_LogPathSet m_hptr_COM_LogPathSet;
+    Fnt_COM_TplPathSet m_hptr_COM_TplPathSet;
     Fnt_COM_ImgPathSet m_hptr_COM_ImgPathSet;
     Fnt_COM_GetFPStatus m_hptr_COM_GetFPStatus;
     Fnt_COM_GetFPStatusEx m_hptr_COM_GetFPStatusEx;

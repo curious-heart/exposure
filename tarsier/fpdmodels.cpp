@@ -9,7 +9,7 @@
 
 static const char* FPD_MFG_IRAY = "iRay"; //奕瑞
 static const char* IRAY_MODEL_MARS1417V3 = "Mars1417V3";
-static const char* IRAY_MODEL_MARS1717 = "Mars1717";
+static const char* IRAY_MODEL_MARS1717 = "Mars1717V3";
 
 static const char* FPD_MFG_PZM = "PZM"; //品臻
 static const char* PZM_MODEL_4343Z = "4343Z";
@@ -45,6 +45,8 @@ void CFpdModels::setup_fpd_model_list()
         info->model = FPD_MODEL_NONE;
         info->api_lib_pfn = "";
         info->cfg_file_pth = "";
+        info->log_file_pth = "";
+        info->tpl_file_pth = "";
         info->img_file_pth = "";
         info->img_file_ext = "";
         info->img_info = {0, 0, 0};
@@ -64,6 +66,7 @@ void CFpdModels::setup_fpd_model_list()
     static const char* IRAY_API_LIB_PFN = "FpdSys";
     static const char* IRAY_CFG_FILE_PTH = "";
     static const char* IRAY_LOG_FILE_PTH = "";
+    static const char* IRAY_TPL_FILE_PTH = "";
     static const char* IRAY_IMG_FILE_PTH = "";
     static const char* IRAY_IMG_FILE_EXT = ".tif";
     info = new(fpd_model_info_t);
@@ -75,6 +78,7 @@ void CFpdModels::setup_fpd_model_list()
         info->api_lib_pfn = IRAY_API_LIB_PFN;
         info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->log_file_pth = IRAY_LOG_FILE_PTH;
+        info->tpl_file_pth = IRAY_TPL_FILE_PTH;
         info->img_file_pth = IRAY_IMG_FILE_PTH;
         info->img_file_ext = IRAY_IMG_FILE_EXT;
         info->img_info = {IMG_PIX_NORM_14I_35CM_L1, IMG_PIX_NORM_17I_43CM_L1, IMG_BITS_DEP_NORM};
@@ -98,6 +102,7 @@ void CFpdModels::setup_fpd_model_list()
         info->api_lib_pfn = IRAY_API_LIB_PFN;
         info->cfg_file_pth = IRAY_CFG_FILE_PTH;
         info->log_file_pth = IRAY_LOG_FILE_PTH;
+        info->tpl_file_pth = IRAY_TPL_FILE_PTH;
         info->img_file_pth = IRAY_IMG_FILE_PTH;
         info->img_file_ext = IRAY_IMG_FILE_EXT;
         info->img_info = {IMG_PIX_NORM_17I_43CM_L1, IMG_PIX_NORM_17I_43CM_L1, IMG_BITS_DEP_NORM};
@@ -119,7 +124,8 @@ void CFpdModels::setup_fpd_model_list()
     static const char* PZM_API_LIB_PFN = "pzm/sdk_4.1.16/ComApi/x64/ComApi";
     static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.1.16";
     static const char* PZM_LOG_FILE_PTH = "pzm_sdk_log";
-    static const char* PZM_IMG_FILE_PTH = "pzm_image";
+    static const char* PZM_TPL_FILE_PTH = "pzm/tpl_path";
+    static const char* PZM_IMG_FILE_PTH = "pzm/img_path";
     static const char* PZM_IMG_FILE_EXT = ".aof";
     info = new(fpd_model_info_t);
     if(info)
@@ -130,6 +136,7 @@ void CFpdModels::setup_fpd_model_list()
         info->api_lib_pfn = PZM_API_LIB_PFN;
         info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->log_file_pth = QString(log_dir_str) + "/" + PZM_LOG_FILE_PTH;
+        info->tpl_file_pth = PZM_TPL_FILE_PTH;
         info->img_file_pth = PZM_IMG_FILE_PTH;
         info->img_file_ext = PZM_IMG_FILE_EXT;
         info->img_info = {IMG_PIX_NORM_17I_43CM_L2, IMG_PIX_NORM_17I_43CM_L2, IMG_BITS_DEP_NORM};
@@ -149,6 +156,7 @@ void CFpdModels::setup_fpd_model_list()
         info->api_lib_pfn = PZM_API_LIB_PFN;
         info->cfg_file_pth = PZM_CFG_FILE_PTH;
         info->log_file_pth = QString(log_dir_str) + "/" + PZM_LOG_FILE_PTH;
+        info->tpl_file_pth = PZM_TPL_FILE_PTH;
         info->img_file_pth = PZM_IMG_FILE_PTH;
         info->img_file_ext = PZM_IMG_FILE_EXT;
         info->img_info = {IMG_PIX_NORM_14I_35CM_L2, IMG_PIX_NORM_17I_43CM_L2, IMG_BITS_DEP_NORM};
