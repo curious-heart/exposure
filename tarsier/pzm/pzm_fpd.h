@@ -58,6 +58,13 @@ typedef BOOL (*Fnt_COM_GetFPStatus)(TFPStat* ptFPStat);
 typedef BOOL (*Fnt_COM_GetFPStatusEx)(TFPStat* ptFPStat, CHAR* psn);
 typedef BOOL (*Fnt_COM_GetFPStatusP)(TFPStatex* ptFPStatex);
 
+typedef BOOL (*Fnt_COM_DownloadOffsetTpl)(CHAR* path);
+typedef BOOL (*Fnt_COM_DownloadGainTpl)(CHAR* path);
+typedef BOOL (*Fnt_COM_DownloadAedTOffsetTpl)(CHAR* path);
+typedef BOOL (*Fnt_COM_DownloadDefectTpl)(CHAR* path);
+typedef BOOL (*Fnt_COM_DownLoadFPZMTpl)(CHAR TplType, CHAR * Tplpath);
+typedef BOOL (*Fnt_COM_SetAllTpl)();
+
 class CPZM_Fpd: public QObject
 {
     Q_OBJECT
@@ -83,7 +90,7 @@ public:
     static BOOL WINAPI FuncHeartBeatCallBack(char nEvent); /*EVENT_HEARTBEAT*/
     static BOOL WINAPI FuncHeartBeatexCallBack(char nEvent); /*EVENT_HEARTBEATEX*/
     static BOOL WINAPI FuncImageCallBack(char nEvent); /*EVENT_IMAGEVALID*/
-
+    static BOOL WINAPI FuncCmdEndCallBack(char nEvent); /*EVENT_CMDEND*/
 
 private:
     bool m_obj_init_ok = false;
@@ -95,13 +102,18 @@ private:
     int m_fpd_used_if_idx = -1;
 
     QString m_cur_fpd_sn;
+    QString m_tpl_path;
+    bool m_tpl_file_ready = false;
 
 private:
     bool load_library();
     bool unload_library();
     bool resolve_lib_functions();
     bool reg_pzm_callbacks();
-    bool set_cali_mode_and_tpl();
+    bool set_cali_mode();
+    bool install_tpl();
+    void check_and_set_tpl();
+    bool fpl_file_exists();
 
 signals:
     void fpdErrorOccurred(QString errorInfo);
@@ -121,6 +133,7 @@ private:
     static constexpr const char* m_hstr_COM_StopNet = "COM_StopNet";
     static constexpr const char* m_hstr_COM_RegisterEvCallBack = "COM_RegisterEvCallBack";
     static constexpr const char* m_hstr_COM_SetCalibMode = "COM_SetCalibMode";
+    static constexpr const char* m_hstr_COM_GetCalibMode = "COM_GetCalibMode";
     static constexpr const char* m_hstr_COM_GetFPsn = "COM_GetFPsn";
     static constexpr const char* m_hstr_COM_GetFPsnEx = "COM_GetFPsnEx";
     static constexpr const char* m_hstr_COM_GetFPCurStatus = "COM_GetFPCurStatus";
@@ -138,6 +151,13 @@ private:
     static constexpr const char* m_hstr_COM_GetFPStatusEx = "COM_GetFPStatusEx";
     static constexpr const char* m_hstr_COM_GetFPStatusP = "COM_GetFPStatusP";
 
+    static constexpr const char* m_hstr_COM_DownloadOffsetTpl = "COM_DownloadOffsetTpl";
+    static constexpr const char* m_hstr_COM_DownloadGainTpl = "COM_DownloadGainTpl";;
+    static constexpr const char* m_hstr_COM_DownloadAedTOffsetTpl = "COM_DownloadAedTOffsetTpl";;
+    static constexpr const char* m_hstr_COM_DownloadDefectTpl = "COM_DownloadDefectTpl";;
+    static constexpr const char* m_hstr_COM_DownLoadFPZMTpl = "COM_DownLoadFPZMTpl";;
+    static constexpr const char* m_hstr_COM_SetAllTpl = "COM_SetAllTpl";;
+
     /*api function poiter*/
     Fnt_COM_Init m_hptr_COM_Init;
     Fnt_COM_Uninit m_hptr_COM_Uninit;
@@ -149,6 +169,7 @@ private:
     Fnt_COM_StopNet m_hptr_COM_StopNet;
     Fnt_COM_RegisterEvCallBack m_hptr_COM_RegisterEvCallBack;
     Fnt_COM_SetCalibMode m_hptr_COM_SetCalibMode;
+    Fnt_COM_GetCalibMode m_hptr_COM_GetCalibMode;
     Fnt_COM_GetFPsn m_hptr_COM_GetFPsn;
     Fnt_COM_GetFPsnEx m_hptr_COM_GetFPsnEx;
     Fnt_COM_GetFPCurStatus m_hptr_COM_GetFPCurStatus;
@@ -165,5 +186,15 @@ private:
     Fnt_COM_GetFPStatus m_hptr_COM_GetFPStatus;
     Fnt_COM_GetFPStatusEx m_hptr_COM_GetFPStatusEx;
     Fnt_COM_GetFPStatusP m_hptr_COM_GetFPStatusP;
+
+    /*
+     * It seems only  COM_DownLoadFPZMTpl works, and other function just return true but do nothing...
+     */
+    Fnt_COM_DownloadOffsetTpl m_hptr_COM_DownloadOffsetTpl;
+    Fnt_COM_DownloadGainTpl m_hptr_COM_DownloadGainTpl;
+    Fnt_COM_DownloadAedTOffsetTpl m_hptr_COM_DownloadAedTOffsetTpl;
+    Fnt_COM_DownloadDefectTpl m_hptr_COM_DownloadDefectTpl;
+    Fnt_COM_DownLoadFPZMTpl m_hptr_COM_DownLoadFPZMTpl;
+    Fnt_COM_SetAllTpl m_hptr_COM_SetAllTpl;
 };
 #endif // PZM_FPD_H

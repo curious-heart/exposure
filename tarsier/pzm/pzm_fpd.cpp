@@ -124,7 +124,7 @@ CPZM_Fpd::~CPZM_Fpd()
 
     sg_curr_pzm_fpd_obj = nullptr;
     m_ip_set_ok = false;
-
+    m_tpl_file_ready = false;
 }
 
 bool CPZM_Fpd::pzm_fpd_obj_init_ok()
@@ -158,6 +158,7 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_StopNet, Fnt_COM_StopNet, m_hstr_COM_StopNet);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_RegisterEvCallBack, Fnt_COM_RegisterEvCallBack, m_hstr_COM_RegisterEvCallBack);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_SetCalibMode, Fnt_COM_SetCalibMode, m_hstr_COM_SetCalibMode);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetCalibMode, Fnt_COM_GetCalibMode, m_hstr_COM_GetCalibMode);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPsn, Fnt_COM_GetFPsn, m_hstr_COM_GetFPsn);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPsnEx, Fnt_COM_GetFPsnEx, m_hstr_COM_GetFPsnEx);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPCurStatus, Fnt_COM_GetFPCurStatus, m_hstr_COM_GetFPCurStatus);
@@ -174,6 +175,13 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatus, Fnt_COM_GetFPStatus, m_hstr_COM_GetFPStatus);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatusEx, Fnt_COM_GetFPStatusEx, m_hstr_COM_GetFPStatusEx);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPStatusP, Fnt_COM_GetFPStatusP, m_hstr_COM_GetFPStatusP);
+
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownloadOffsetTpl, Fnt_COM_DownloadOffsetTpl, m_hstr_COM_DownloadOffsetTpl);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownloadGainTpl, Fnt_COM_DownloadGainTpl, m_hstr_COM_DownloadGainTpl);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownloadAedTOffsetTpl, Fnt_COM_DownloadAedTOffsetTpl, m_hstr_COM_DownloadAedTOffsetTpl);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownloadDefectTpl, Fnt_COM_DownloadDefectTpl, m_hstr_COM_DownloadDefectTpl);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownLoadFPZMTpl, Fnt_COM_DownLoadFPZMTpl, m_hstr_COM_DownLoadFPZMTpl);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_SetAllTpl, Fnt_COM_SetAllTpl, m_hstr_COM_SetAllTpl);
 
     return true;
 }
@@ -198,6 +206,8 @@ bool CPZM_Fpd::reg_pzm_callbacks()
     REGISTER_EVT_CALL_BACK(EVENT_HEARTBEAT, FuncHeartBeatCallBack, "FuncHeartBeatCallBack");
     //REGISTER_EVT_CALL_BACK(EVENT_HEARTBEATEX, FuncHeartBeatexCallBack, "FuncHeartBeatexCallBack");
     REGISTER_EVT_CALL_BACK(EVENT_IMAGEVALID, FuncImageCallBack, "FuncImageCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_CMDEND, FuncCmdEndCallBack, "FuncCmdEndCallBack");
+
 
 
     return true;
@@ -233,8 +243,16 @@ BOOL CPZM_Fpd::FuncLinkCallBack(char nEvent)
     DIY_LOG(LOG_INFO, QString("PZM: FuncLinkCallBack(%1)").arg((int)nEvent));
     if(sg_curr_pzm_fpd_obj)
     {
-        DIY_LOG(LOG_INFO, "PZM: connected");
-        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUP);
+        CHAR sn_buf[PZM_SN_LEN + 1];
+        sg_curr_pzm_fpd_obj->m_hptr_COM_GetFPsn(sn_buf);
+        sn_buf[PZM_SN_LEN] = '\0';
+        sg_curr_pzm_fpd_obj->m_cur_fpd_sn = QString(sn_buf);
+
+        DIY_LOG(LOG_INFO, QString("PZM: connected, curr sn: %1").arg(sn_buf));
+        emit sg_curr_pzm_fpd_obj->pzm_fpd_comm_sig(EVENT_LINKUP, 0, sn_buf);
+
+        sg_curr_pzm_fpd_obj->install_tpl();
+
         return TRUE;
     }
     PZM_HANDLER_NOT_EXIST();
@@ -292,8 +310,9 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
 {/*EVENT_HEARTBEAT*/
      //from the doc, this cb is called every 500ms. But it seems not very accurate...
     static const int PZM_HB_INTERMAL = 2 * 5 * 10;
+    static const int PZM_HB_INI_PERIOD = 2 * 5; //At start, use a shorter timer to do something, e.g. fpl set.
     static int hb_int_cnt = 0;
-    static bool first_beat = true;
+    static bool first_beat = true, ini_period = true;
 
     /*on first beat, fresh fpd status, e.g. battery level.*/
     if(first_beat)
@@ -301,6 +320,16 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
         DIY_LOG(LOG_INFO, "First heart beat!");
         hb_int_cnt = 0;
         first_beat = false;
+    }
+    else if(ini_period)
+    {
+        if(hb_int_cnt < PZM_HB_INI_PERIOD)
+        {
+            ++hb_int_cnt;
+            return TRUE;
+        }
+        hb_int_cnt = 0;
+        ini_period = false;
     }
     else
     {
@@ -334,6 +363,12 @@ BOOL WINAPI CPZM_Fpd::FuncHeartBeatCallBack(char nEvent)
         int b_remain = 0, b_full = 0;
         sg_curr_pzm_fpd_obj->pzm_get_fpd_batt(&b_remain, &b_full);
         emit sg_curr_pzm_fpd_obj->pzm_fpd_batt_level_sig(b_remain, b_full);
+
+        /*check if tpl file exists.*/
+        if(!sg_curr_pzm_fpd_obj->m_tpl_file_ready)
+        {
+           sg_curr_pzm_fpd_obj->check_and_set_tpl();
+        }
 
         return TRUE;
     }
@@ -400,19 +435,138 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
     PZM_HANDLER_NOT_EXIST();
 }
 
+BOOL WINAPI CPZM_Fpd::FuncCmdEndCallBack(char cmd)
+{/*EVENT_CMDEND*/
+    DIY_LOG(LOG_INFO, QString("PZM: FuncCmdEndCallBack(%1)").arg((int)cmd));
+    if(sg_curr_pzm_fpd_obj)
+    {
+        return TRUE;
+    }
+    PZM_HANDLER_NOT_EXIST();
+}
 #undef PZM_HANDLER_NOT_EXIST
 
 /*----------------------------------------------------------------------------*/
-bool CPZM_Fpd::set_cali_mode_and_tpl()
+bool CPZM_Fpd::set_cali_mode()
 {
+    static const CHAR def_cali_mode = (CHAR)(IMG_CALIB_OFFSET | IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
     BOOL api_ret;
-    api_ret = m_hptr_COM_SetCalibMode(IMG_CALIB_OFFSET | IMG_CALIB_GAIN | IMG_CALIB_DEFECT);
+    CHAR cur_cali_mode = m_hptr_COM_GetCalibMode();
+    if(def_cali_mode == cur_cali_mode)
+    {
+        DIY_LOG(LOG_INFO, QString("Curr cali mode is already %1").arg((int)cur_cali_mode));
+        return true;
+    }
+    api_ret = m_hptr_COM_SetCalibMode(def_cali_mode);
     if(!api_ret)
     {
-        DIY_LOG(LOG_WARN, "PZM: SetCaliMode error!");
+        DIY_LOG(LOG_WARN, QString("PZM: SetCaliMode to %1 error!").arg((int)def_cali_mode));
         return false;
     }
-    DIY_LOG(LOG_INFO, "PZM: SetCaliMode ok!");
+    DIY_LOG(LOG_INFO, QString("PZM: SetCaliMode to %1 ok!").arg((int)def_cali_mode));
+    return true;
+}
+
+bool CPZM_Fpd::fpl_file_exists()
+{
+    static const char* pzm_tpl_file_name[]
+    {
+        "gain.tpl",
+    };
+
+    QString pzm_tpl_pth = m_tpl_path + "/" + m_cur_fpd_sn;
+    QFile fpl_qfile;
+    bool fpl_exists = false;
+    for(quint64 i = 0; i < ARRAY_COUNT(pzm_tpl_file_name); ++i)
+    {
+        /* We're not very clear about the tpl file... So currently, if there is any tpl file
+         * existing, we think it works fine.
+         * In future, if more knowledge are mastered, this part
+         * of code may need updating...
+        */
+        fpl_qfile.setFileName(pzm_tpl_pth + "/" + QString(pzm_tpl_file_name[i]));
+        if(!fpl_qfile.exists())
+        {
+            DIY_LOG(LOG_INFO, QString("PZM: %1 does not exist.").arg(fpl_qfile.fileName()));
+        }
+        else
+        {
+            fpl_exists = true;
+        }
+    }
+    return fpl_exists;
+}
+
+void CPZM_Fpd::check_and_set_tpl()
+{
+    BOOL api_ret;
+    if(fpl_file_exists())
+    {
+        DIY_LOG(LOG_INFO, "PZM: fpl file ready, now set it.");
+        m_tpl_file_ready = true;
+        api_ret = m_hptr_COM_SetAllTpl();
+        if(api_ret)
+        {
+            DIY_LOG(LOG_INFO, "PZM: COM_SetAllTpl ok.");
+        }
+        else
+        {
+            DIY_LOG(LOG_INFO, "PZM: COM_SetAllTpl error.");
+        }
+    }
+    else
+    {
+        m_tpl_file_ready = false;
+        DIY_LOG(LOG_INFO, "PZM: fpl file not ready yet... we'll check in next "
+                          "heartbeat cycle.");
+    }
+}
+
+bool CPZM_Fpd::install_tpl()
+{
+    BOOL api_ret;
+    bool fpl_exists;
+    QString pzm_tpl_pth = m_tpl_path + "/" + m_cur_fpd_sn;
+    if(!mkpth_if_not_exists(pzm_tpl_pth))
+    {
+        DIY_LOG(LOG_ERROR, QString("PZM: make tpl path error: %1").arg(pzm_tpl_pth));
+    }
+    else
+    {
+        fpl_exists = fpl_file_exists();
+        if(!fpl_exists)
+        {
+            QByteArray ba = pzm_tpl_pth.toUtf8();
+            DIY_LOG(LOG_INFO, QString("PZM: fpl file does not exist,"
+                                      " now begin to download tpl to: %1").arg(ba.data()));
+
+            api_ret = m_hptr_COM_DownLoadFPZMTpl(FP_TPL_1x1, ba.data());
+            if(api_ret)
+            {
+                DIY_LOG(LOG_INFO, "PZM: COM_DownLoadFPZMTpl ok.");
+                /* Download fpl take several seconds, and COM_DownLoadFPZMTpl is
+                 * an asynchronization funciton. So, even if it returns true, the
+                 * downloading process may still in progress. So we need to check
+                 * if the file exists, and if not, try in every heartbeat cycle.
+                */
+                check_and_set_tpl();
+            }
+            else
+            {
+                DIY_LOG(LOG_INFO, "PZM: COM_DownLoadFPZMTpl error.");
+            }
+        }
+        else
+        {
+            /*
+             * If fpl file exists before connection, SDK has already set it before
+             * here, so we need not set it again.
+             */
+            m_tpl_file_ready = true;
+            DIY_LOG(LOG_INFO, "PZM: there is fpl file existing, just use it.");
+        }
+    }
+
     return true;
 }
 /*----------------------------------------------------------------------------*/
@@ -500,7 +654,7 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
     {
         DIY_LOG(LOG_INFO, QString("PZM: Set tpl file path: %1").arg(QString(pth)));
     }
-
+    m_tpl_path = QString(pth);
 
     file_abs_pth = curr_app_abs_pth + "/" + m_model_info->img_file_pth;
     ba = file_abs_pth.toUtf8();
@@ -510,6 +664,7 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
     {
         DIY_LOG(LOG_WARN, QString("PZM: Set image file path error: %1").arg(m_model_info->img_file_pth));
     }
+    DIY_LOG(LOG_INFO, QString("PZM: Set image file path: %1").arg(m_model_info->img_file_pth));
 
     api_ret = m_hptr_COM_Init();
     if(!api_ret)
@@ -527,16 +682,7 @@ bool CPZM_Fpd::connect_to_fpd(fpd_model_info_t* model, ip_intf_type_t intf)
     DIY_LOG(LOG_INFO, "PZM: fpd opened.");
     m_com_opened = true;
 
-    api_ret = set_cali_mode_and_tpl();
-    if(!api_ret)
-    {
-        DIY_LOG(LOG_WARN, "PZM: set_cali_mode_and_tpl!");
-    }
-    else
-    {
-        DIY_LOG(LOG_INFO, "PZM: set_cali_mode_and_tpl ok!");
-    }
-
+    set_cali_mode();
     /* Battery level has not been properly initialized on connect until the firs heart beat.
      * So the battery level values got here are invalid.
     */
@@ -579,7 +725,10 @@ bool CPZM_Fpd::disconnect_from_fpd(fpd_model_info_t* /*model*/)
         DIY_LOG(LOG_INFO, "PZM: Uninited.");
     }
 
+    m_tpl_file_ready = false;
+
     unload_library();
+
     return ret;
 }
 

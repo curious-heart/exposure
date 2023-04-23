@@ -1,3 +1,3 @@
 #include "version_def.h"
 /*DO NOT CHANGE THE FORMAT OF THIS FILE. JUST UPDATE THE version string in quotes.*/
-const char* APP_VER_STR = "V2.3.02";
+const char* APP_VER_STR = "V2.4.00";
