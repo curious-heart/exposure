@@ -34,7 +34,7 @@ protected:
 
 public slots:
     void OnSelectImage();                   //选择打开图片
-    void loadImage(QImage img, QString img_sn = "", bool clear_img = false);             //载入图片
+    void loadImage(QImage img, QString img_sn = "", bool clear_img = false, bool invert = false);             //载入图片
     void OnZoomInImage();                   //图片放大
     void OnZoomOutImage();                  //图片缩小
     void OnPresetImage();                   //图片还原
@@ -48,7 +48,7 @@ public slots:
     void rotateImage();                     //旋转图片
     void antiColorImage(bool state);        //反色图片
     void operateImage(Enm_OperateType operate);//操作图片
-    void resetImage();                      //重置图片
+    void resetImage(bool invert = true);                      //重置图片
 
 private:
     void getImagePixelsMaxMin(QImage Img,quint32 &max, quint32 &min,
@@ -83,13 +83,12 @@ private:
     bool invertState=false; //反色状态
     int WW=65447;               //窗宽
     int WL=32810;               //窗位
-    Enm_OperateType operateType;//操作类型
+    Enm_OperateType operateType = Enm_No_Operat;//操作类型
 
     //QLabel m_px_info_lbl;
     bool m_img_loaded = false;
-    QRect m_img_rect, m_img_ori_rect;
-    QTransform m_img_trans;
-    float m_display_scale_x, m_display_scale_y;
+    QRect m_img_wnd_rect;
+    QTransform m_combined_trans, m_img_wnd_ori_trans/*from window coord to img coord*/;
     QString m_img_sn;
 };
 

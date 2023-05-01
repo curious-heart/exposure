@@ -2089,7 +2089,7 @@ void MainWindow::onImageCreateFinshed(QImage *passedin_img,QString imageNum, Ima
     }
 
     *showImg = showImg->transformed(matrix, Qt::FastTransformation);
-    ui->preview->loadImage(*showImg, imageNum);
+    ui->preview->loadImage(*showImg, imageNum, false, antiColorButton->isChecked());
     // brightSlider->setValue(0);
     // contrastSlider->setValue(0);
     //ui->ImageNum->setText("SN:" + imageNum);
@@ -2657,7 +2657,8 @@ void MainWindow::onImageLoaded()
     //    brightSlider->setValue(0);
     //    contrastSlider->setValue(0);
 
-    if(!imageShowState){
+    //if(!imageShowState)
+    {
         ui->saveImage->setEnabled(true);
         ui->saveImage->setStyleSheet("border-image: url(:/images/saveImage-able.png)");
         /*
@@ -2670,6 +2671,7 @@ void MainWindow::onImageLoaded()
         translationButton->show();
         resetButton->show();
         */
+        onRestButtonClicked();
         show_image_op_info_widgets(true);
         imageShowState=true;
     }
@@ -2695,6 +2697,7 @@ void MainWindow::clear_preview_area()
     QImage clear_image(1, 1, QImage::Format_ARGB32);
     clear_image.fill(QColor(0, 0, 0, 0));
     ui->preview->loadImage(clear_image, "", true);
+    onRestButtonClicked();
     show_image_op_info_widgets(false);
     imageShowState = false;
 }
@@ -3197,7 +3200,6 @@ void MainWindow::on_pzm_conn_timer_timeout()
 
 void MainWindow::on_connect_pressed()
 {
-    DIY_LOG(LOG_INFO, "Pressed..............");
     refresh_ip_addr();
 }
 
