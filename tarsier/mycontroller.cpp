@@ -1,5 +1,6 @@
 #include "mycontroller.h"
-#include <QModbusRtuSerialMaster>
+//#include <QModbusRtuSerialMaster>
+#include <QModbusTcpClient>
 #include "settingcfg.h"
 #include "logger.h"
 #include <QVariant>
@@ -30,7 +31,8 @@ MyController::~MyController(){
  * @brief MyController::init 初始化
  */
 void MyController::init(){
-     modbusDevice = new QModbusRtuSerialMaster(this);
+     //modbusDevice = new QModbusRtuSerialMaster(this);
+     modbusDevice = new QModbusTcpClient(this);
      connect(modbusDevice,&QModbusClient::errorOccurred,this,&MyController::onModbusErrorOccurred);
      connect(modbusDevice, &QModbusClient::stateChanged,this, &MyController::onModbusStateChanged);
 }
@@ -45,6 +47,7 @@ int MyController::ConnectionController(){
         return 1;//初始化失败
     }
     if(modbusDevice->state()!=QModbusDevice::ConnectedState){//当前状态是未连接完成
+        /*
         QString serialPortName=SettingCfg::getInstance().getSystemSettingCfg().serialPortName;
         int serialParity=SettingCfg::getInstance().getSystemSettingCfg().serialParity;
         int serialBaudRate=SettingCfg::getInstance().getSystemSettingCfg().serialBaudRate;
@@ -55,6 +58,12 @@ int MyController::ConnectionController(){
         modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,serialBaudRate);
         modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,serialDataBits);
         modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,serialStopBits);
+        */
+        QString mb_tcp_ip_addr = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_ip_addr;
+        uint16_t mb_tcp_port = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_port;
+        modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter, mb_tcp_ip_addr);
+        modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter,mb_tcp_port);
+
         int timeout=SettingCfg::getInstance().getSystemSettingCfg().timeout;
         int numberOfRetries=SettingCfg::getInstance().getSystemSettingCfg().numberOfRetries;
         modbusDevice->setTimeout(timeout);//连接超时设置

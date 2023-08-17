@@ -13,6 +13,10 @@ static const char* INI_KEY_RTUSERIAL_TUBE_VOL = "tubeVol";
 static const char* INI_KEY_RTUSERIAL_TUBE_AMT = "tubeAmt";
 static const char* INI_KEY_RTUSERIAL_EXPOSURE_TIME_IDX = "exposureTimeIndex";
 
+static const char* INI_GRP_MB_TCP_CLIENT = "Mb_TCP";
+static const char* INI_KEY_MB_TCP_IP_ADDR = "IP_Addr";
+static const char* INI_KEY_MB_TCP_PORT = "TCP_Port";
+
 static const char* INI_GRP_FPD_HIS = "FpdHistorySettings";
 static const char* INI_KEY_TRIGGER_MODE = "trigger";
 static const char* INI_KEY_CONNECT_MEDIA = "connectMedia";
@@ -171,6 +175,11 @@ void SettingCfg::readSettingConfig(){
     systemSettingCfg.isAutoOff = settings.value("isAutoOff").isNull()?systemSettingCfg.isAutoOff:settings.value("isAutoOff").toInt();
     settings.endGroup();
 
+    settings.beginGroup(INI_GRP_MB_TCP_CLIENT);
+    systemSettingCfg.mb_tcp_ip_addr = settings.value(INI_KEY_MB_TCP_IP_ADDR).isNull()?systemSettingCfg.mb_tcp_ip_addr:settings.value(INI_KEY_MB_TCP_IP_ADDR).toString();
+    systemSettingCfg.mb_tcp_port = settings.value(INI_KEY_MB_TCP_PORT).isNull()?systemSettingCfg.mb_tcp_port:settings.value(INI_KEY_MB_TCP_PORT).toUInt();
+    settings.endGroup();
+
     settings.beginGroup("Fpd");
     systemSettingCfg.fpdName=settings.value("fpdName").isNull()?systemSettingCfg.fpdName:settings.value("fpdName").toString();
     systemSettingCfg.fpdWorkDir=settings.value("fpdWorkDir").isNull()?systemSettingCfg.fpdWorkDir:settings.value("fpdWorkDir").toString();
@@ -297,6 +306,11 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
         settings.setValue(INI_KEY_RTUSERIAL_TUBE_AMT, ssc->tubeAmt);
         settings.endGroup();
 
+
+        settings.beginGroup(INI_GRP_MB_TCP_CLIENT);
+        settings.setValue(INI_KEY_MB_TCP_IP_ADDR, ssc->mb_tcp_ip_addr);
+        settings.setValue(INI_KEY_MB_TCP_PORT, ssc->mb_tcp_port);
+        settings.endGroup();
 
         settings.beginGroup(INI_GRP_USER_SETTINGS);
         settings.setValue(INI_KEY_CURR_EXPOSURE_OPT, ssc->currExposureOpt);

@@ -40,6 +40,9 @@ struct SystemSettingCfg{
     int serialBaudRate=QSerialPort::Baud9600;
     int serialDataBits=QSerialPort::Data8;
     int serialStopBits=QSerialPort::OneStop;
+    QString mb_tcp_ip_addr = "10.10.18.1";
+    uint16_t mb_tcp_port = 502;
+
     int timeout=1000;
     int numberOfRetries=3;
     int serverAddress=1;//1-255
