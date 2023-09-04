@@ -5,6 +5,8 @@
 #include <QFile>
 #include <iostream>
 
+const QString gs_hvCtrlIntfName_NIC = "NIC";
+
 static const char* SETTING_CFG_INI = "data/settingCfg.ini";
 
 static const char* INI_GRP_USER_SETTINGS = "UserSettings";
@@ -159,9 +161,9 @@ void SettingCfg::readSettingConfig(){
     systemSettingCfg.sleepTime = settings.value("sleepTime").isNull()?systemSettingCfg.sleepTime:settings.value("sleepTime").toString();
     systemSettingCfg.shutdownTime = settings.value("shutdownTime").isNull()?systemSettingCfg.shutdownTime:settings.value("shutdownTime").toString();
     systemSettingCfg.imageDir = settings.value("imageDir").isNull()?systemSettingCfg.imageDir:settings.value("imageDir").toString();
+    systemSettingCfg.hvCtrlIntfName = settings.value("hvCtrlIntfName").isNull()?systemSettingCfg.hvCtrlIntfName:settings.value("hvCtrlIntfName").toString();
     settings.endGroup();
     settings.beginGroup("RtuSerial");
-    systemSettingCfg.serialPortName = settings.value("serialPortName").isNull()?systemSettingCfg.serialPortName:settings.value("serialPortName").toString();
     systemSettingCfg.serialParity = settings.value("serialParity").isNull()?systemSettingCfg.serialParity:settings.value("serialParity").toInt();
     systemSettingCfg.serialBaudRate = settings.value("serialBaudRate").isNull()?systemSettingCfg.serialBaudRate:settings.value("serialBaudRate").toInt();
     systemSettingCfg.serialDataBits = settings.value("serialDataBits").isNull()?systemSettingCfg.serialDataBits:settings.value("serialDataBits").toInt();
@@ -177,7 +179,7 @@ void SettingCfg::readSettingConfig(){
 
     settings.beginGroup(INI_GRP_MB_TCP_CLIENT);
     systemSettingCfg.mb_tcp_ip_addr = settings.value(INI_KEY_MB_TCP_IP_ADDR).isNull()?systemSettingCfg.mb_tcp_ip_addr:settings.value(INI_KEY_MB_TCP_IP_ADDR).toString();
-    systemSettingCfg.mb_tcp_port = settings.value(INI_KEY_MB_TCP_PORT).isNull()?systemSettingCfg.mb_tcp_port:settings.value(INI_KEY_MB_TCP_PORT).toUInt();
+    systemSettingCfg.mb_tcp_port = settings.value(INI_KEY_MB_TCP_PORT).isNull()?systemSettingCfg.mb_tcp_port:settings.value(INI_KEY_MB_TCP_PORT).toInt();
     settings.endGroup();
 
     settings.beginGroup("Fpd");
@@ -252,7 +254,7 @@ void SettingCfg::readSettingConfig(){
  */
 void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc){
     /*
-    systemSettingCfg.serialPortName= ssc->serialPortName;
+    systemSettingCfg.hvCtrlIntfName= ssc->hvCtrlIntfName;
     systemSettingCfg.fpdName=ssc->fpdName;
     systemSettingCfg.serialParity=ssc->serialParity;
     systemSettingCfg.serialBaudRate=ssc->serialBaudRate;
@@ -290,10 +292,10 @@ void SettingCfg::writeSettingConfig(SystemSettingCfg * ssc, FpdSettingCfg * fsc)
         settings.setValue("sleepTime", ssc->sleepTime);
         settings.setValue("shutdownTime", ssc->shutdownTime);
         settings.setValue("imageDir", ssc->imageDir);
+        settings.setValue("hvCtrlIntfName", ssc->hvCtrlIntfName);
         settings.endGroup();
 
         settings.beginGroup("RtuSerial");
-        settings.setValue("serialPortName", ssc->serialPortName);
         settings.setValue("serialParity", ssc->serialParity);
         settings.setValue("serialBaudRate", ssc->serialBaudRate);
         settings.setValue("serialDataBits", ssc->serialDataBits);

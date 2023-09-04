@@ -16,35 +16,32 @@ SystemSetting::SystemSetting(QWidget *parent, CFpdModels * fpd_models) :
     this->setFixedSize(860, 370);
     ui->sysOk->setText(NULL);
     ui->sysCancel->setText(NULL);
-    QString s_port_in_cfg_file = SettingCfg::getInstance().getSystemSettingCfg().serialPortName;
+    QString s_port_in_cfg_file = SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName;
     bool s_port_match = false;
-    QString first_com_on_machine = "";
     //添加串口
-    foreach (QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
-        if(first_com_on_machine.isEmpty())
-        {
-            first_com_on_machine = info.portName();
-        }
-        ui->serialPort->addItem(info.portName());
+    foreach (QSerialPortInfo info, QSerialPortInfo::availablePorts())
+    {
+        ui->hvCtrlIntf->addItem(info.portName());
         if(info.portName() == s_port_in_cfg_file)
         {
             s_port_match = true;
         }
     }
-    if(first_com_on_machine.isEmpty())
+    //add network interface card for modbus tcp
+    ui->hvCtrlIntf->addItem(gs_hvCtrlIntfName_NIC);
+    if(gs_hvCtrlIntfName_NIC == s_port_in_cfg_file)
     {
-        DIY_LOG(LOG_ERROR, "There is no available serial ports on this machine,"
-                           "so the device can't work.");
+        s_port_match = true;
     }
-    else if(!s_port_match)
+    if(!s_port_match)
     {
-        DIY_LOG(LOG_WARN, QString("Serial port in cfg file is %1,"
-                                  " but there is no such port on current machine."
-                                  "So we update the cfg file to the 1st port on machine: %2.")
-                            .arg(s_port_in_cfg_file, first_com_on_machine));
+        DIY_LOG(LOG_WARN, QString("HV controller interface in cfg file is %1,"
+                                  " but there is no such interface on current machine."
+                                  "So we update the cfg file to the 1st interface on machine: %2.")
+                            .arg(s_port_in_cfg_file, ui->hvCtrlIntf->itemText(0)));
 
         SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
-        ssc.serialPortName = first_com_on_machine;
+        ssc.hvCtrlIntfName = ui->hvCtrlIntf->itemText(0);
         SettingCfg::getInstance().writeSettingConfig(&ssc, nullptr);
     }
     //添加探测器列表
@@ -69,7 +66,7 @@ SystemSetting::SystemSetting(QWidget *parent, CFpdModels * fpd_models) :
     ui->shutdownTime->addItem("25",25);
     ui->shutdownTime->addItem("30",30);
     //数据回填
-    ui->serialPort->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().serialPortName);
+    ui->hvCtrlIntf->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName);
     QString ui_s = SettingCfg::getInstance().fpd_name_internal_to_ui(SettingCfg::getInstance().getSystemSettingCfg().fpdName);
     ui->fpdName->setCurrentText(ui_s);
     ui->sleepTime->setCurrentText(SettingCfg::getInstance().getSystemSettingCfg().sleepTime);
@@ -87,7 +84,7 @@ SystemSetting::~SystemSetting()
 void SystemSetting::on_sysOk_clicked(){
     SystemSettingCfg &ssc=SettingCfg::getInstance().getSystemSettingCfg();
     FpdSettingCfg &fsc=SettingCfg::getInstance().getFpdSettingCfg();
-    ssc.serialPortName=(ui->serialPort->currentText());
+    ssc.hvCtrlIntfName=(ui->hvCtrlIntf->currentText());
     QString in_s = SettingCfg::getInstance().fpd_name_ui_to_internal(ui->fpdName->currentText());
     if(ssc.fpdName != in_s)
     {

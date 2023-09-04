@@ -182,17 +182,17 @@
 #sysLabel,#sysLabel_3,#sysLabel_4,#sysLabel_5{
     font: 14pt "黑体";
 }
-#serialPort,#fpdName,#sleepTime,#shutdownTime{
+#hvCtrlIntf,#fpdName,#sleepTime,#shutdownTime{
     font: 12pt;
     border:1px solid #D7D7D7;
     border-radius:8px;
     min-width:200px;
     min-height:40px;
 }
-#serialPort::drop-down,#fpdName::drop-down,#sleepTime::drop-down,#shutdownTime::drop-down{
+#hvCtrlIntf::drop-down,#fpdName::drop-down,#sleepTime::drop-down,#shutdownTime::drop-down{
     border:transparent;
 }
-#serialPort::down-arrow,#fpdName::down-arrow,#sleepTime::down-arrow,#shutdownTime::down-arrow{
+#hvCtrlIntf::down-arrow,#fpdName::down-arrow,#sleepTime::down-arrow,#shutdownTime::down-arrow{
     border-image: url(:/images/more.png);
 }
 

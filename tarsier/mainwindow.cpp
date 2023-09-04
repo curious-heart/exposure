@@ -1476,7 +1476,7 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             }
             if(loop >= MAX_EXPOSURE_DURA_STEP)
             {
-                DIY_LOG(LOG_WARN, "Undefined exposure time read...");
+                DIY_LOG(LOG_WARN, QString("Undefined exposure time read...: %1").arg(roundup_value));
             }
             else if(exposureTimeIndex != loop)
             {

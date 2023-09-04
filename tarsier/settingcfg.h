@@ -20,6 +20,7 @@
 #define DEF_EXPOSURE_DURA_IDX 3
 #define DEF_CURR_EXPOSURE_OPT 1
 
+extern const QString gs_hvCtrlIntfName_NIC;
 typedef enum
 {
     exposure_opt_type_auto = 0,
@@ -35,13 +36,13 @@ typedef struct
 typedef QMap<int, exposure_opt_item_t*> exposure_opts_t;
 
 struct SystemSettingCfg{
-    QString serialPortName = "COM1";  //串口名称
+    QString hvCtrlIntfName = "COM1";  //串口名称
     int serialParity=QSerialPort::NoParity;
     int serialBaudRate=QSerialPort::Baud9600;
     int serialDataBits=QSerialPort::Data8;
     int serialStopBits=QSerialPort::OneStop;
     QString mb_tcp_ip_addr = "10.10.18.1";
-    uint16_t mb_tcp_port = 502;
+    int mb_tcp_port = 502;
 
     int timeout=1000;
     int numberOfRetries=3;

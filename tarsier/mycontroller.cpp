@@ -1,5 +1,6 @@
 #include "mycontroller.h"
-//#include <QModbusRtuSerialMaster>
+#include <QModbusRtuSerialMaster>
+#include <QUrl>
 #include <QModbusTcpClient>
 #include "settingcfg.h"
 #include "logger.h"
@@ -31,10 +32,17 @@ MyController::~MyController(){
  * @brief MyController::init 初始化
  */
 void MyController::init(){
-     //modbusDevice = new QModbusRtuSerialMaster(this);
-     modbusDevice = new QModbusTcpClient(this);
-     connect(modbusDevice,&QModbusClient::errorOccurred,this,&MyController::onModbusErrorOccurred);
-     connect(modbusDevice, &QModbusClient::stateChanged,this, &MyController::onModbusStateChanged);
+    if(gs_hvCtrlIntfName_NIC
+            == SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+    {
+        modbusDevice = new QModbusTcpClient(this);
+    }
+    else
+    {
+        modbusDevice = new QModbusRtuSerialMaster(this);
+    }
+    connect(modbusDevice,&QModbusClient::errorOccurred,this,&MyController::onModbusErrorOccurred);
+    connect(modbusDevice, &QModbusClient::stateChanged,this, &MyController::onModbusStateChanged);
 }
 
 
@@ -47,22 +55,27 @@ int MyController::ConnectionController(){
         return 1;//初始化失败
     }
     if(modbusDevice->state()!=QModbusDevice::ConnectedState){//当前状态是未连接完成
-        /*
-        QString serialPortName=SettingCfg::getInstance().getSystemSettingCfg().serialPortName;
-        int serialParity=SettingCfg::getInstance().getSystemSettingCfg().serialParity;
-        int serialBaudRate=SettingCfg::getInstance().getSystemSettingCfg().serialBaudRate;
-        int serialDataBits=SettingCfg::getInstance().getSystemSettingCfg().serialDataBits;
-        int serialStopBits=SettingCfg::getInstance().getSystemSettingCfg().serialStopBits;
-        modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,QVariant(serialPortName));
-        modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,serialParity);
-        modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,serialBaudRate);
-        modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,serialDataBits);
-        modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,serialStopBits);
-        */
-        QString mb_tcp_ip_addr = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_ip_addr;
-        uint16_t mb_tcp_port = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_port;
-        modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter, mb_tcp_ip_addr);
-        modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter,mb_tcp_port);
+        if(gs_hvCtrlIntfName_NIC
+            == SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+        {
+            QString mb_tcp_ip_addr = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_ip_addr;
+            int mb_tcp_port = SettingCfg::getInstance().getSystemSettingCfg().mb_tcp_port;
+            modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter, mb_tcp_ip_addr);
+            modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter, mb_tcp_port);
+        }
+        else
+        {
+            QString hvCtrlIntfName=SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName;
+            int serialParity=SettingCfg::getInstance().getSystemSettingCfg().serialParity;
+            int serialBaudRate=SettingCfg::getInstance().getSystemSettingCfg().serialBaudRate;
+            int serialDataBits=SettingCfg::getInstance().getSystemSettingCfg().serialDataBits;
+            int serialStopBits=SettingCfg::getInstance().getSystemSettingCfg().serialStopBits;
+            modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,QVariant(hvCtrlIntfName));
+            modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,serialParity);
+            modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,serialBaudRate);
+            modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,serialDataBits);
+            modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,serialStopBits);
+        }
 
         int timeout=SettingCfg::getInstance().getSystemSettingCfg().timeout;
         int numberOfRetries=SettingCfg::getInstance().getSystemSettingCfg().numberOfRetries;
