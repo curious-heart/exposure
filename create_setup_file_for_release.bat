@@ -138,8 +138,9 @@ goto remove_postfix
 if "%version_str_line:~0,1%" == "%mark_c%" set version_str_line=%version_str_line:~1%
 if "%version_str_line:~-1%" == "%mark_c%" set version_str_line=%version_str_line:~0,-1%
 REM make a dir with the name of version str, rename the result (adding ver) and move it to this dir.
-md ..\%version_str_line%
+echo 创建文件夹：%version_str_line%
+md "..\%version_str_line%"
 set result_file_with_ver=%result_setup_file:~0,-4%
 set result_file_with_ver=%result_file_with_ver%_%version_str_line%.exe
-move /Y %result_setup_file% ..\%version_str_line%\%result_file_with_ver% 
+move /Y %result_setup_file% "..\%version_str_line%\%result_file_with_ver%"
 echo 安装文件添加版本号，并移动到如下位置：%version_str_line%\%result_file_with_ver%

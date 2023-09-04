@@ -34,14 +34,6 @@
 
 #include "logger.h"
 
-enum Enm_Connect_State
-{
-    Connected = 0,
-    Connecting = 1,
-    Disconnected = 2,
-    Disconnecting = 3,
-    ConnectError = 4,
-};
 enum Enm_Controller_Address
 {
     HSV = 0,                            //软硬件版本
@@ -409,8 +401,6 @@ void MainWindow::InitActions(){
     ui->voltmeter->setText(QString("%1").arg(0));
     ui->ammeter->setText(QString("%1").arg(0));
     ui->exposureTimeRead->setText(QString("%1").arg(0));
-    //onFpdConnectStateChanged(Enm_Connect_State::Connected);//调试用
-    //onControllerConnectStateChanged(Enm_Connect_State::Connected);//调试用
     //connect(ui->systemSetting, &QPushButton::clicked, systemSetting, &QPushButton::show);
     //connect(ui->fpdSetting, &QPushButton::clicked, fpdSetting, &QPushButton::show);
     //connect(ui->exitSystem, &QPushButton::clicked, exitSystem, &QPushButton::show);
@@ -431,6 +421,8 @@ void MainWindow::InitActions(){
     connect(controller,&MyController::modbusErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(controller,&MyController::readDataFinished,this,&MainWindow::onReadControllerDataFinished);
     connect(controller,&MyController::writeDataFinished,this,&MainWindow::onWriteControllerDataFinished);
+    connect(controller,&MyController::modbusStateChanged,this,&MainWindow::onControllerConnectStateChanged);
+
     //connect(fpd,&MyFPD::fpdErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(imageOperation,&ImageOperation::imageOperationErrorOccurred,this,&MainWindow::onErrorOccurred);
     connect(readExposureStatusTimer, &QTimer::timeout, this, &MainWindow::onReadExposureStatusTimerOutTime);
@@ -1505,15 +1497,11 @@ void MainWindow::onReadControllerDataFinished(QMap<int, quint16> map){
             break;
         case Enm_Controller_Address::Voltmeter://管电压
         {
-            int v = (int)iter.value();
-            //DIY_LOG(LOG_INFO, QString("Voltmeter read from controller: %1").arg(v));
             ui->voltmeter->setText(QString("%1").arg(iter.value()));
         }
             break;
         case Enm_Controller_Address::Ammeter://管电流
         {
-            int v = (int)iter.value();
-            //DIY_LOG(LOG_INFO, QString("Ammeter read from controller: %1").arg(v));
             ui->ammeter->setText(QString("%1").arg(iter.value()));
         }
             break;
@@ -2328,7 +2316,8 @@ void MainWindow::onConnectFpdAndController()
             //先断开下位机控制器，然后重新连接
             int ret=controller->DisconnectionController();
             if(ret==0){
-                onControllerConnectStateChanged(Enm_Connect_State::Disconnected);
+                //process controller state-change in signal slot.
+                //onControllerConnectStateChanged(Enm_Connect_State::Disconnected);
                 //断开后停止定时器
                 if(readExposureStatusTimer->isActive()){
                     readExposureStatusTimer->stop();
@@ -2358,7 +2347,8 @@ void MainWindow::onConnectFpdAndController()
 int MainWindow::ConnectionControllerAndSetting(){
     int ret=controller->ConnectionController();
     if(ret==0){
-        onControllerConnectStateChanged(Enm_Connect_State::Connected);
+        //process controller state-change in signal slot.
+        //onControllerConnectStateChanged(Enm_Connect_State::Connected);
         /*写入电压和电流*/
         {
             int kV, mA, idx;

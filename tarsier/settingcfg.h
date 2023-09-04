@@ -10,10 +10,10 @@
 #include <include/IRayEnumDef.h>
 
 #define MIN_TUBE_VOL 55 //kv
-#define MAX_TUBE_VOL 80
+#define MAX_TUBE_VOL 90
 #define DEF_TUBE_VOL 70
 #define MIN_TUBE_AMT 500 //mA
-#define MAX_TUBE_AMT 6600
+#define MAX_TUBE_AMT 8000
 #define DEF_TUBE_AMT 3000
 
 #define MAX_EXPOSURE_DURA_STEP 17 //idx. refer to exposureTimeList in MainWindow.cpp.

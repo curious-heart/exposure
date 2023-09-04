@@ -9,19 +9,30 @@ QT_BEGIN_NAMESPACE
 class QModbusClient;
 QT_END_NAMESPACE
 
+enum Enm_Connect_State
+{
+    Connected = 0,
+    Connecting = 1,
+    Disconnected = 2,
+    Disconnecting = 3,
+    ConnectError = 4,
+};
+
 class MyController : public QObject
 {
     Q_OBJECT
 public:
     explicit MyController(QObject *parent = nullptr);
     ~MyController();
-    void init();
     int ConnectionController();
     int DisconnectionController();
     void readData(int address, quint16 size, int serverAddress);
     bool writeData(int address, quint16 size, int serverAddress, QVector<quint16> data);
 private:
-    QModbusClient *modbusDevice;
+    QModbusClient *modbusRtuDevice = nullptr, *modbusTcpDevice = nullptr;
+    QModbusClient *modbusDevice = nullptr;
+    QString m_curr_hv_intf_name;
+    bool prepare_mb_device();
 
 signals:
     /**
@@ -31,7 +42,7 @@ signals:
     void modbusErrorOccurred(QString errorInfo);
     /**
      * @brief modbusStateChanged modbus状态已经改变
-     * @param state 状态码
+     * @param state 状态码, enum Enm_Connect_State
      */
     void modbusStateChanged(int state);
     /**
@@ -47,8 +58,9 @@ signals:
 
 private slots:
     void onModbusErrorOccurred(QModbusDevice::Error newError);
-    void onModbusStateChanged(int state);
+    void onModbusStateChanged(QModbusDevice::State);
     void onReadReady();
 };
+
 
 #endif // MYCONTROLLER_H

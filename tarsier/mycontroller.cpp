@@ -13,36 +13,72 @@
  * @brief MyController::MyController 构造函数
  * @param parent
  */
-MyController::MyController(QObject *parent) : QObject(parent){
-    init();
-}
+MyController::MyController(QObject *parent) : QObject(parent)
+{
+    m_curr_hv_intf_name = SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName;
+    modbusRtuDevice = new QModbusRtuSerialMaster(this);
+    connect(modbusRtuDevice, &QModbusClient::errorOccurred,
+                this, &MyController::onModbusErrorOccurred);
+    connect(modbusRtuDevice, &QModbusClient::stateChanged,
+                this, &MyController::onModbusStateChanged);
 
+    modbusTcpDevice = new QModbusTcpClient(this);
+    connect(modbusTcpDevice, &QModbusClient::errorOccurred,
+                this,&MyController::onModbusErrorOccurred);
+    connect(modbusTcpDevice, &QModbusClient::stateChanged,
+                this, &MyController::onModbusStateChanged);
+
+    modbusDevice = nullptr;
+}
 
 /**
  * @brief MyController::~MyController 析构函数
  */
 MyController::~MyController(){
     DisconnectionController();
-    delete modbusDevice;
-    modbusDevice=NULL;
+    delete modbusRtuDevice; modbusRtuDevice = nullptr;
+    delete modbusTcpDevice; modbusTcpDevice = nullptr;
+    modbusDevice = nullptr;
 }
 
+bool MyController::prepare_mb_device()
+{
+    bool mb_device_switched = false;
 
-/**
- * @brief MyController::init 初始化
- */
-void MyController::init(){
-    if(gs_hvCtrlIntfName_NIC
-            == SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+    if(!modbusDevice)
     {
-        modbusDevice = new QModbusTcpClient(this);
+        if(gs_hvCtrlIntfName_NIC
+                == SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+        {
+            modbusDevice = modbusTcpDevice;
+        }
+        else
+        {
+            modbusDevice = modbusRtuDevice;
+        }
+        mb_device_switched = true;
     }
     else
     {
-        modbusDevice = new QModbusRtuSerialMaster(this);
+        if(m_curr_hv_intf_name !=
+                SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+
+        {
+           if(gs_hvCtrlIntfName_NIC ==
+                SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
+           {
+               modbusDevice = modbusTcpDevice;
+               mb_device_switched = true;
+           }
+           else if(gs_hvCtrlIntfName_NIC == m_curr_hv_intf_name)
+           {
+               modbusDevice = modbusRtuDevice;
+               mb_device_switched = true;
+           }
+        }
     }
-    connect(modbusDevice,&QModbusClient::errorOccurred,this,&MyController::onModbusErrorOccurred);
-    connect(modbusDevice, &QModbusClient::stateChanged,this, &MyController::onModbusStateChanged);
+    m_curr_hv_intf_name = SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName;
+    return mb_device_switched;
 }
 
 
@@ -50,11 +86,17 @@ void MyController::init(){
  * @brief MyController::ConnectionController 连接下位机控制器
  * @return
  */
-int MyController::ConnectionController(){
-    if (!modbusDevice){
+int MyController::ConnectionController()
+{
+    bool mb_device_switched;
+
+    mb_device_switched = prepare_mb_device();
+    if (!modbusDevice)
+    {
         return 1;//初始化失败
     }
-    if(modbusDevice->state()!=QModbusDevice::ConnectedState){//当前状态是未连接完成
+    if((modbusDevice->state()!=QModbusDevice::ConnectedState) || mb_device_switched)
+    {
         if(gs_hvCtrlIntfName_NIC
             == SettingCfg::getInstance().getSystemSettingCfg().hvCtrlIntfName)
         {
@@ -81,7 +123,8 @@ int MyController::ConnectionController(){
         int numberOfRetries=SettingCfg::getInstance().getSystemSettingCfg().numberOfRetries;
         modbusDevice->setTimeout(timeout);//连接超时设置
         modbusDevice->setNumberOfRetries(numberOfRetries);//连接失败重试次数设置
-        if(modbusDevice->connectDevice()){//连接设备成功
+        if(modbusDevice->connectDevice())
+        {//连接设备成功
             return 0;
         }else{
             return 2;//连接失败
@@ -95,7 +138,8 @@ int MyController::ConnectionController(){
  * @brief MyController::DisconnectionController 断开下位机控制器
  * @return
  */
-int MyController::DisconnectionController(){
+int MyController::DisconnectionController()
+{
     if(modbusDevice){
         modbusDevice->disconnectDevice();
     }
@@ -191,9 +235,25 @@ void MyController::onModbusErrorOccurred(QModbusDevice::Error newError){
  * @brief MyController::onModbusStateChanged Modbus的状态（包装后便于其他类使用）
  * @param state 状态
  */
-void MyController::onModbusStateChanged(int state)
+void MyController::onModbusStateChanged(QModbusDevice::State state)
 {
-    emit modbusStateChanged(state);
+    /*
+        QModbusDevice::UnconnectedState 0   The device is disconnected.
+        QModbusDevice::ConnectingState  1   The device is being connected.
+        QModbusDevice::ConnectedState   2   The device is connected to the Modbus network.
+        QModbusDevice::ClosingState     3   The device is being closed.
+    */
+    static const Enm_Connect_State mb_st_map_to_local_state[] =
+    {
+        Disconnected,
+        Connecting,
+        Connected,
+        Disconnecting,
+    };
+
+    DIY_LOG(LOG_INFO, QString("modbus (QModbusDevice:: state):%1, (local::state):%2")
+                        .arg(state).arg(mb_st_map_to_local_state[state]));
+    emit modbusStateChanged(mb_st_map_to_local_state[state]);
 }
 
 
@@ -228,7 +288,3 @@ void MyController::onReadReady(){
     }
     reply->deleteLater();
 }
-
-
-
-
