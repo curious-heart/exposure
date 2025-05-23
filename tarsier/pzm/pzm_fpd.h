@@ -1,4 +1,4 @@
-#ifndef PZM_FPD_H
+﻿#ifndef PZM_FPD_H
 #define PZM_FPD_H
 
 #include "common_tool_func.h"
@@ -91,6 +91,7 @@ public:
     static BOOL WINAPI FuncHeartBeatexCallBack(char nEvent); /*EVENT_HEARTBEATEX*/
     static BOOL WINAPI FuncImageCallBack(char nEvent); /*EVENT_IMAGEVALID*/
     static BOOL WINAPI FuncCmdEndCallBack(char nEvent); /*EVENT_CMDEND*/
+    static BOOL WINAPI FuncAEDAxCallBack(char nEvent); /*EVENT_AED_A1 and EVENT_AED_A2*/
 
 private:
     bool m_obj_init_ok = false;

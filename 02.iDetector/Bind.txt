@@ -1,2 +1,4 @@
 ,Pluto0001X_1,192.168.8.188,Pluto0001X,.\work_dir\Pluto0001X
 ,Mars1417V3_1,192.168.8.188,Mars1417V3,.\work_dir\Mars1417V3
+,newDetector,,Prd_Mars1717V3,D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\01.mDR_src\02.iDetector\work_dir\newDetector
+,Mars1717V3,,Prd_Mars1717V3,D:\70.ll\20.working\20.X-Optical\01.mDR\v_3mA\01.DR_SW\01.mDR_src\02.iDetector\work_dir\Mars1717V3

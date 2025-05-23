@@ -1,4 +1,4 @@
-#include "pzm_fpd.h"
+﻿#include "pzm_fpd.h"
 #include "logger.h"
 
 #include <QDir>
@@ -207,6 +207,8 @@ bool CPZM_Fpd::reg_pzm_callbacks()
     //REGISTER_EVT_CALL_BACK(EVENT_HEARTBEATEX, FuncHeartBeatexCallBack, "FuncHeartBeatexCallBack");
     REGISTER_EVT_CALL_BACK(EVENT_IMAGEVALID, FuncImageCallBack, "FuncImageCallBack");
     REGISTER_EVT_CALL_BACK(EVENT_CMDEND, FuncCmdEndCallBack, "FuncCmdEndCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_AED_A1, FuncAEDAxCallBack, "FuncAEDAxCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_AED_A2, FuncAEDAxCallBack, "FuncAEDAxCallBack");
 
 
 
@@ -438,6 +440,17 @@ BOOL WINAPI CPZM_Fpd::FuncImageCallBack(char nEvent)
 BOOL WINAPI CPZM_Fpd::FuncCmdEndCallBack(char cmd)
 {/*EVENT_CMDEND*/
     DIY_LOG(LOG_INFO, QString("PZM: FuncCmdEndCallBack(%1)").arg((int)cmd));
+    if(sg_curr_pzm_fpd_obj)
+    {
+        return TRUE;
+    }
+    PZM_HANDLER_NOT_EXIST();
+}
+
+BOOL WINAPI CPZM_Fpd::FuncAEDAxCallBack(char nEvent)
+{/*EVENT_AED_A1*/
+    QString e_str = (EVENT_AED_A1 == nEvent) ? "EVENT_AED_A1" : "EVENT_AED_A2";
+    DIY_LOG(LOG_INFO, QString("event: %1, %2").arg(nEvent).arg(e_str));
     if(sg_curr_pzm_fpd_obj)
     {
         return TRUE;
