@@ -54,3 +54,7 @@ compile_commands.json
 # other
 *.log
 *.aof
+
+*.tpl
+
+02.iDetector/work_dir/*
