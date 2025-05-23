@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -16,6 +16,7 @@
 #include "lowbatterywarning.h"
 #include "ExpoParamSettingdialog.h"
 #include "fpdmodels.h"
+#include "./pzm/pzm_fpd.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -114,6 +115,10 @@ private slots:
     void on_connect_pressed();
     void on_shutdown_system();
 
+    void on_pzmSWTrigger1PBtn_clicked();
+
+    void on_pzmSWTrigger1PBtn_2_clicked();
+
 protected:
     FPDRESULT disconnect_works(bool part_disconn = false);
 
@@ -157,6 +162,7 @@ private:
     void clear_preview_area();
     static QString get_exposure_info_str();
     static QString get_common_file_save_str();
+    void pzm_hst_sw_acq(pzm_sw_acq_type_e_t acq_type);
 
 private:
     Ui::MainWindow *ui;

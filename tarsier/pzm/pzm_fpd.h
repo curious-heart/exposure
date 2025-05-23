@@ -25,6 +25,7 @@ typedef BOOL (*Fnt_COM_SetPreCalibMode)(CHAR nCalMode);
 typedef CHAR (*Fnt_COM_GetPreCalibMode)();
 typedef BOOL (*Fnt_COM_SetCalibMode)(CHAR nCalMode);
 typedef CHAR (*Fnt_COM_GetCalibMode)();
+typedef BOOL (*Fnt_COM_HstAcq)();
 typedef BOOL (*Fnt_COM_AedAcq)();
 typedef BOOL (*Fnt_COM_Trigger)();
 typedef BOOL (*Fnt_COM_Prep)();
@@ -65,6 +66,12 @@ typedef BOOL (*Fnt_COM_DownloadDefectTpl)(CHAR* path);
 typedef BOOL (*Fnt_COM_DownLoadFPZMTpl)(CHAR TplType, CHAR * Tplpath);
 typedef BOOL (*Fnt_COM_SetAllTpl)();
 
+typedef enum
+{
+    PZM_SW_ACQ_1,
+    PZM_SW_ACQ_2,
+}pzm_sw_acq_type_e_t;
+
 class CPZM_Fpd: public QObject
 {
     Q_OBJECT
@@ -82,6 +89,8 @@ public:
     bool pzm_get_fpd_batt(int *bat_remain, int* bat_full);
     int get_fpd_used_if_idx() {return m_fpd_used_if_idx;}
 
+    bool start_sw_acquiring(pzm_sw_acq_type_e_t acq_type);
+
     /*Callback functions*/
     static BOOL WINAPI FuncLinkCallBack(char nEvent); /*EVENT_LINKUP*/
     static BOOL WINAPI FuncLinkexCallBack(char npara); /*EVENT_LINKUPEX*/
@@ -92,6 +101,8 @@ public:
     static BOOL WINAPI FuncImageCallBack(char nEvent); /*EVENT_IMAGEVALID*/
     static BOOL WINAPI FuncCmdEndCallBack(char nEvent); /*EVENT_CMDEND*/
     static BOOL WINAPI FuncAEDAxCallBack(char nEvent); /*EVENT_AED_A1 and EVENT_AED_A2*/
+    static BOOL WINAPI FuncReadyCallBack(char nEvent); /*EVENT_READY*/
+    static BOOL WINAPI FuncOffsetDoneCallBack(char nEvent); /*EVENT_READY*/
 
 private:
     bool m_obj_init_ok = false;
@@ -141,6 +152,7 @@ private:
     static constexpr const char* m_hstr_COM_GetFPCurStatusEx = "COM_GetFPCurStatusEx";
     static constexpr const char* m_hstr_COM_GetImageMode = "COM_GetImageMode";
     static constexpr const char* m_hstr_COM_GetImage = "COM_GetImage";
+    static constexpr const char* m_hstr_COM_HstAcq = "COM_HstAcq";
     static constexpr const char* m_hstr_COM_AedAcq = "COM_AedAcq";
     static constexpr const char* m_hstr_COM_AedTrigger = "COM_AedTrigger";
     static constexpr const char* m_hstr_COM_Stop = "COM_Stop";
@@ -158,6 +170,9 @@ private:
     static constexpr const char* m_hstr_COM_DownloadDefectTpl = "COM_DownloadDefectTpl";;
     static constexpr const char* m_hstr_COM_DownLoadFPZMTpl = "COM_DownLoadFPZMTpl";;
     static constexpr const char* m_hstr_COM_SetAllTpl = "COM_SetAllTpl";;
+
+    static constexpr const char* m_hstr_COM_PrepAcq = "COM_PrepAcq";;
+    static constexpr const char* m_hstr_COM_Prep= "COM_Prep";;
 
     /*api function poiter*/
     Fnt_COM_Init m_hptr_COM_Init;
@@ -177,6 +192,7 @@ private:
     Fnt_COM_GetFPCurStatusEx m_hptr_COM_GetFPCurStatusEx;
     Fnt_COM_GetImageMode m_hptr_COM_GetImageMode;
     Fnt_COM_GetImage m_hptr_COM_GetImage;
+    Fnt_COM_HstAcq m_hptr_COM_HstAcq;
     Fnt_COM_AedAcq m_hptr_COM_AedAcq;
     Fnt_COM_AedTrigger m_hptr_COM_AedTrigger;
     Fnt_COM_Stop m_hptr_COM_Stop;
@@ -187,7 +203,8 @@ private:
     Fnt_COM_GetFPStatus m_hptr_COM_GetFPStatus;
     Fnt_COM_GetFPStatusEx m_hptr_COM_GetFPStatusEx;
     Fnt_COM_GetFPStatusP m_hptr_COM_GetFPStatusP;
-
+    Fnt_COM_PrepAcq m_hptr_COM_PrepAcq;
+    Fnt_COM_Prep m_hptr_COM_Prep;
     /*
      * It seems only  COM_DownLoadFPZMTpl works, and other function just return true but do nothing...
      */

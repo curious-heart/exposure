@@ -123,7 +123,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,0,0,0">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
@@ -505,6 +505,20 @@
           </property>
           <property name="checkable">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pzmSWTrigger1PBtn">
+          <property name="text">
+           <string>PZM sw 1(sync)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pzmSWTrigger1PBtn_2">
+          <property name="text">
+           <string>PZM sw 2(async)</string>
           </property>
          </widget>
         </item>

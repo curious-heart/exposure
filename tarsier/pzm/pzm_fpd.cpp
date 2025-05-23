@@ -165,6 +165,7 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetFPCurStatusEx, Fnt_COM_GetFPCurStatusEx, m_hstr_COM_GetFPCurStatusEx);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetImageMode, Fnt_COM_GetImageMode, m_hstr_COM_GetImageMode);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_GetImage, Fnt_COM_GetImage, m_hstr_COM_GetImage);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_HstAcq, Fnt_COM_HstAcq, m_hstr_COM_HstAcq);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_AedAcq, Fnt_COM_AedAcq, m_hstr_COM_AedAcq);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_AedTrigger, Fnt_COM_AedTrigger, m_hstr_COM_AedTrigger);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_Stop, Fnt_COM_Stop, m_hstr_COM_Stop);
@@ -183,6 +184,8 @@ bool CPZM_Fpd::resolve_lib_functions()
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_DownLoadFPZMTpl, Fnt_COM_DownLoadFPZMTpl, m_hstr_COM_DownLoadFPZMTpl);
     RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_SetAllTpl, Fnt_COM_SetAllTpl, m_hstr_COM_SetAllTpl);
 
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_PrepAcq, Fnt_COM_PrepAcq, m_hstr_COM_PrepAcq);
+    RESOLVE_LIBRARY_AND_CHECK(m_hptr_COM_Prep, Fnt_COM_Prep, m_hstr_COM_Prep);
     return true;
 }
 #undef RESOLVE_LIBRARY_AND_CHECK
@@ -210,7 +213,8 @@ bool CPZM_Fpd::reg_pzm_callbacks()
     REGISTER_EVT_CALL_BACK(EVENT_AED_A1, FuncAEDAxCallBack, "FuncAEDAxCallBack");
     REGISTER_EVT_CALL_BACK(EVENT_AED_A2, FuncAEDAxCallBack, "FuncAEDAxCallBack");
 
-
+    REGISTER_EVT_CALL_BACK(EVENT_READY, FuncReadyCallBack, "FuncReadyCallBack");
+    REGISTER_EVT_CALL_BACK(EVENT_OFFSETDONE, FuncOffsetDoneCallBack, "FuncOffsetDoneCallBack");
 
     return true;
 
@@ -220,9 +224,7 @@ bool CPZM_Fpd::reg_pzm_callbacks()
     COM_RegisterEvCallBack(EVENT_HEARTBEATEX, FuncHeartBeatexCallBack);
     COM_RegisterEvCallBack(EVENT_LINKUP, FuncLinkCallBack);
     COM_RegisterEvCallBack(EVENT_LINKDOWN, FuncBreakCallBack);
-    COM_RegisterEvCallBack(EVENT_IMAGEVALID, FuncImageCallBack);
     COM_RegisterEvCallBack(EVENT_HEARTBEAT, FuncHeartBeatCallBack);
-    COM_RegisterEvCallBack(EVENT_READY, FuncReadyCallBack);
     COM_RegisterEvCallBack(EVENT_EXPOSE, FuncExposeCallBack);
     */
 
@@ -457,6 +459,32 @@ BOOL WINAPI CPZM_Fpd::FuncAEDAxCallBack(char nEvent)
     }
     PZM_HANDLER_NOT_EXIST();
 }
+
+BOOL WINAPI CPZM_Fpd::FuncReadyCallBack(char nEvent)
+{
+    DIY_LOG(LOG_INFO,
+            QString("PZM: received EVENT_READY %1. Now plz send X-ray immediately.").arg(nEvent));
+    return true;
+}
+
+BOOL WINAPI CPZM_Fpd::FuncOffsetDoneCallBack(char nEvent)
+{
+    BOOL api_ret = FALSE, ret = FALSE;
+    LOG_LEVEL log_lvl;
+    QString log_str;
+
+    DIY_LOG(LOG_INFO, QString("PZM: FuncOffsetDoneCallBack(%1)").arg((int)nEvent));
+    if(sg_curr_pzm_fpd_obj)
+    {
+        ret = api_ret = sg_curr_pzm_fpd_obj->m_hptr_COM_PrepAcq();
+    }
+    log_str += QString("calling %1 %2").arg(m_hstr_COM_PrepAcq).arg(api_ret ? "succeeds." : "fails.");
+    log_lvl = api_ret ? LOG_INFO : LOG_ERROR;
+    DIY_LOG(log_lvl, log_str);
+
+    return ret;
+}
+
 #undef PZM_HANDLER_NOT_EXIST
 
 /*----------------------------------------------------------------------------*/
@@ -774,6 +802,73 @@ bool CPZM_Fpd::start_aed_acquiring()
             ret = false;
         }
         break;
+    }
+
+    return ret;
+}
+
+bool CPZM_Fpd::start_sw_acquiring(pzm_sw_acq_type_e_t acq_type)
+{
+    CHAR fp_curr_status;
+    BOOL api_ret;
+
+    fp_curr_status = m_hptr_COM_GetFPCurStatus();
+    bool ret = true;
+    switch(fp_curr_status)
+    {
+        case STATUS_IDLE:
+        {
+            DIY_LOG(LOG_INFO, "PZM: fpd is idle, now start hst/sw acquiring.");
+            api_ret = m_hptr_COM_HstAcq();
+            if(!api_ret)
+            {
+                DIY_LOG(LOG_ERROR, "PZM: COM_HstAcq error!");
+                ret = false;
+            }
+        }
+        break;
+
+        case STATUS_HST:
+        {
+           DIY_LOG(LOG_INFO, "PZM: fpd is in HST status.");
+        }
+        break;
+
+        default:
+        {
+            DIY_LOG(LOG_ERROR,
+                    QString("PZM: HSTAcq works only in idle status, but current status is %1:%2.")
+                    .arg((int)fp_curr_status).arg(sg_PZM_status_str_map[(int)fp_curr_status]));
+            ret = false;
+        }
+        break;
+    }
+    if(!ret) return ret;
+
+    if(PZM_SW_ACQ_1 == acq_type)
+    {
+        ret = api_ret = m_hptr_COM_ExposeReq();
+        if(!api_ret)
+        {
+            DIY_LOG(LOG_ERROR, "m_hstr_COM_ExposeReq error.");
+        }
+        else
+        {
+            DIY_LOG(LOG_INFO, "m_hstr_COM_ExposeReq called successfully.");
+        }
+    }
+    else
+    {
+
+        ret = api_ret = m_hptr_COM_Prep();
+        if(!api_ret)
+        {
+            DIY_LOG(LOG_ERROR, "m_hptr_COM_Prep error.");
+        }
+        else
+        {
+            DIY_LOG(LOG_INFO, "m_hptr_COM_Prep called successfully.");
+        }
     }
 
     return ret;

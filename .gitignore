@@ -58,3 +58,4 @@ compile_commands.json
 *.tpl
 
 02.iDetector/work_dir/*
+03.ZManager/Zmanager_V4.1.16/x64/PCConfig.ini

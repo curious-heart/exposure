@@ -1,10 +1,9 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "systemsetting.h"
 #include "exitsystem.h"
 #include "fpdsetting.h"
 #include "myfpd.h"
-#include "./pzm/pzm_fpd.h"
 #include "mycontroller.h"
 #include "settingcfg.h"
 #include "mainwindow.h"
@@ -2345,6 +2344,8 @@ void MainWindow::onConnectFpdAndController()
  * @return 0 成功  1失败
  */
 int MainWindow::ConnectionControllerAndSetting(){
+    return 0; //does not connect hv on test.
+
     int ret=controller->ConnectionController();
     if(ret==0){
         //process controller state-change in signal slot.
@@ -3199,3 +3200,32 @@ void MainWindow::on_shutdown_system()
     this->close();
     QCoreApplication::instance()->exit(MAIN_WINDOWN_NORMAL_CLOSE_AND_SHUTDOWN_SYS);
 }
+
+void MainWindow::on_pzmSWTrigger1PBtn_clicked()
+{
+    pzm_hst_sw_acq(PZM_SW_ACQ_1);
+}
+
+void MainWindow::pzm_hst_sw_acq(pzm_sw_acq_type_e_t acq_type)
+{
+    if(Enm_Connect_State::Connected != fpdConnectState)
+    {
+        QMessageBox::critical(this, "", "请先连接探测器");
+        return;
+    }
+
+    FPD_HANDLER_CHECK();
+    if(!pzm_fpd_handler->start_sw_acquiring(acq_type))
+    {
+        DIY_LOG(LOG_ERROR, "PZM: HST/SW acquiring fails.");
+        return;
+    }
+    DIY_LOG(LOG_INFO, "PZM: HST/SW acquiring success.");
+
+}
+
+void MainWindow::on_pzmSWTrigger1PBtn_2_clicked()
+{
+    pzm_hst_sw_acq(PZM_SW_ACQ_2);
+}
+
