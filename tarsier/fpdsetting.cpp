@@ -1,8 +1,8 @@
-#include "fpdsetting.h"
+﻿#include "fpdsetting.h"
 #include "ui_fpdsetting.h"
 #include "settingcfg.h"
 #include "IRayInclude.h"
-#include "pzm/sdk_4.1.16/ComApi/NetCom.h"
+#include "pzm/sdk_4.2.11/ComApi/NetCom.h"
 #include "logger.h"
 
 FpdSetting::FpdSetting(QWidget *parent, CFpdModels * fpd_models) :

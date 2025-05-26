@@ -2,7 +2,7 @@
 #define PZM_FPD_H
 
 #include "common_tool_func.h"
-#include "pzm/sdk_4.1.16/ComApi/NetCom.h"
+#include "pzm/sdk_4.2.11/ComApi/NetCom.h"
 #include "../fpdmodels.h"
 #include <QObject>
 #include <QLibrary>

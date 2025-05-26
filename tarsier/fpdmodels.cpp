@@ -1,6 +1,6 @@
-#include "fpdmodels.h"
+﻿#include "fpdmodels.h"
 #include "IRayInclude.h"
-#include "pzm/sdk_4.1.16/ComApi/NetCom.h"
+#include "pzm/sdk_4.2.11/ComApi/NetCom.h"
 #include "logger.h"
 
 /*
@@ -121,8 +121,8 @@ void CFpdModels::setup_fpd_model_list()
     /*PZM----------------------------------------*/
     static const char* TRIGGER_MODE_AED = "AED";
     static const char* TRIGGER_MODE_HST = "HST";
-    static const char* PZM_API_LIB_PFN = "pzm/sdk_4.1.16/ComApi/x64/ComApi";
-    static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.1.16";
+    static const char* PZM_API_LIB_PFN = "pzm/sdk_4.2.11/ComApi/x64/ComApi";
+    static const char* PZM_CFG_FILE_PTH = "pzm/sdk_4.2.11";
     static const char* PZM_LOG_FILE_PTH = "pzm_sdk_log";
     static const char* PZM_TPL_FILE_PTH = "pzm/tpl_path";
     static const char* PZM_IMG_FILE_PTH = "pzm/img_path";

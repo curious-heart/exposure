@@ -2,7 +2,7 @@
 #ifndef _NET_COM_H_
 #define _NET_COM_H_
 
-/* Á±ªÂûãÂÆö‰πâ */
+/* ¿‡–Õ∂®“Â */
 #ifndef WINAPI
 #define WINAPI      __stdcall
 #endif
@@ -22,13 +22,14 @@ typedef     unsigned long		ULONG;
 typedef		unsigned long long 	UINT64;
 
 typedef BOOL (WINAPI *FP_EVENT_CALLBACK)(CHAR parameter);
+typedef BOOL (WINAPI *FP_EVENT_CALLBACKEX)(INT16 parameter,CHAR index);
 typedef BOOL (WINAPI *FP_STATUS_CALLBACK)(void* pFPStatus);
 typedef BOOL (WINAPI *RB_STATUS_CALLBACK)(CHAR nRBStatus);
 typedef BOOL (WINAPI *IMAGE_RECEIVED_CALLBACK)(CHAR* pszFileName);
 typedef BOOL (WINAPI *COMMAND_CALLBACK)(INT32 nMain,INT32 nSub, BOOL bResult, CHAR* pDiscription);
 typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 
-/* ÂÆèÂÆö‰πâ */
+/* ∫Í∂®“Â */
 #undef FALSE
 #undef TRUE
 #undef NULL
@@ -48,37 +49,43 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 #define FP_OPEND              (CHAR)1
 #define FP_CLOSED             (CHAR)0
 
-#define EVENT_LINKUP          (CHAR)1//Êé¢ÊµãÂô®ËøûÊé•Attach
-#define EVENT_LINKDOWN        (CHAR)2//Êé¢ÊµãÂô®Êñ≠ÂºÄËøûÊé•Attach
-#define EVENT_BUSY            (CHAR)3//Ë°®Á§∫Êé¢ÊµãÂô®Ê≠£Âú®ÂøôÁ¢åÔºåÊó†Ê≥ïÊâßË°åÂΩìÂâçÂëΩ‰ª§
-#define EVENT_CMDSTART        (CHAR)4//Êé¢ÊµãÂô®ÂºÄÂßãÊâßË°åÂëΩ‰ª§
-#define EVENT_IMAGEVALID      (CHAR)5//Êî∂Âà∞Êé¢ÊµãÂô®ÂõæÁâáÔºà‰ªÖtrig‰∏äÂõæÁõ∏ÂÖ≥ÁöÑÂëΩ‰ª§Êó∂Êâç‰ºöËß¶ÂèëÔºâ
-#define EVENT_CMDEND          (CHAR)6//ÂΩìÂâçÂëΩ‰ª§ÊâßË°åÂÆåÊØï
-#define EVENT_READY           (CHAR)7//ÂáÜÂ§áÂ•ΩÊõùÂÖâ
-#define EVENT_EXPOSE          (CHAR)8//ÊõùÂÖâ
-#define EVENT_EXPEND          (CHAR)9//ÊõùÂÖâÁªìÊùü
-#define EVENT_AED_A1          (CHAR)10//AEDËøõÂÖ•A1
-#define	EVENT_AED_A2          (CHAR)11//AEDËøõÂÖ•A2
+#define EVENT_LINKUP          (CHAR)1//ÃΩ≤‚∆˜¡¨Ω”Attach
+#define EVENT_LINKDOWN        (CHAR)2//ÃΩ≤‚∆˜∂œø™¡¨Ω”Attach
+#define EVENT_BUSY            (CHAR)3//±Ì æÃΩ≤‚∆˜’˝‘⁄√¶¬µ£¨Œﬁ∑®÷¥––µ±«∞√¸¡Ó
+#define EVENT_CMDSTART        (CHAR)4//ÃΩ≤‚∆˜ø™ º÷¥––√¸¡Ó
+#define EVENT_IMAGEVALID      (CHAR)5// ’µΩÃΩ≤‚∆˜Õº∆¨£®Ωˆtrig…œÕºœ‡πÿµƒ√¸¡Ó ±≤≈ª·¥•∑¢£©
+#define EVENT_CMDEND          (CHAR)6//µ±«∞√¸¡Ó÷¥––ÕÍ±œ
+#define EVENT_READY           (CHAR)7//◊º±∏∫√∆ÿπ‚
+#define EVENT_EXPOSE          (CHAR)8//∆ÿπ‚
+#define EVENT_EXPEND          (CHAR)9//∆ÿπ‚Ω· ¯
+#define EVENT_AED_A1          (CHAR)10//AEDΩ¯»ÎA1
+#define	EVENT_AED_A2          (CHAR)11//AEDΩ¯»ÎA2
 #define EVENT_AEC_STOP		  (CHAR)12//Aec stop
 #define EVENT_OFFSETDONE	  (CHAR)13
 #define EVENT_XWINEND		  (CHAR)14
-#define	EVENT_HEARTBEAT       (CHAR)20//Êé¢ÊµãÂô®ÂøÉË∑≥Attach
-#define EVENT_CalInterrupt    (CHAR)21//Ê†°ÂáÜ‰∏≠Êñ≠Âà∞Êù•
-#define EVENT_LINKUPEX        (CHAR)26//Êé¢ÊµãÂô®ËøûÊé•Detach
-#define EVENT_LINKDOWNEX      (CHAR)27//Êé¢ÊµãÂô®Êñ≠ÂºÄËøûÊé•Detach
-#define EVENT_HEARTBEATEX     (CHAR)28//Êé¢ÊµãÂô®ÂøÉË∑≥Detach
+#define	EVENT_AED_PREP_DONE   (CHAR)15//AED1ÕÍ≥…∑µªÿIDLE
+#define EVENT_INFO_MODIFIED	  (CHAR)16 //INFO of FP is modified.
+
+#define	EVENT_HEARTBEAT       (CHAR)20//ÃΩ≤‚∆˜–ƒÃ¯Attach
+#define EVENT_CalInterrupt    (CHAR)21//–£◊º÷–∂œµΩ¿¥
+#define EVENT_LINKUPEX        (CHAR)26//ÃΩ≤‚∆˜¡¨Ω”Detach
+#define EVENT_LINKDOWNEX      (CHAR)27//ÃΩ≤‚∆˜∂œø™¡¨Ω”Detach
+#define EVENT_HEARTBEATEX     (CHAR)28//ÃΩ≤‚∆˜–ƒÃ¯Detach
 
 #define EVENT_UPLOADFILESTEP  (CHAR)30
 #define EVENT_IMAGESTART      (CHAR)50
 #define	EVENT_IMAGEEND        (CHAR)51
 #define EVENT_BATTLOW1        (CHAR)52
 #define	EVENT_BATTLOW2        (CHAR)53
+#define EVENT_ImageFrameLost  (CHAR)99
+#define EVENT_TrigErr         (CHAR)100
 
 #define BINNING_1x1           (CHAR)0
 #define BINNING_2x2           (CHAR)1
 #define BINNING_3x3           (CHAR)2
 #define BINNING_4x4           (CHAR)3
 #define BINNING_6x6           (CHAR)4
+#define BINNING_8x8           (CHAR)5
 
 //Acq_mode
 #define ACQ_SCAN              (CHAR)2	
@@ -92,6 +99,7 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 #define FP_TPL_3x3 (CHAR)0x03
 #define FP_TPL_4x4 (CHAR)0x04
 #define FP_TPL_6x6 (CHAR)0x05
+#define FP_TPL_8x8 (CHAR)0x06
 
 #define IMG_CALIB_RAW         (CHAR)0x00
 #define IMG_CALIB_OFFSET      (CHAR)0x01
@@ -108,6 +116,7 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 #define STATUS_OLAED2		  (CHAR)0x07
 #define STATUS_CBCT           (CHAR)0x08
 #define STATUS_DST		      (CHAR)0x09
+#define STATUS_CBCT2          (CHAR)0x0a
 
 #define COM_SUCCESS            (INT32)1000
 #define COM_INIT_FAIL          (INT32)1001
@@ -122,8 +131,8 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 #define FP_TYPE_3543           (CHAR)11
 #define FP_TYPE_4343           (CHAR)12
 #define FP_TYPE_1723           (CHAR)13
-#define FP_TYPE_2929           (CHAR)14
-#define FP_TYPE_2925           (CHAR)15
+#define FP_TYPE_3030           (CHAR)14  
+#define FP_TYPE_2925           (CHAR)15  
 #define FP_TYPE_A843           (CHAR)16
 #define FP_TYPE_1613		   (CHAR)17
 #define FP_TYPE_3543B          (CHAR)18
@@ -132,6 +141,13 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 #define FP_TYPE_3025ZF         (CHAR)21
 #define FP_TYPE_6543           (CHAR)22
 #define FP_TYPE_2121           (CHAR)23
+#define FP_TYPE_6561           (CHAR)24
+#define FP_TYPE_4386           (CHAR)25
+#define FP_TYPE_4365           (CHAR)26
+#define FP_TYPE_6557		   (CHAR)27
+#define FP_TYPE_4314		   (CHAR)28
+#define FP_TYPE_1917		   (CHAR)29
+#define FP_TYPE_2929		   (CHAR)30
 
 #define FP_COMPATIBLE_VER      (CHAR)1
 #define ZM_COMPATIBLE_VER      (CHAR)2
@@ -149,7 +165,7 @@ typedef BOOL (WINAPI *FP_INFO_CALLBACK)(CHAR nEvent,CHAR* pInfoBuffer);
 
 #define COM_API __declspec(dllexport)
 
-/* ÁªìÊûÑ‰ΩìÂÆö‰πâ */
+/* Ω·ππÃÂ∂®“Â */
 
 typedef struct 
 {
@@ -213,31 +229,31 @@ typedef struct
 }TFPStatex;
 typedef struct
 {
-	UINT16 wRepeatTimes;  //setÈáçÂ§çÊ¨°Êï∞
-	UINT16 wCmdDelayTime; //setÈó¥Âª∂Êó∂
-	UINT16 wXwinTime;     //xwinÊó∂Èó¥
+	UINT16 wRepeatTimes;  //set÷ÿ∏¥¥Œ ˝
+	UINT16 wCmdDelayTime; //setº‰—” ±
+	UINT16 wXwinTime;     //xwin ±º‰
 
-	UINT16 wAutoScrubEnable;   //Êó†Áî®
+	UINT16 wAutoScrubEnable;   //Œﬁ”√
 	UINT16 wXwinTimeH;  // wAutoScrubInterval; 
 	UINT16 wRefreshEnable;     //0 
 	
-	UINT16 wXWin_g_delay;//  trigerÂèÇÊï∞ÁöÑÁ¨¨n‰∏™group delayÈÖçÁΩÆ‰∏∫xwin„ÄÇÂÄº‰∏∫0Âà∞7 
+	UINT16 wXWin_g_delay;//  triger≤Œ ˝µƒµ⁄n∏ˆgroup delay≈‰÷√Œ™xwin°£÷µŒ™0µΩ7 
 	UINT16 wPreProcessing; 
-	UINT32 dwRefreshCycle;   //Âà∑Êñ∞Ê®°ÊùøÂë®Êúü	
+	UINT32 dwRefreshCycle;   //À¢–¬ƒ£∞Â÷‹∆⁄	
 }TFPUserCfg;
 
 typedef struct
 {
-	UCHAR dwBoardSn[32];       // Â∫èÂàóÂè∑
+	UCHAR dwBoardSn[32];       // –Ú¡–∫≈
 	UCHAR dwMcuVer[16];
-	UCHAR dwFpgaVer[16];       // Á°¨‰ª∂ÁâàÊú¨Âè∑
-	UCHAR dwSwVer[16];         // ËΩØ‰ª∂ÁâàÊú¨Âè∑
-	UINT32 dwUsage;         //  ‰ΩøÁî®Êó∂Èó¥ÔºàÁªüËÆ°ÊñπÊ≥ïÔºâ
-	UINT32 dwFreeFallTimes;  //  Ëá™Áî±ËêΩ‰ΩìÊ¨°Êï∞ÔºàÊëîËêΩÔºâ
-	UINT32 dwExposureDose;   // ÊõùÂÖâÂâÇÈáèÔºàÁªüËÆ°ÊñπÊ≥ïÔºöÂõæÂÉèÁ¥†Á¥ØÂä†Âπ≥ÂùáÔºâ
+	UCHAR dwFpgaVer[16];       // ”≤º˛∞Ê±æ∫≈
+	UCHAR dwSwVer[16];         // »Ìº˛∞Ê±æ∫≈
+	UINT32 dwUsage;         //   π”√ ±º‰£®Õ≥º∆∑Ω∑®£©
+	UINT32 dwFreeFallTimes;  //  ◊‘”…¬‰ÃÂ¥Œ ˝£®À§¬‰£©
+	UINT32 dwExposureDose;   // ∆ÿπ‚º¡¡ø£®Õ≥º∆∑Ω∑®£∫ÕºœÒÀÿ¿€º”∆Ωæ˘£©
 	UINT32  dwFpIp;    
 	UCHAR  dwFpMac[6];           
-	UCHAR ucConMod;           //ËøûÊé•Ê®°Âºè(rb or not)
+	UCHAR ucConMod;           //¡¨Ω”ƒ£ Ω(rb or not)
 }TFPInfo;
 
 typedef struct  
@@ -258,7 +274,7 @@ typedef struct
 typedef struct
 {
 	TFPUserCfg usrCfg;
-	UINT16 awFpgaReg[MAX_CONF_SIZE];//FPGAÂØÑÂ≠òÂô®ÂÆö‰πâËßÅ2
+	UINT16 awFpgaReg[MAX_CONF_SIZE];//FPGAºƒ¥Ê∆˜∂®“Âº˚2
 	UINT16 awFpgaReg1[MAX_CONF_SIZE];
 	UINT16 awFpgaReg2[MAX_CONF_SIZE];
 	UINT16 awFpgaReg3[MAX_CONF_SIZE];
@@ -308,15 +324,15 @@ typedef struct
 
 typedef struct
 {
-	CHAR cFpSn[32];       // Â∫èÂàóÂè∑
+	CHAR cFpSn[32];       // –Ú¡–∫≈
 	UCHAR  cFpIp[4];
 	UCHAR  cFpMac[6];
 	//CHAR cMcuVer[16];
-	//CHAR cFpgaVer[16];       // Á°¨‰ª∂ÁâàÊú¨Âè∑
-	//CHAR cCpuVer[16];         // ËΩØ‰ª∂ÁâàÊú¨Âè∑
-	UINT32 u32Usage;         //  ‰ΩøÁî®Êó∂Èó¥ÔºàÁªüËÆ°ÊñπÊ≥ïÔºâ
-	UINT32 u32ExposureDose;   // ÊõùÂÖâÂâÇÈáèÔºàÁªüËÆ°ÊñπÊ≥ïÔºöÂõæÂÉèÁ¥†Á¥ØÂä†Âπ≥ÂùáÔºâ
-	UINT16 u16FreeFallTimes;  //  Ëá™Áî±ËêΩ‰ΩìÊ¨°Êï∞ÔºàÊëîËêΩÔºâ
+	//CHAR cFpgaVer[16];       // ”≤º˛∞Ê±æ∫≈
+	//CHAR cCpuVer[16];         // »Ìº˛∞Ê±æ∫≈
+	UINT32 u32Usage;         //   π”√ ±º‰£®Õ≥º∆∑Ω∑®£©
+	UINT32 u32ExposureDose;   // ∆ÿπ‚º¡¡ø£®Õ≥º∆∑Ω∑®£∫ÕºœÒÀÿ¿€º”∆Ωæ˘£©
+	UINT16 u16FreeFallTimes;  //  ◊‘”…¬‰ÃÂ¥Œ ˝£®À§¬‰£©
 }TFPBaseInfo;
 
 typedef struct
@@ -358,7 +374,7 @@ typedef struct
 	UINT8 day;
 	UINT8 hour;
 	UINT8 min;
-	UINT8 shockLevel;  //1Ôºö1.4K   2Ôºö4.0K
+	UINT8 shockLevel;  //1£∫1.4K   2£∫4.0K
 }TShockDate;
 typedef struct
 {
@@ -376,7 +392,7 @@ typedef struct
 	UINT32  dwIpStr;
 	UINT32  dwIpEnd;
 }TDhcpCfg;
-/* Êé•Âè£Â£∞Êòé */
+/* Ω”ø⁄…˘√˜ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -397,7 +413,7 @@ extern "C" {
 	COM_API BOOL COM_SetCalibMode(CHAR nCalMode);
 	COM_API CHAR COM_GetCalibMode();
 	COM_API BOOL COM_HstAcq();
-	COM_API BOOL COM_AedAcq();	
+	COM_API BOOL COM_AedAcq();
 	COM_API BOOL COM_Trigger();
 	COM_API BOOL COM_Prep();
 	COM_API BOOL COM_Acq();
@@ -406,11 +422,24 @@ extern "C" {
 	COM_API BOOL COM_ComAcq();	
 	COM_API BOOL COM_ExposeReq();	
 	COM_API BOOL COM_AedTrigger();
+	COM_API BOOL COM_AedPrep();
+	COM_API BOOL COM_Aed2Acq();
 	COM_API BOOL COM_Stop();
 	COM_API BOOL COM_Dst();
 	COM_API BOOL COM_Dacq();
+	COM_API BOOL COM_Dacqaed();
 	COM_API BOOL COM_Cbct();
+	COM_API BOOL COM_Cbct2();
 	COM_API BOOL COM_Dexit();
+	COM_API BOOL COM_Dprep();
+	COM_API BOOL COM_Cprep();
+	COM_API BOOL COM_Exprep();
+	COM_API BOOL COM_SetConfigId(UCHAR ucConfigId);   //V2 Config ID = (0,1);
+	COM_API BOOL COM_GetConfigId(UCHAR* ucConfigId);
+	COM_API BOOL COM_SetModeId(UCHAR ucModeId);     //V2 Mode ID = (0 - 9)
+	COM_API BOOL COM_GetModeId(UCHAR* ucModeId);
+	COM_API BOOL COM_LoadFullCfg(UCHAR ucModeId);
+	COM_API BOOL COM_SaveFullCfg(UCHAR ucModeId);
 	COM_API BOOL COM_SetMetaData(TMetaData tMetaData);
 	COM_API BOOL COM_GetMetaData(TMetaData* ptMetaData);
 	COM_API BOOL COM_GetPreImg();
@@ -422,6 +451,7 @@ extern "C" {
 	COM_API BOOL COM_GetImageModeV(TImageMode* ptImageMode);
 	COM_API BOOL COM_GetImageShiftMode(TImageShiftMode* ptImageShiftMode);
 	COM_API BOOL COM_GetImageName(CHAR* name);
+	COM_API BOOL COM_ClrImageID();
 	COM_API BOOL COM_GetImageID(UINT32 *pimgID);
 	COM_API BOOL COM_GetImage(CHAR* pImageBuff);
 	COM_API BOOL COM_GetImageV(CHAR* pImageBuff);
@@ -436,12 +466,12 @@ extern "C" {
 	COM_API BOOL COM_GetFPConf(TFPUserCfg* ptFpUserCfg);
 	COM_API BOOL COM_SetRBConf(TRBConf* ptRbConf);
 	COM_API BOOL COM_GetRBConf(TRBConf* ptRbConf);
-	COM_API BOOL COM_SetWifiMode(BOOL ApMode);
+	COM_API BOOL COM_SetWifiMode(CHAR ApMode);
 	COM_API CHAR COM_GetWifiMode();
 	COM_API BOOL COM_SetWifiConf(TWifiConf* ptWifiConf);
 	COM_API BOOL COM_GetWifiConf(TWifiConf* ptWifiConf);
-	COM_API BOOL COM_SetWifiConfEx(TWifiConf* ptWifiConfAp, TWifiConf* ptWifiConfSta);
-	COM_API BOOL COM_GetWifiConfEx(TWifiConf* ptWifiConfAp, TWifiConf* ptWifiConfSta);
+	COM_API BOOL COM_SetWifiConfig(TWifiConf* ptWifiConfAp, TWifiConf* ptWifiConfSta);
+	COM_API BOOL COM_GetWifiConfig(TWifiConf* ptWifiConfAp, TWifiConf* ptWifiConfSta);
 	COM_API BOOL COM_SetWifiCountry(CHAR* pCountry);
 	COM_API BOOL COM_GetWifiCountry(CHAR* pCountry);
 	COM_API BOOL COM_SetApEssid(CHAR* pessid);
@@ -449,14 +479,19 @@ extern "C" {
 	COM_API BOOL COM_DefFPConf();
 	COM_API BOOL COM_DefRBConf();
 	COM_API BOOL COM_DefFPTpl();
-	COM_API BOOL COM_SetXwin(UINT32 xwin);
+	COM_API BOOL COM_SetXwin(UINT32 xwin);			//ready  ±º‰–ËÕ¨≤Ω–ﬁ∏ƒ
 	COM_API BOOL COM_GetXwin(UINT32* xwin);
 	COM_API BOOL COM_SetTrailTime(USHORT msec);
-	COM_API BOOL COM_SetDynamicPara(UINT32 xwin, UINT16 repeat, CHAR binMode);
+	COM_API BOOL COM_SetDynamicPara(UINT32 xwin, UINT16 repeat, CHAR binMode, CHAR sync);
+	COM_API BOOL COM_GetDynamicPara(UINT32* pxwin, UINT16* prepeat, CHAR* pbinMode, CHAR* psync);
 	COM_API BOOL COM_SetBinningMode(CHAR cbinningMode);
 	COM_API BOOL COM_GetBinningMode(CHAR* cbinningMode);
+	COM_API BOOL COM_SetRoiPara(USHORT startRow, USHORT endRow, USHORT startCol, USHORT endCol);
+	COM_API BOOL COM_GetRoiPara(USHORT* startRow, USHORT* endRow, USHORT* startCol, USHORT* endCol);	
 	COM_API BOOL COM_SetIfsRef(CHAR cbinningMode, UCHAR cIfs, UCHAR cRef);
 	COM_API BOOL COM_GetIfsRef(CHAR cbinningMode, UCHAR* cIfs, UCHAR* cRef);
+	COM_API BOOL COM_SetGainValue(CHAR cbinningMode, UCHAR ucGain);
+	COM_API BOOL COM_GetGainValue(CHAR cbinningMode, UCHAR* ucGain);
 	COM_API BOOL COM_SetFpIpNetmask(UINT32 Ip,UINT32 netmask);
 	COM_API BOOL COM_GetFpIpNetmask(UINT32* pIp, UINT32* pnetmask);
 	COM_API BOOL COM_SetSenValue(USHORT senValue,CHAR* ppassword);
@@ -471,24 +506,23 @@ extern "C" {
 	COM_API BOOL COM_GetExtBattDefaultCapacity(int* piCapacity);
 	COM_API BOOL COM_SetAecEnable(UINT16 aecGroup);
 	COM_API BOOL COM_SetAecThreshold(CHAR aecNum,UINT16 valueset);
+	COM_API BOOL COM_GetInfoModified(CHAR* pInfo);
+	COM_API BOOL COM_SetImgAverageNum(UINT16 setvalue);
+	COM_API BOOL COM_SetOffsetAverageNum(CHAR setvalue);
+	COM_API BOOL COM_GetOffsetAverageNum(CHAR* psetvalue);
+	COM_API BOOL COM_GetFPPnandSn(CHAR* pPnSn);
 
 	COM_API BOOL COM_GetFPsn(CHAR* psn);
-	COM_API BOOL COM_GetFPsnEx(CHAR index, CHAR* psn);
 	COM_API CHAR COM_GetFPCurStatus();
-	COM_API CHAR COM_GetFPCurStatusEx(CHAR* psn);
 	COM_API CHAR COM_GetFPWireState();
-	COM_API CHAR COM_GetFPWireStateEx(CHAR* psn);
 	COM_API UINT32 COM_GetFpPowerMode();
-	COM_API UINT32 COM_GetFpPowerModeEx(CHAR* psn);
 	COM_API UCHAR COM_GetFpWorkState();
 	COM_API UCHAR COM_GetFpPendingState();
 	COM_API BOOL COM_ClearPendingState();
 	COM_API BOOL COM_GetFPStatus(TFPStat* ptFPStat);
-	COM_API BOOL COM_GetFPStatusEx(TFPStat* ptFPStat, CHAR* psn);
 	COM_API BOOL COM_GetFPStatusP(TFPStatex* ptFPStatex);
-	COM_API BOOL COM_GetFPStatusPex(TFPStatex* ptFPStatex, CHAR* psn);
 	COM_API BOOL COM_GetConnectEssid(CHAR* pessid);
-	COM_API BOOL COM_GetConnectEssidEx(CHAR* pessid, CHAR* psn);
+
 	COM_API BOOL COM_QuaternionActivate(CHAR enableflag);
 	COM_API BOOL COM_GetFPMotionFeatures(TMotionFeatures* tMotionFeatures);
 	COM_API BOOL COM_GetFPShock(TShockInfo* pShockInfo);
@@ -510,7 +544,7 @@ extern "C" {
 	COM_API BOOL COM_DownloadAedTOffsetTpl(CHAR* path);
 	COM_API BOOL COM_DownloadDefectTpl(CHAR* path);
 	COM_API BOOL COM_UploadFPZMTpl(CHAR TplType, CHAR * Tplpath);
-	COM_API BOOL COM_DownLoadFPZMTpl(CHAR TplType, CHAR * Tplpath);
+	COM_API BOOL COM_DownLoadFPZMTpl(CHAR TplType= FP_TPL_1x1, CHAR * Tplpath=NULL);
 	COM_API BOOL COM_SetOffsetTpl(CHAR* path);
 	COM_API BOOL COM_SetGainTpl(CHAR* path);
 	COM_API BOOL COM_SetDefectTpl(CHAR* path);
@@ -533,6 +567,8 @@ extern "C" {
 	COM_API BOOL COM_SdkLog(BOOL on);
 	COM_API BOOL COM_EditDefectTpl(UINT16 x,UINT16 y,BOOL valid);
 	COM_API BOOL COM_EditLineDefectTpl(UINT16 line, BOOL bRow, BOOL valid);
+	COM_API BOOL COM_StartTplMakeProcess();
+	COM_API BOOL COM_EndTplMakeProcess();
 
 	COM_API BOOL COM_GetDllVer(CHAR* pcSDKVer);
 	COM_API BOOL COM_GetRBInfo(TRBInfo* ptRBInfo);
@@ -564,7 +600,7 @@ extern "C" {
 	COM_API BOOL COM_SetCaliIntNum(unsigned char usCount);
 	COM_API BOOL COM_AEDTriggerByHst();
 	COM_API BOOL COM_HstTriggerPre();
-	COM_API BOOL COM_AEDTriggerByHstStop();
+	COM_API BOOL COM_AEDTriggerByHstStop();			
 	COM_API UINT16 COM_GetMeanDose(UINT16* u16Image, UINT32 size);
 	COM_API BOOL COM_SetAedTOffsetTpl(CHAR* path);
 	COM_API BOOL COM_CalibAedTTpl(char* pData, USHORT u16LineNum);
@@ -572,6 +608,80 @@ extern "C" {
 	COM_API CHAR COM_GetFPTypeFromHardware();
 	COM_API BOOL COM_SetRecoverTime(unsigned char ucTime);
 	COM_API UCHAR COM_GetRecoverTime();
+
+	//Multi FP API
+	COM_API BOOL COM_SetPreCalibModeEx(CHAR nCalMode, CHAR index = -1);
+	COM_API BOOL COM_HstAcqEx(CHAR index = -1);
+	COM_API BOOL COM_AedAcqEx(CHAR index = -1);
+	COM_API BOOL COM_TriggerEx(CHAR index = -1);
+	COM_API BOOL COM_PrepEx(CHAR index = -1);
+	COM_API BOOL COM_AcqEx(CHAR index = -1);
+	COM_API BOOL COM_PrepAcqEx(CHAR index = -1);
+	COM_API BOOL COM_ExposeReqEx(CHAR index=-1);
+	COM_API BOOL COM_SetAcqEx(CHAR index = -1);
+	COM_API BOOL COM_StopEx(CHAR index = -1);
+	COM_API BOOL COM_DstEx(CHAR index = -1);
+	COM_API BOOL COM_DacqEx(CHAR index = -1);
+	COM_API BOOL COM_DacqaedEx(CHAR index = -1);
+	COM_API BOOL COM_CbctEx(CHAR index = -1);
+	COM_API BOOL COM_Cbct2Ex(CHAR index = -1);
+	COM_API BOOL COM_DexitEx(CHAR index = -1);
+	COM_API BOOL COM_DprepEx(CHAR index = -1);
+	COM_API BOOL COM_CprepEx(CHAR index = -1);
+	COM_API BOOL COM_ExprepEx(CHAR index = -1);
+	COM_API BOOL COM_AedPrepEx(CHAR index = -1);
+	COM_API BOOL COM_Aed2AcqEx(CHAR index = -1);
+
+	COM_API BOOL COM_RegisterEvCallBackEx(INT16 nEvent, FP_EVENT_CALLBACKEX funcallbackex);
+	COM_API BOOL COM_GetImageModeEx(TImageMode* ptImageMode, CHAR index = -1);
+	COM_API BOOL COM_GetImageModeVEx(TImageMode* ptImageMode, CHAR index = -1);
+	COM_API BOOL COM_GetImageShiftModeEx(TImageShiftMode* ptImageShiftMode, CHAR index = -1);
+	COM_API BOOL COM_GetImageNameEx(CHAR* name, CHAR index = -1);
+	COM_API BOOL COM_GetImageIDEx(UINT32 *pimgID, CHAR index = -1);
+	COM_API BOOL COM_GetImageEx(CHAR* pImageBuff, CHAR index = -1);
+	COM_API BOOL COM_GetImageVEx(CHAR* pImageBuff, CHAR index = -1);
+	COM_API BOOL COM_SetXwinEx(UINT32 xwin, CHAR index = -1);
+	COM_API BOOL COM_GetFPLicenseEx(TLicenseInfo* tLicenseInfo, CHAR choose = 0, CHAR index = -1);
+	COM_API BOOL COM_SetMetaDataEx(TMetaData tMetaData, CHAR index = -1);
+	COM_API BOOL COM_GetMetaDataEx(TMetaData* ptMetaData, CHAR index = -1);
+	COM_API UCHAR COM_GetFpPendingStateEx(CHAR index = -1);
+	COM_API BOOL COM_ClearPendingStateEx(CHAR index = -1);
+
+	COM_API BOOL COM_GetFPsnEx(CHAR index, CHAR* psn);
+	COM_API CHAR COM_GetFPCurStatusEx(CHAR index = -1);
+	COM_API CHAR COM_GetFPWireStateEx(CHAR index = -1);
+	COM_API UINT32 COM_GetFpPowerModeEx(CHAR index = -1);
+	COM_API UCHAR COM_GetFpWorkStateEx(CHAR index = -1);
+	COM_API BOOL COM_GetFPStatusEx(TFPStat* ptFPStat, CHAR index = -1);
+	COM_API BOOL COM_GetFPStatusPEx(TFPStatex* ptFPStatex, CHAR index = -1);
+	COM_API BOOL COM_GetConnectEssidEx(CHAR* pessid, CHAR index = -1);
+
+	COM_API BOOL COM_SetDynamicParaEx(UINT32 xwin, UINT16 repeat, CHAR binMode, CHAR sync, CHAR index = -1);
+	COM_API BOOL COM_GetDynamicParaEx(UINT32* pxwin, UINT16* prepeat, CHAR* pbinMode, CHAR* psync, CHAR index = -1);
+	COM_API BOOL COM_SetBinningModeEx(CHAR cbinningMode, CHAR index = -1);
+	COM_API BOOL COM_SetRoiParaEx(USHORT startRow, USHORT endRow, USHORT startCol, USHORT endCol, CHAR index = -1);
+	COM_API BOOL COM_GetRoiParaEx(USHORT* startRow, USHORT* endRow, USHORT* startCol, USHORT* endCol, CHAR index = -1);
+	COM_API BOOL COM_SetIfsRefEx(CHAR cbinningMode, UCHAR cIfs, UCHAR cRef, CHAR index = -1);
+	COM_API BOOL COM_GetIfsRefEx(CHAR cbinningMode, UCHAR* cIfs, UCHAR* cRef, CHAR index = -1);
+	COM_API BOOL COM_SetOffsetAverageNumEx(CHAR setvalue, CHAR index = -1);
+	COM_API BOOL COM_GetOffsetAverageNumEx(CHAR* psetvalue, CHAR index = -1);
+
+	COM_API BOOL COM_SetAllTplEx(CHAR index = -1);
+	COM_API BOOL COM_SetOffsetTplEx(CHAR* path, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API BOOL COM_SetGainTplEx(CHAR* path, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API BOOL COM_SetDefectTplEx(CHAR* path, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API BOOL COM_GenOffsetTplEx(CHAR TplType = FP_TPL_1x1);
+	COM_API BOOL COM_GenGainTplEx(CHAR TplType = FP_TPL_1x1);
+	COM_API BOOL COM_GenDefectTplEx(CHAR TplType = FP_TPL_1x1);
+	COM_API BOOL COM_CalibOffsetTplEx(CHAR* pData, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API BOOL COM_CalibGainTplEx(CHAR* pData, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API BOOL COM_CalibDefectTplEx(CHAR* pData, CHAR TplType = FP_TPL_1x1, CHAR index = -1);
+	COM_API CHAR COM_GetFPTypeEx(CHAR index = -1);
+	COM_API BOOL COM_EditDefectTplEx(UINT16 x, UINT16 y, BOOL valid, CHAR TplType = FP_TPL_1x1);
+	COM_API BOOL COM_EditLineDefectTplEx(UINT16 line, BOOL bRow, BOOL valid, CHAR TplType = FP_TPL_1x1);
+	COM_API BOOL COM_SetAedTOffsetTplEx(CHAR* path, CHAR index = -1);
+	COM_API BOOL COM_CalibAedTTplEx(char* pData, USHORT u16LineNum, CHAR index = -1);
+
 
 #ifdef __cplusplus
 }

@@ -72,7 +72,7 @@ HEADERS += \
     mycontroller.h \
     myfpd.h \
     pzm/pzm_fpd.h \
-    pzm/sdk_4.1.16/ComApi/NetCom.h \
+    pzm/sdk_4.2.11/ComApi/NetCom.h \
     settingcfg.h \
     systemsetting.h \
     thirdpart/qtlocalpeer.h \
